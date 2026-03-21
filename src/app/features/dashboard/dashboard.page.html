@@ -404,13 +404,13 @@
                  [class.bg-gray-50]="themeService.isLight()"
                  [class.text-gray-500]="themeService.isLight()">
             <tr class="text-[11px] font-semibold uppercase tracking-wide">
-              <th class="hidden sm:table-cell px-4 py-3 w-8">#</th>
-              <th class="px-4 py-3">{{ lang.t('dashboard.stock') }}</th>
-              <th class="px-4 py-3 text-right">{{ lang.t('dashboard.price') }}</th>
-              <th class="px-4 py-3 text-right">{{ lang.t('dashboard.change') }}</th>
-              <th class="px-4 py-3 text-center">{{ lang.t('dashboard.status') }}</th>
-              <th class="hidden md:table-cell px-4 py-3 text-right">{{ lang.t('dashboard.holdings') }}</th>
-              <th class="hidden md:table-cell px-4 py-3 w-20"></th>
+              <th class="hidden sm:table-cell px-3 py-2.5 w-8">#</th>
+              <th class="px-3 py-2.5">{{ lang.t('dashboard.stock') }}</th>
+              <th class="px-3 py-2.5 text-right">{{ lang.t('dashboard.price') }}</th>
+              <th class="px-3 py-2.5 text-right">{{ lang.t('dashboard.change') }}</th>
+              <th class="px-3 py-2.5 text-center">{{ lang.t('dashboard.status') }}</th>
+              <th class="hidden md:table-cell px-3 py-2.5 text-right">{{ lang.t('dashboard.holdings') }}</th>
+              <th class="hidden md:table-cell px-3 py-2.5 w-20"></th>
             </tr>
           </thead>
           <tbody class="divide-y"
@@ -433,10 +433,10 @@
                   } @else {
                     <td class="w-0.5 p-0"></td>
                   }
-                  <td class="hidden sm:table-cell px-4 py-3 text-xs font-medium"
+                  <td class="hidden sm:table-cell px-3 py-2 text-xs font-medium"
                       [class.text-slate-500]="themeService.isDark()"
                       [class.text-gray-400]="themeService.isLight()">{{ vm.rank }}</td>
-                  <td class="px-4 py-3">
+                  <td class="px-3 py-2">
                     <div class="flex items-center gap-2">
                       <div>
                         <p class="font-semibold text-sm leading-tight"
@@ -448,16 +448,16 @@
                       </div>
                     </div>
                   </td>
-                  <td class="px-4 py-3 text-right font-semibold text-sm"
+                  <td class="px-3 py-2 text-right font-semibold text-sm"
                       [class.text-white]="themeService.isDark()"
                       [class.text-gray-900]="themeService.isLight()">
                     {{ formatCurrency(vm.price) }}
                   </td>
-                  <td class="px-4 py-3 text-right text-sm font-medium"
+                  <td class="px-3 py-2 text-right text-sm font-medium"
                       [class]="(vm.changePercent ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'">
                     {{ formatPercent(vm.changePercent) }}
                   </td>
-                  <td class="px-4 py-3 text-center">
+                  <td class="px-3 py-2 text-center">
                     @if (vm.isRed) {
                       <span class="inline-flex items-center gap-1 rounded-full bg-red-500/15 border border-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-400">
                         <span class="h-1.5 w-1.5 rounded-full bg-red-400 animate-pulse"></span>
@@ -472,7 +472,7 @@
                       <span class="text-slate-500 text-xs">—</span>
                     }
                   </td>
-                  <td class="hidden md:table-cell px-4 py-3 text-right">
+                  <td class="hidden md:table-cell px-3 py-2 text-right">
                     @if (vm.holdingQty) {
                       <p class="text-sm font-medium"
                          [class.text-slate-200]="themeService.isDark()"
@@ -486,7 +486,7 @@
                       <span class="text-xs" [class.text-slate-600]="themeService.isDark()" [class.text-gray-300]="themeService.isLight()">—</span>
                     }
                   </td>
-                  <td class="hidden md:table-cell px-4 py-3 text-right">
+                  <td class="hidden md:table-cell px-3 py-2 text-right">
                     @if (vm.isRed && !vm.isInCurrentPlan) {
                       <button
                         (click)="onAddToPlan(vm)"

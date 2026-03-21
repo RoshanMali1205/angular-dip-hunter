@@ -5,8 +5,8 @@
 /* Custom dark theme base styles */
 body {
   @apply bg-slate-950 text-slate-100 antialiased;
-  /* Prevent horizontal overflow on mobile */
-  overflow-x: hidden;
+  /* Prevent horizontal overflow on mobile — use 'clip' not 'hidden' so child overflow-x-auto still works on iOS */
+  overflow-x: clip;
 }
 
 /* iOS safe area support for iPhone notch / home indicator */
