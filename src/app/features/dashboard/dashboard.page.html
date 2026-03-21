@@ -330,26 +330,30 @@
     <div class="lg:col-span-2 flex flex-col">
 
       <!-- Folder Tabs & Filters -->
-      <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <!-- Folder Tabs -->
-        <div class="flex gap-2" data-tour="folder-tabs">
-          @for (folder of folders(); track folder.id) {
-            <button
-              (click)="onFolderChange(folder.id)"
-              [class]="selectedFolderId() === folder.id
-                ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-900/30'
-                : themeService.isDark()
-                  ? 'bg-slate-700/60 text-slate-300 hover:bg-slate-700 border border-slate-600/50'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-300 shadow-sm'"
-              class="rounded-lg px-4 py-2 text-sm font-medium transition">
-              {{ folder.name }}
-            </button>
-          }
+      <div class="mb-3 flex flex-col gap-3">
+        <!-- Folder Tabs with horizontal scroll on mobile -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="overflow-x-auto flex-1 min-w-0 -mx-1 px-1" data-tour="folder-tabs">
+            <div class="flex gap-2 w-max">
+              @for (folder of folders(); track folder.id) {
+                <button
+                  (click)="onFolderChange(folder.id)"
+                  [class]="selectedFolderId() === folder.id
+                    ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-900/30'
+                    : themeService.isDark()
+                      ? 'bg-slate-700/60 text-slate-300 hover:bg-slate-700 border border-slate-600/50'
+                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-300 shadow-sm'"
+                  class="rounded-lg px-4 py-2 text-sm font-medium transition whitespace-nowrap">
+                  {{ folder.name }}
+                </button>
+              }
+            </div>
+          </div>
         </div>
 
         <!-- Filters -->
-        <div class="flex items-center gap-2">
-          <div class="relative">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="relative flex-1 min-w-[140px]">
             <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none"
                  [class.text-slate-400]="themeService.isDark()"
                  [class.text-gray-400]="themeService.isLight()"
@@ -361,7 +365,7 @@
               [placeholder]="lang.t('dashboard.searchPlaceholder')"
               [ngModel]="searchText()"
               (ngModelChange)="searchText.set($event)"
-              class="rounded-lg border pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-40"
+              class="w-full rounded-lg border pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               [class.bg-slate-700/60]="themeService.isDark()"
               [class.border-slate-600/50]="themeService.isDark()"
               [class.text-white]="themeService.isDark()"
@@ -370,7 +374,7 @@
               [class.border-gray-300]="themeService.isLight()"
               [class.text-gray-900]="themeService.isLight()">
           </div>
-          <label class="flex cursor-pointer items-center gap-1.5 text-sm"
+          <label class="flex cursor-pointer items-center gap-1.5 text-sm shrink-0"
                  [class.text-slate-300]="themeService.isDark()"
                  [class.text-gray-600]="themeService.isLight()">
             <input
@@ -384,13 +388,14 @@
       </div>
 
       <!-- Stock Table -->
-      <div class="rounded-xl border overflow-hidden" data-tour="stock-list"
+      <div class="rounded-xl border" data-tour="stock-list"
            [class.border-slate-700/50]="themeService.isDark()"
            [class.bg-slate-800/40]="themeService.isDark()"
            [class.border-gray-200]="themeService.isLight()"
            [class.bg-white]="themeService.isLight()"
            [class.shadow-sm]="themeService.isLight()">
-        <table class="w-full text-left text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[520px] text-left text-sm">
           <thead class="border-b"
                  [class.border-slate-700]="themeService.isDark()"
                  [class.bg-slate-800/80]="themeService.isDark()"
@@ -399,13 +404,13 @@
                  [class.bg-gray-50]="themeService.isLight()"
                  [class.text-gray-500]="themeService.isLight()">
             <tr class="text-[11px] font-semibold uppercase tracking-wide">
-              <th class="px-4 py-3 w-8">#</th>
+              <th class="hidden sm:table-cell px-4 py-3 w-8">#</th>
               <th class="px-4 py-3">{{ lang.t('dashboard.stock') }}</th>
               <th class="px-4 py-3 text-right">{{ lang.t('dashboard.price') }}</th>
               <th class="px-4 py-3 text-right">{{ lang.t('dashboard.change') }}</th>
               <th class="px-4 py-3 text-center">{{ lang.t('dashboard.status') }}</th>
-              <th class="px-4 py-3 text-right">{{ lang.t('dashboard.holdings') }}</th>
-              <th class="px-4 py-3 w-20"></th>
+              <th class="hidden md:table-cell px-4 py-3 text-right">{{ lang.t('dashboard.holdings') }}</th>
+              <th class="hidden md:table-cell px-4 py-3 w-20"></th>
             </tr>
           </thead>
           <tbody class="divide-y"
@@ -428,7 +433,7 @@
                   } @else {
                     <td class="w-0.5 p-0"></td>
                   }
-                  <td class="px-4 py-3 text-xs font-medium"
+                  <td class="hidden sm:table-cell px-4 py-3 text-xs font-medium"
                       [class.text-slate-500]="themeService.isDark()"
                       [class.text-gray-400]="themeService.isLight()">{{ vm.rank }}</td>
                   <td class="px-4 py-3">
@@ -467,7 +472,7 @@
                       <span class="text-slate-500 text-xs">—</span>
                     }
                   </td>
-                  <td class="px-4 py-3 text-right">
+                  <td class="hidden md:table-cell px-4 py-3 text-right">
                     @if (vm.holdingQty) {
                       <p class="text-sm font-medium"
                          [class.text-slate-200]="themeService.isDark()"
@@ -481,7 +486,7 @@
                       <span class="text-xs" [class.text-slate-600]="themeService.isDark()" [class.text-gray-300]="themeService.isLight()">—</span>
                     }
                   </td>
-                  <td class="px-4 py-3 text-right">
+                  <td class="hidden md:table-cell px-4 py-3 text-right">
                     @if (vm.isRed && !vm.isInCurrentPlan) {
                       <button
                         (click)="onAddToPlan(vm)"
@@ -511,13 +516,14 @@
             }
           </tbody>
         </table>
+        </div>
 
         <!-- Pagination Controls -->
-        <div class="flex items-center justify-between border-t px-4 py-3"
+        <div class="flex items-center justify-between border-t px-4 py-3 gap-2 flex-wrap"
              [class.border-slate-700/50]="themeService.isDark()"
              [class.border-gray-100]="themeService.isLight()">
           <div class="flex items-center gap-2">
-            <span class="text-xs"
+            <span class="text-xs hidden sm:inline"
                   [class.text-slate-400]="themeService.isDark()"
                   [class.text-gray-500]="themeService.isLight()">Show:</span>
             <select [(ngModel)]="pageSize"
@@ -536,7 +542,7 @@
             <span class="text-xs"
                   [class.text-slate-400]="themeService.isDark()"
                   [class.text-gray-500]="themeService.isLight()">
-              of {{ stockViewModels().length }} records
+              of {{ stockViewModels().length }}
             </span>
           </div>
 
@@ -544,25 +550,25 @@
             <button
               (click)="onPageChange(currentPage() - 1)"
               [disabled]="currentPage() === 1"
-              class="rounded-lg px-3 py-1 text-xs font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+              class="rounded-lg p-1.5 text-xs font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
               [class.bg-slate-700/60]="themeService.isDark()"
               [class.text-slate-300]="themeService.isDark()"
               [class.hover:bg-slate-700]="themeService.isDark()"
               [class.bg-gray-100]="themeService.isLight()"
               [class.text-gray-600]="themeService.isLight()"
               [class.hover:bg-gray-200]="themeService.isLight()">
-              Previous
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </button>
 
             @for (page of pageNumbers(); track $index) {
               @if (page === -1) {
-                <span class="px-1.5 text-xs"
+                <span class="px-1 text-xs hidden sm:inline"
                       [class.text-slate-600]="themeService.isDark()"
                       [class.text-gray-400]="themeService.isLight()">…</span>
               } @else {
                 <button
                   (click)="onPageChange(page)"
-                  class="rounded-lg min-w-[30px] px-2 py-1 text-xs font-medium transition"
+                  class="rounded-lg min-w-[30px] px-2 py-1 text-xs font-medium transition hidden sm:inline-flex items-center justify-center"
                   [class.bg-emerald-600]="currentPage() === page"
                   [class.text-white]="currentPage() === page"
                   [class.shadow-sm]="currentPage() === page"
@@ -576,18 +582,22 @@
                 </button>
               }
             }
+            <!-- Mobile: show current/total instead of page numbers -->
+            <span class="text-xs px-2 sm:hidden"
+                  [class.text-slate-400]="themeService.isDark()"
+                  [class.text-gray-500]="themeService.isLight()">{{ currentPage() }}/{{ totalPages() }}</span>
 
             <button
               (click)="onPageChange(currentPage() + 1)"
               [disabled]="currentPage() === totalPages()"
-              class="rounded-lg px-3 py-1 text-xs font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
+              class="rounded-lg p-1.5 text-xs font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
               [class.bg-slate-700/60]="themeService.isDark()"
               [class.text-slate-300]="themeService.isDark()"
               [class.hover:bg-slate-700]="themeService.isDark()"
               [class.bg-gray-100]="themeService.isLight()"
               [class.text-gray-600]="themeService.isLight()"
               [class.hover:bg-gray-200]="themeService.isLight()">
-              Next
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
           </div>
         </div>

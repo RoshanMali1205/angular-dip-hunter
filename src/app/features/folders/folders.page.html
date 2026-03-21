@@ -20,27 +20,29 @@
     </button>
   </div>
 
-  <!-- Folder Tabs -->
-  <div class="flex gap-1.5">
-    @for (folder of folders(); track folder.id) {
-      <button
-        (click)="onFolderChange(folder.id)"
-        [class]="selectedFolderId() === folder.id 
-          ? 'bg-emerald-600 text-white' 
-          : themeService.isDark() ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-        class="rounded-lg px-3 py-1.5 text-xs font-medium transition flex items-center">
-        {{ folder.name }}
-        <span class="ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
-              [class.bg-emerald-700]="selectedFolderId() === folder.id"
-              [class.text-white]="selectedFolderId() === folder.id"
-              [class.bg-slate-700]="selectedFolderId() !== folder.id && themeService.isDark()"
-              [class.text-slate-300]="selectedFolderId() !== folder.id && themeService.isDark()"
-              [class.bg-gray-300]="selectedFolderId() !== folder.id && themeService.isLight()"
-              [class.text-gray-700]="selectedFolderId() !== folder.id && themeService.isLight()">
-          {{ getFolderStockCount(folder.id) }}
-        </span>
-      </button>
-    }
+  <!-- Folder Tabs with horizontal scroll on mobile -->
+  <div class="overflow-x-auto -mx-1 px-1">
+    <div class="flex gap-1.5 w-max">
+      @for (folder of folders(); track folder.id) {
+        <button
+          (click)="onFolderChange(folder.id)"
+          [class]="selectedFolderId() === folder.id 
+            ? 'bg-emerald-600 text-white' 
+            : themeService.isDark() ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+          class="rounded-lg px-3 py-1.5 text-xs font-medium transition flex items-center whitespace-nowrap">
+          {{ folder.name }}
+          <span class="ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
+                [class.bg-emerald-700]="selectedFolderId() === folder.id"
+                [class.text-white]="selectedFolderId() === folder.id"
+                [class.bg-slate-700]="selectedFolderId() !== folder.id && themeService.isDark()"
+                [class.text-slate-300]="selectedFolderId() !== folder.id && themeService.isDark()"
+                [class.bg-gray-300]="selectedFolderId() !== folder.id && themeService.isLight()"
+                [class.text-gray-700]="selectedFolderId() !== folder.id && themeService.isLight()">
+            {{ getFolderStockCount(folder.id) }}
+          </span>
+        </button>
+      }
+    </div>
   </div>
 
   <!-- Add Stock Form -->

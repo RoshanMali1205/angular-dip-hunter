@@ -5,6 +5,29 @@
 /* Custom dark theme base styles */
 body {
   @apply bg-slate-950 text-slate-100 antialiased;
+  /* Prevent horizontal overflow on mobile */
+  overflow-x: hidden;
+}
+
+/* iOS safe area support for iPhone notch / home indicator */
+:root {
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-top: env(safe-area-inset-top, 0px);
+}
+
+/* Smooth scrolling on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Better scrolling on iOS for overflow containers */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.overflow-x-auto::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 

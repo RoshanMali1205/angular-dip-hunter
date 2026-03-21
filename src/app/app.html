@@ -436,7 +436,7 @@
   }
 
   <!-- Main Content -->
-  <main [class]="isAuthPage() ? 'flex-1' : 'flex-1 mx-auto w-full max-w-7xl px-4 py-4 pb-2'">
+  <main [class]="isAuthPage() ? 'flex-1' : 'flex-1 mx-auto w-full max-w-7xl px-4 py-4 pb-24 md:pb-4'">
     <router-outlet />
   </main>
 
@@ -456,3 +456,86 @@
 
 <!-- Tour Overlay (Global) -->
 <app-tour-overlay />
+
+<!-- Mobile Bottom Navigation Bar (PWA - visible only on mobile) -->
+@if (!isAuthPage()) {
+<nav class="fixed bottom-0 left-0 right-0 z-40 md:hidden border-t backdrop-blur-xl"
+     style="padding-bottom: env(safe-area-inset-bottom, 0px)"
+     [class.bg-slate-900/95]="themeService.isDark()"
+     [class.border-slate-800]="themeService.isDark()"
+     [class.bg-white/97]="themeService.isLight()"
+     [class.border-gray-200]="themeService.isLight()">
+  <div class="grid grid-cols-6 px-1 pt-1.5 pb-1">
+
+    <!-- Dashboard -->
+    <a routerLink="/" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="text-emerald-400"
+       class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+      <span>Home</span>
+    </a>
+
+    <!-- Folders -->
+    <a routerLink="/folders" routerLinkActive="text-emerald-400"
+       class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+      </svg>
+      <span>Folders</span>
+    </a>
+
+    <!-- Planner -->
+    <a routerLink="/planner" routerLinkActive="text-emerald-400"
+       class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+      <span>Planner</span>
+    </a>
+
+    <!-- Transactions -->
+    <a routerLink="/transactions" routerLinkActive="text-emerald-400"
+       class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+      <span>Trades</span>
+    </a>
+
+    <!-- Analytics -->
+    <a routerLink="/analytics" routerLinkActive="text-emerald-400"
+       class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+      </svg>
+      <span>Analytics</span>
+    </a>
+
+    <!-- Settings -->
+    <a routerLink="/settings" routerLinkActive="text-emerald-400"
+       class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <span>Settings</span>
+    </a>
+
+  </div>
+</nav>
+}
