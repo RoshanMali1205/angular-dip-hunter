@@ -426,13 +426,10 @@
                     [class.hover:bg-slate-700/30]="themeService.isDark()"
                     [class.hover:bg-blue-50/40]="themeService.isLight() && !vm.isRed"
                     [class.hover:bg-red-50/60]="themeService.isLight() && vm.isRed"
-                    [class.bg-red-950/10]="themeService.isDark() && vm.isRed">
-                  <!-- Red row left accent line -->
-                  @if (vm.isRed) {
-                    <td class="w-0.5 p-0 bg-red-500/60"></td>
-                  } @else {
-                    <td class="w-0.5 p-0"></td>
-                  }
+                    [class.bg-red-950/10]="themeService.isDark() && vm.isRed"
+                    [class.border-l-2]="true"
+                    [class.border-l-red-500/60]="vm.isRed"
+                    [class.border-l-transparent]="!vm.isRed">
                   <td class="hidden sm:table-cell px-3 py-2 text-xs font-medium"
                       [class.text-slate-500]="themeService.isDark()"
                       [class.text-gray-400]="themeService.isLight()">{{ vm.rank }}</td>
@@ -505,7 +502,7 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="8" class="px-4 py-10 text-center"
+                  <td colspan="7" class="px-4 py-10 text-center"
                       [class.text-slate-500]="themeService.isDark()"
                       [class.text-gray-400]="themeService.isLight()">
                     <svg class="h-8 w-8 mx-auto mb-2 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>

@@ -8,12 +8,26 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TourStep, DASHBOARD_TOUR_STEPS } from '../tour/tour.config';
 
-const TOUR_STORAGE_KEY = 'dip_hunter_tour_completed';
-const TOUR_STEP_KEY = 'dip_hunter_tour_step';
+const TOUR_STORAGE_PREFIX = 'dip_hunter_tour_completed';
+const TOUR_STEP_PREFIX = 'dip_hunter_tour_step';
 
 @Injectable({ providedIn: 'root' })
 export class TourService {
   private readonly router = inject(Router);
+  private _userId: string | null = null;
+
+  private get storageKey(): string {
+    return this._userId ? `${TOUR_STORAGE_PREFIX}_${this._userId}` : TOUR_STORAGE_PREFIX;
+  }
+
+  private get stepKey(): string {
+    return this._userId ? `${TOUR_STEP_PREFIX}_${this._userId}` : TOUR_STEP_PREFIX;
+  }
+
+  /** Set the current user so tour completion is tracked per user */
+  setUser(userId: string | null): void {
+    this._userId = userId;
+  }
   
   // State signals
   private readonly _steps = signal<TourStep[]>([]);
@@ -48,7 +62,7 @@ export class TourService {
    * Check if the tour has been completed
    */
   isCompleted(): boolean {
-    return localStorage.getItem(TOUR_STORAGE_KEY) === 'true';
+    return localStorage.getItem(this.storageKey) === 'true';
   }
 
   /**
@@ -58,7 +72,7 @@ export class TourService {
     this._steps.set(steps);
     
     // Check if there's a saved step
-    const savedStep = localStorage.getItem(TOUR_STEP_KEY);
+    const savedStep = localStorage.getItem(this.stepKey);
     const startIndex = savedStep ? parseInt(savedStep, 10) : 0;
     
     this._currentIndex.set(Math.min(startIndex, steps.length - 1));
@@ -112,8 +126,8 @@ export class TourService {
    */
   finish(): void {
     this.clearHighlight();
-    localStorage.setItem(TOUR_STORAGE_KEY, 'true');
-    localStorage.removeItem(TOUR_STEP_KEY);
+    localStorage.setItem(this.storageKey, 'true');
+    localStorage.removeItem(this.stepKey);
     this._isActive.set(false);
     this._currentIndex.set(0);
   }
@@ -122,8 +136,8 @@ export class TourService {
    * Restart the tour
    */
   restart(steps: TourStep[] = DASHBOARD_TOUR_STEPS): void {
-    localStorage.removeItem(TOUR_STORAGE_KEY);
-    localStorage.removeItem(TOUR_STEP_KEY);
+    localStorage.removeItem(this.storageKey);
+    localStorage.removeItem(this.stepKey);
     this.start(steps);
   }
 
@@ -141,7 +155,7 @@ export class TourService {
    * Save current progress
    */
   private saveProgress(): void {
-    localStorage.setItem(TOUR_STEP_KEY, this._currentIndex().toString());
+    localStorage.setItem(this.stepKey, this._currentIndex().toString());
   }
 
   /**

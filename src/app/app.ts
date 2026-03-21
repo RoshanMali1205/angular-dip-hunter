@@ -63,6 +63,14 @@ export class App implements OnInit {
       if (this.tourService.isActive()) {
         setTimeout(() => this.tourService.highlightCurrentStep(), 300);
       }
+
+      // Auto-start tour for first-time users after login redirect
+      if (this.authService.isAuthenticated() && !event.urlAfterRedirects.startsWith('/auth')) {
+        this.tourService.setUser(this.authService.user()?.id ?? null);
+        if (!this.tourService.isCompleted() && !this.tourService.isActive()) {
+          setTimeout(() => this.tourService.start(DASHBOARD_TOUR_STEPS), 1000);
+        }
+      }
     });
   }
 
@@ -78,14 +86,12 @@ export class App implements OnInit {
       });
     }
 
-    // Start tour for first-time users (after a short delay for UI to render)
-    if (!this.tourService.isCompleted()) {
-      setTimeout(() => {
-        // Only start tour if user is logged in and not on auth page
-        if (this.authService.isAuthenticated() && !this.isAuthPage()) {
-          this.tourService.start(DASHBOARD_TOUR_STEPS);
-        }
-      }, 1000);
+    // Set user for tour tracking & start tour for first-time users on initial load
+    if (this.authService.isAuthenticated()) {
+      this.tourService.setUser(this.authService.user()?.id ?? null);
+      if (!this.tourService.isCompleted() && !this.isAuthPage()) {
+        setTimeout(() => this.tourService.start(DASHBOARD_TOUR_STEPS), 1000);
+      }
     }
   }
 

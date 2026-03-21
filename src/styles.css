@@ -23,11 +23,22 @@ body {
 /* Better scrolling on iOS for overflow containers */
 .overflow-x-auto {
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* Thin scrollbar for tables so users know they can scroll */
+.overflow-x-auto {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
 }
 .overflow-x-auto::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  height: 4px;
+}
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.3);
+  border-radius: 4px;
 }
 
 
