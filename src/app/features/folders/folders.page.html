@@ -153,14 +153,14 @@
   }
 
   <!-- Stock List with fixed height and scrollbar -->
-  <div class="rounded-xl border overflow-hidden"
+  <div class="rounded-xl border"
        [class.border-slate-800]="themeService.isDark()"
        [class.bg-slate-900]="themeService.isDark()"
        [class.border-gray-200]="themeService.isLight()"
        [class.bg-white]="themeService.isLight()">
     <!-- Table container with scroll -->
     <div class="overflow-auto" style="max-height: 560px;">
-      <table class="w-full text-left text-sm">
+      <table class="w-full min-w-[480px] text-left text-sm">
         <thead class="border-b text-xs uppercase sticky top-0 z-10"
                [class.border-slate-800]="themeService.isDark()"
                [class.bg-slate-800]="themeService.isDark()"
@@ -169,13 +169,13 @@
                [class.bg-gray-50]="themeService.isLight()"
                [class.text-gray-600]="themeService.isLight()">
           <tr>
-            <th class="px-4 py-2.5 w-16">{{ lang.t('folders.rank') }}</th>
-            <th class="px-4 py-2.5">{{ lang.t('folders.symbol') }}</th>
-            <th class="px-4 py-2.5">{{ lang.t('folders.displayName') }}</th>
-            <th class="px-4 py-2.5">{{ lang.t('folders.exchange') }}</th>
-            <th class="px-4 py-2.5">{{ lang.t('folders.sector') }}</th>
-            <th class="px-4 py-2.5 text-center">{{ lang.t('folders.status') }}</th>
-            <th class="px-4 py-2.5 text-right">{{ lang.t('folders.actions') }}</th>
+            <th class="px-3 py-2.5 w-16">{{ lang.t('folders.rank') }}</th>
+            <th class="px-3 py-2.5">{{ lang.t('folders.symbol') }}</th>
+            <th class="hidden sm:table-cell px-3 py-2.5">{{ lang.t('folders.displayName') }}</th>
+            <th class="hidden md:table-cell px-3 py-2.5">{{ lang.t('folders.exchange') }}</th>
+            <th class="hidden md:table-cell px-3 py-2.5">{{ lang.t('folders.sector') }}</th>
+            <th class="px-3 py-2.5 text-center">{{ lang.t('folders.status') }}</th>
+            <th class="px-3 py-2.5 text-right">{{ lang.t('folders.actions') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y"
@@ -186,7 +186,7 @@
                 [class.hover:bg-slate-800/50]="themeService.isDark()"
                 [class.hover:bg-gray-50]="themeService.isLight()"
                 [class.opacity-50]="!stock.isActive">
-              <td class="px-4 py-2.5">
+              <td class="px-3 py-2.5">
                 <div class="flex items-center gap-1">
                   <span [class.text-slate-500]="themeService.isDark()"
                         [class.text-gray-400]="themeService.isLight()">{{ stock.rank }}</span>
@@ -212,19 +212,19 @@
                   </div>
                 </div>
               </td>
-              <td class="px-4 py-2.5 font-medium"
+              <td class="px-3 py-2.5 font-medium"
                   [class.text-white]="themeService.isDark()"
                   [class.text-gray-900]="themeService.isLight()">{{ stock.symbol }}</td>
-              <td class="px-4 py-2.5"
+              <td class="hidden sm:table-cell px-3 py-2.5"
                   [class.text-slate-300]="themeService.isDark()"
                   [class.text-gray-700]="themeService.isLight()">{{ stock.displayName }}</td>
-              <td class="px-4 py-2.5"
+              <td class="hidden md:table-cell px-3 py-2.5"
                   [class.text-slate-400]="themeService.isDark()"
                   [class.text-gray-500]="themeService.isLight()">{{ stock.exchange }}</td>
-              <td class="px-4 py-2.5"
+              <td class="hidden md:table-cell px-3 py-2.5"
                   [class.text-slate-400]="themeService.isDark()"
                   [class.text-gray-500]="themeService.isLight()">{{ stock.sector || '—' }}</td>
-              <td class="px-4 py-2.5 text-center">
+              <td class="px-3 py-2.5 text-center">
                 <button 
                   (click)="onToggleActive(stock)"
                   [class]="stock.isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-400'"
@@ -232,7 +232,7 @@
                   {{ stock.isActive ? lang.t('folders.active') : lang.t('folders.inactive') }}
                 </button>
               </td>
-              <td class="px-4 py-2.5 text-right">
+              <td class="px-3 py-2.5 text-right">
                 <button 
                   (click)="onRemoveStock(stock)"
                   class="text-red-400 hover:text-red-300">

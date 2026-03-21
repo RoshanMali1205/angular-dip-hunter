@@ -209,12 +209,13 @@
         </div>
 
         <!-- Transactions Table -->
-        <div class="overflow-hidden rounded-xl border"
+        <div class="rounded-xl border"
              [class.border-slate-800]="themeService.isDark()"
              [class.bg-slate-900]="themeService.isDark()"
              [class.border-gray-200]="themeService.isLight()"
              [class.bg-white]="themeService.isLight()">
-          <table class="w-full text-left text-sm">
+          <div class="overflow-x-auto">
+          <table class="w-full min-w-[480px] text-left text-sm">
             <thead class="border-b text-xs uppercase"
                    [class.border-slate-800]="themeService.isDark()"
                    [class.bg-slate-800/50]="themeService.isDark()"
@@ -223,12 +224,12 @@
                    [class.bg-gray-50]="themeService.isLight()"
                    [class.text-gray-600]="themeService.isLight()">
               <tr>
-                <th class="px-4 py-3">{{ lang.t('transactions.date') }}</th>
-                <th class="px-4 py-3">{{ lang.t('transactions.symbol') }}</th>
-                <th class="px-4 py-3 text-right">{{ lang.t('transactions.qty') }}</th>
-                <th class="px-4 py-3 text-right">{{ lang.t('transactions.price') }}</th>
-                <th class="px-4 py-3 text-right">{{ lang.t('transactions.total') }}</th>
-                <th class="px-4 py-3"></th>
+                <th class="px-3 py-3">{{ lang.t('transactions.date') }}</th>
+                <th class="px-3 py-3">{{ lang.t('transactions.symbol') }}</th>
+                <th class="px-3 py-3 text-right">{{ lang.t('transactions.qty') }}</th>
+                <th class="px-3 py-3 text-right">{{ lang.t('transactions.price') }}</th>
+                <th class="px-3 py-3 text-right">{{ lang.t('transactions.total') }}</th>
+                <th class="px-3 py-3"></th>
               </tr>
             </thead>
             <tbody class="divide-y"
@@ -238,22 +239,22 @@
                 <tr class="transition"
                     [class.hover:bg-slate-800/50]="themeService.isDark()"
                     [class.hover:bg-gray-50]="themeService.isLight()">
-                  <td class="px-4 py-3"
+                  <td class="px-3 py-3"
                       [class.text-slate-400]="themeService.isDark()"
                       [class.text-gray-500]="themeService.isLight()">{{ formatDate(tx.date) }}</td>
-                  <td class="px-4 py-3 font-medium"
+                  <td class="px-3 py-3 font-medium"
                       [class.text-white]="themeService.isDark()"
                       [class.text-gray-900]="themeService.isLight()">{{ tx.symbol }}</td>
-                  <td class="px-4 py-3 text-right"
+                  <td class="px-3 py-3 text-right"
                       [class.text-slate-300]="themeService.isDark()"
                       [class.text-gray-700]="themeService.isLight()">{{ tx.qty }}</td>
-                  <td class="px-4 py-3 text-right"
+                  <td class="px-3 py-3 text-right"
                       [class.text-slate-300]="themeService.isDark()"
                       [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(tx.price) }}</td>
-                  <td class="px-4 py-3 text-right"
+                  <td class="px-3 py-3 text-right"
                       [class.text-white]="themeService.isDark()"
                       [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(tx.totalAmount) }}</td>
-                  <td class="px-4 py-3 text-right">
+                  <td class="px-3 py-3 text-right">
                     <button
                       (click)="onDeleteBuy(tx)"
                       class="text-red-400 hover:text-red-300">
@@ -274,6 +275,7 @@
               }
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </div>
@@ -428,11 +430,12 @@
         </div>
 
         <!-- Dividends Table -->
-        <div class="overflow-hidden rounded-xl border"
+        <div class="rounded-xl border"
              [class.border-slate-800]="themeService.isDark()"
              [class.bg-slate-900]="themeService.isDark()"
              [class.border-gray-200]="themeService.isLight()"
              [class.bg-white]="themeService.isLight()">
+          <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead class="border-b text-xs uppercase"
                    [class.border-slate-800]="themeService.isDark()"
@@ -483,6 +486,7 @@
               }
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </div>
@@ -492,9 +496,9 @@
   @if (activeTab() === 'holdings') {
     <div class="space-y-6">
       <!-- Refresh Button & Summary -->
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         @if (holdingsSummary(); as summary) {
-          <div class="flex items-center gap-6 text-sm">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
             <span [class.text-slate-400]="themeService.isDark()"
                   [class.text-gray-500]="themeService.isLight()">{{ lang.t('transactions.totalValue') }}: 
               <span class="font-semibold"
@@ -531,12 +535,13 @@
       </div>
 
       <!-- All Holdings -->
-      <div class="overflow-hidden rounded-xl border"
+      <div class="rounded-xl border"
            [class.border-slate-800]="themeService.isDark()"
            [class.bg-slate-900]="themeService.isDark()"
            [class.border-gray-200]="themeService.isLight()"
            [class.bg-white]="themeService.isLight()">
-        <table class="w-full text-left text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[600px] text-left text-sm">
           <thead class="border-b text-xs uppercase"
                  [class.border-slate-800]="themeService.isDark()"
                  [class.bg-slate-800/50]="themeService.isDark()"
@@ -545,13 +550,13 @@
                  [class.bg-gray-50]="themeService.isLight()"
                  [class.text-gray-600]="themeService.isLight()">
             <tr>
-              <th class="px-4 py-3">{{ lang.t('transactions.symbol') }}</th>
-              <th class="px-4 py-3">{{ lang.t('transactions.folder') }}</th>
-              <th class="px-4 py-3 text-right">{{ lang.t('transactions.shares') }}</th>
-              <th class="px-4 py-3 text-right">{{ lang.t('transactions.avgPrice') }}</th>
-              <th class="px-4 py-3 text-right">{{ lang.t('transactions.currentPrice') }}</th>
-              <th class="px-4 py-3 text-right">{{ lang.t('transactions.marketValue') }}</th>
-              <th class="px-4 py-3 text-right">{{ lang.t('transactions.pl') }}</th>
+              <th class="px-3 py-3">{{ lang.t('transactions.symbol') }}</th>
+              <th class="hidden sm:table-cell px-3 py-3">{{ lang.t('transactions.folder') }}</th>
+              <th class="px-3 py-3 text-right">{{ lang.t('transactions.shares') }}</th>
+              <th class="px-3 py-3 text-right">{{ lang.t('transactions.avgPrice') }}</th>
+              <th class="px-3 py-3 text-right">{{ lang.t('transactions.currentPrice') }}</th>
+              <th class="hidden sm:table-cell px-3 py-3 text-right">{{ lang.t('transactions.marketValue') }}</th>
+              <th class="px-3 py-3 text-right">{{ lang.t('transactions.pl') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y"
@@ -561,7 +566,7 @@
               <tr class="transition"
                   [class.hover:bg-slate-800/50]="themeService.isDark()"
                   [class.hover:bg-gray-50]="themeService.isLight()">
-                <td class="px-4 py-3">
+                <td class="px-3 py-3">
                   <p class="font-medium"
                      [class.text-white]="themeService.isDark()"
                      [class.text-gray-900]="themeService.isLight()">{{ h.symbol }}</p>
@@ -569,23 +574,23 @@
                      [class.text-slate-500]="themeService.isDark()"
                      [class.text-gray-500]="themeService.isLight()">{{ h.displayName }}</p>
                 </td>
-                <td class="px-4 py-3"
+                <td class="hidden sm:table-cell px-3 py-3"
                     [class.text-slate-400]="themeService.isDark()"
                     [class.text-gray-500]="themeService.isLight()">{{ h.folderId === 'GROWTH_20' ? 'G20' : 'D10' }}</td>
-                <td class="px-4 py-3 text-right"
+                <td class="px-3 py-3 text-right"
                     [class.text-slate-300]="themeService.isDark()"
                     [class.text-gray-700]="themeService.isLight()">{{ h.totalQty }}</td>
-                <td class="px-4 py-3 text-right"
+                <td class="px-3 py-3 text-right"
                     [class.text-slate-300]="themeService.isDark()"
                     [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(h.avgPrice) }}</td>
-                <td class="px-4 py-3 text-right"
+                <td class="px-3 py-3 text-right"
                     [class.text-slate-300]="themeService.isDark()"
                     [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(h.currentPrice) }}</td>
-                <td class="px-4 py-3 text-right"
+                <td class="hidden sm:table-cell px-3 py-3 text-right"
                     [class.text-white]="themeService.isDark()"
                     [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(h.currentValue) }}</td>
-                <td class="px-4 py-3 text-right" [class]="(h.unrealizedPL || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'">
-                  {{ formatCurrency(h.unrealizedPL) }} ({{ formatPercent(h.unrealizedPLPercent) }})
+                <td class="px-3 py-3 text-right" [class]="(h.unrealizedPL || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'">
+                  {{ formatCurrency(h.unrealizedPL) }}
                 </td>
               </tr>
             } @empty {
@@ -599,6 +604,7 @@
             }
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   }

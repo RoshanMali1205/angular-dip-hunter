@@ -165,12 +165,13 @@
         }
 
         <!-- Plan Items Table -->
-        <div class="overflow-hidden rounded-xl border"
+        <div class="rounded-xl border"
              [class.border-slate-800]="themeService.isDark()"
              [class.bg-slate-900]="themeService.isDark()"
              [class.border-gray-200]="themeService.isLight()"
              [class.bg-white]="themeService.isLight()">
-          <table class="w-full text-left text-sm">
+          <div class="overflow-x-auto">
+          <table class="w-full min-w-[480px] text-left text-sm">
             <thead class="border-b text-xs uppercase"
                    [class.border-slate-800]="themeService.isDark()"
                    [class.bg-slate-800/50]="themeService.isDark()"
@@ -248,6 +249,7 @@
               }
             </tbody>
           </table>
+          </div>
         </div>
 
         <!-- Delete Plan -->
