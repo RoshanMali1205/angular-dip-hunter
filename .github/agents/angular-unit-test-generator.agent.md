@@ -1,0 +1,6 @@
+---
+name: angular-unit-test-generator
+description: "Use when: generating Angular unit test spec files, creating Jasmine/Karma specs for .ts and .service.ts files."
+---
+
+Generate Angular unit test spec files for eligible source files. Handle: - create missing Jasmine/Karma spec files for .ts and .service.ts files - inspect package.json, angular.json, tsconfig, and nearby existing specs before generating tests - use only repository-supported test libraries, helpers, and patterns - skip files that already have matching .spec.ts files - do not modify source .ts, .html, .css, .scss, .sass, .less, or existing .spec.ts files - target meaningful coverage by testing public methods, branches, observables, service interactions, fallback paths, and error handling - break large or complex files into logical test subtasks before generating the final spec - omit only difficult test cases that require risky assumptions, deep investigation, or source-code changes, and report them clearly - keep generated specs clean, maintainable, and Sonar-friendly - report created files, skipped files, omitted cases, and likely uncovered areas  Focus only on test generation. Do not change production logic.

@@ -1,0 +1,346 @@
+<!-- Analytics Page Template -->
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('analytics.title') }}</h1>
+      <p class="text-sm"
+         [class.text-slate-400]="themeService.isDark()"
+         [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.subtitle') }}</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        (click)="loadData(); updateCharts()"
+        [disabled]="isLoading()"
+        class="flex items-center gap-2 rounded-lg px-4 py-2 text-sm transition"
+        [class.bg-slate-800]="themeService.isDark()"
+        [class.text-white]="themeService.isDark()"
+        [class.hover:bg-slate-700]="themeService.isDark()"
+        [class.bg-gray-100]="themeService.isLight()"
+        [class.text-gray-700]="themeService.isLight()"
+        [class.hover:bg-gray-200]="themeService.isLight()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" [class.animate-spin]="isLoading()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        {{ lang.t('analytics.refresh') }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary KPI Cards - Skeleton -->
+  @if (isLoading()) {
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      @for (i of [1,2,3,4]; track i) {
+        <app-skeleton-card [isDark]="themeService.isDark()"></app-skeleton-card>
+      }
+    </div>
+  } @else if (totalSummary(); as summary) {
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-xl border p-4 relative overflow-hidden"
+           [class.border-blue-500/20]="themeService.isDark()"
+           [class.bg-gradient-to-br]="true"
+           [class.from-blue-900/20]="themeService.isDark()"
+           [class.to-blue-800/10]="themeService.isDark()"
+           [class.border-blue-200]="themeService.isLight()"
+           [class.from-blue-50]="themeService.isLight()"
+           [class.to-white]="themeService.isLight()">
+        <p class="text-sm" [class.text-slate-400]="themeService.isDark()" [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.totalPortfolioValue') }}</p>
+        <p class="mt-1 text-2xl font-bold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(summary.totalValue) }}</p>
+        <p class="mt-1 text-sm" [class.text-slate-500]="themeService.isDark()" [class.text-gray-400]="themeService.isLight()">{{ lang.t('analytics.costBasis') }}: {{ formatCurrency(summary.totalCost) }}</p>
+      </div>
+      <div class="rounded-xl border p-4 relative overflow-hidden"
+           [class.border-emerald-500/20]="themeService.isDark()"
+           [class.bg-gradient-to-br]="true"
+           [class.from-emerald-900/20]="themeService.isDark()"
+           [class.to-emerald-800/10]="themeService.isDark()"
+           [class.border-emerald-200]="themeService.isLight()"
+           [class.from-emerald-50]="themeService.isLight()"
+           [class.to-white]="themeService.isLight()">
+        <p class="text-sm" [class.text-slate-400]="themeService.isDark()" [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.unrealizedPL') }}</p>
+        <p class="mt-1 text-2xl font-bold" [class]="summary.totalUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-red-400'">
+          {{ formatCurrency(summary.totalUnrealizedPL) }}
+        </p>
+        <p class="mt-1 text-sm" [class]="summary.totalUnrealizedPLPercent >= 0 ? 'text-emerald-400' : 'text-red-400'">
+          {{ formatPercent(summary.totalUnrealizedPLPercent) }}
+        </p>
+      </div>
+      <div class="rounded-xl border p-4 relative overflow-hidden"
+           [class.border-purple-500/20]="themeService.isDark()"
+           [class.bg-gradient-to-br]="true"
+           [class.from-purple-900/20]="themeService.isDark()"
+           [class.to-purple-800/10]="themeService.isDark()"
+           [class.border-purple-200]="themeService.isLight()"
+           [class.from-purple-50]="themeService.isLight()"
+           [class.to-white]="themeService.isLight()">
+        <p class="text-sm" [class.text-slate-400]="themeService.isDark()" [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.totalDividends') }}</p>
+        <p class="mt-1 text-2xl font-bold text-emerald-400">{{ formatCurrency(summary.totalDividends) }}</p>
+        <p class="mt-1 text-sm" [class.text-slate-500]="themeService.isDark()" [class.text-gray-400]="themeService.isLight()">{{ lang.t('analytics.allTime') }}</p>
+      </div>
+      <div class="rounded-xl border p-4 relative overflow-hidden"
+           [class.border-cyan-500/20]="themeService.isDark()"
+           [class.bg-gradient-to-br]="true"
+           [class.from-cyan-900/20]="themeService.isDark()"
+           [class.to-cyan-800/10]="themeService.isDark()"
+           [class.border-cyan-200]="themeService.isLight()"
+           [class.from-cyan-50]="themeService.isLight()"
+           [class.to-white]="themeService.isLight()">
+        <p class="text-sm" [class.text-slate-400]="themeService.isDark()" [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.ytdInvestment') }}</p>
+        <p class="mt-1 text-2xl font-bold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(ytdTotals().buyAmount) }}</p>
+        <p class="mt-1 text-sm" [class.text-slate-500]="themeService.isDark()" [class.text-gray-400]="themeService.isLight()">{{ lang.t('analytics.net') }}: {{ formatCurrency(ytdTotals().netInvested) }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- Charts Row -->
+  <div class="grid gap-6 lg:grid-cols-2">
+    <!-- Pie Chart - Portfolio Allocation -->
+    <div class="rounded-xl border p-4"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.bg-slate-900]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()"
+         [class.bg-white]="themeService.isLight()">
+      <h3 class="mb-4 font-semibold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">
+        {{ lang.t('analytics.portfolioAllocation') }}
+      </h3>
+      <div class="h-80">
+        <canvas #allocationPieChart></canvas>
+      </div>
+    </div>
+
+    <!-- Line Chart - Monthly Trends -->
+    <div class="rounded-xl border p-4"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.bg-slate-900]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()"
+         [class.bg-white]="themeService.isLight()">
+      <h3 class="mb-4 font-semibold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">
+        {{ lang.t('analytics.monthlyInvestment') }}
+      </h3>
+      <div class="h-80">
+        <canvas #monthlyLineChart></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <!-- Growth Allocation -->
+    <div class="rounded-xl border p-4"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.bg-slate-900]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()"
+         [class.bg-white]="themeService.isLight()">
+      <h3 class="mb-4 font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('analytics.growthTwentyAllocation') }}</h3>
+      @if (growthSummary(); as summary) {
+        <p class="mb-4 text-sm"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">
+          {{ lang.t('analytics.total') }}: {{ formatCurrency(summary.totalCurrentValue) }} · 
+          {{ lang.t('transactions.pl') }}: <span [class]="summary.totalUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-red-400'">
+            {{ formatPercent(summary.totalUnrealizedPLPercent) }}
+          </span>
+        </p>
+      }
+      <div class="space-y-2 max-h-80 overflow-y-auto">
+        @for (item of growthAllocation(); track trackByAllocation($index, item)) {
+          <div class="flex items-center gap-3">
+            <div class="h-3 w-3 rounded-full" [style.background-color]="item.color"></div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium"
+                      [class.text-white]="themeService.isDark()"
+                      [class.text-gray-900]="themeService.isLight()">{{ item.symbol }}</span>
+                <span class="text-sm"
+                      [class.text-slate-400]="themeService.isDark()"
+                      [class.text-gray-500]="themeService.isLight()">{{ item.percentage.toFixed(1) }}%</span>
+              </div>
+              <div class="mt-1 h-2 w-full overflow-hidden rounded-full"
+                   [class.bg-slate-800]="themeService.isDark()"
+                   [class.bg-gray-200]="themeService.isLight()">
+                <div class="h-full rounded-full" [style.width.%]="item.percentage" [style.background-color]="item.color"></div>
+              </div>
+            </div>
+            <span class="text-sm"
+                  [class.text-slate-300]="themeService.isDark()"
+                  [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(item.value) }}</span>
+          </div>
+        } @empty {
+          <p class="py-8 text-center"
+             [class.text-slate-500]="themeService.isDark()"
+             [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.noHoldingsGrowth') }}</p>
+        }
+      </div>
+    </div>
+
+    <!-- Dividend Allocation -->
+    <div class="rounded-xl border p-4"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.bg-slate-900]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()"
+         [class.bg-white]="themeService.isLight()">
+      <h3 class="mb-4 font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('analytics.dividendTenAllocation') }}</h3>
+      @if (dividendSummary(); as summary) {
+        <p class="mb-4 text-sm"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">
+          {{ lang.t('analytics.total') }}: {{ formatCurrency(summary.totalCurrentValue) }} · 
+          {{ lang.t('transactions.pl') }}: <span [class]="summary.totalUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-red-400'">
+            {{ formatPercent(summary.totalUnrealizedPLPercent) }}
+          </span>
+          · {{ lang.t('analytics.divs') }}: <span class="text-emerald-400">{{ formatCurrency(summary.totalDividends) }}</span>
+        </p>
+      }
+      <div class="space-y-2 max-h-80 overflow-y-auto">
+        @for (item of dividendAllocation(); track trackByAllocation($index, item)) {
+          <div class="flex items-center gap-3">
+            <div class="h-3 w-3 rounded-full" [style.background-color]="item.color"></div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium"
+                      [class.text-white]="themeService.isDark()"
+                      [class.text-gray-900]="themeService.isLight()">{{ item.symbol }}</span>
+                <span class="text-sm"
+                      [class.text-slate-400]="themeService.isDark()"
+                      [class.text-gray-500]="themeService.isLight()">{{ item.percentage.toFixed(1) }}%</span>
+              </div>
+              <div class="mt-1 h-2 w-full overflow-hidden rounded-full"
+                   [class.bg-slate-800]="themeService.isDark()"
+                   [class.bg-gray-200]="themeService.isLight()">
+                <div class="h-full rounded-full" [style.width.%]="item.percentage" [style.background-color]="item.color"></div>
+              </div>
+            </div>
+            <span class="text-sm"
+                  [class.text-slate-300]="themeService.isDark()"
+                  [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(item.value) }}</span>
+          </div>
+        } @empty {
+          <p class="py-8 text-center"
+             [class.text-slate-500]="themeService.isDark()"
+             [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.noHoldingsDividend') }}</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Totals -->
+  <div class="rounded-xl border p-4"
+       [class.border-slate-800]="themeService.isDark()"
+       [class.bg-slate-900]="themeService.isDark()"
+       [class.border-gray-200]="themeService.isLight()"
+       [class.bg-white]="themeService.isLight()">
+    <div class="mb-4 flex items-center justify-between">
+      <h3 class="font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('analytics.monthlyTransactionSummary') }}</h3>
+      <div class="flex gap-1 rounded-lg p-1"
+           [class.bg-slate-800]="themeService.isDark()"
+           [class.bg-gray-100]="themeService.isLight()">
+        <button
+          (click)="setFolder('ALL')"
+          [class]="selectedFolder() === 'ALL' ? (themeService.isDark() ? 'bg-slate-700 text-white' : 'bg-white text-gray-900') : (themeService.isDark() ? 'text-slate-400 hover:text-white' : 'text-gray-600 hover:text-gray-900')"
+          class="rounded-md px-3 py-1 text-sm transition">
+          {{ lang.t('analytics.all') }}
+        </button>
+        <button
+          (click)="setFolder('GROWTH_20')"
+          [class]="selectedFolder() === 'GROWTH_20' ? (themeService.isDark() ? 'bg-slate-700 text-white' : 'bg-white text-gray-900') : (themeService.isDark() ? 'text-slate-400 hover:text-white' : 'text-gray-600 hover:text-gray-900')"
+          class="rounded-md px-3 py-1 text-sm transition">
+          {{ lang.t('analytics.g20') }}
+        </button>
+        <button
+          (click)="setFolder('DIVIDEND_10')"
+          [class]="selectedFolder() === 'DIVIDEND_10' ? (themeService.isDark() ? 'bg-slate-700 text-white' : 'bg-white text-gray-900') : (themeService.isDark() ? 'text-slate-400 hover:text-white' : 'text-gray-600 hover:text-gray-900')"
+          class="rounded-md px-3 py-1 text-sm transition">
+          {{ lang.t('analytics.d10') }}
+        </button>
+      </div>
+    </div>
+    
+    <!-- YTD Summary -->
+    <div class="mb-4 grid gap-4 sm:grid-cols-3">
+      <div class="rounded-lg p-3"
+           [class.bg-slate-800]="themeService.isDark()"
+           [class.bg-gray-100]="themeService.isLight()">
+        <p class="text-xs"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.ytdPurchases') }}</p>
+        <p class="text-lg font-semibold"
+           [class.text-white]="themeService.isDark()"
+           [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(ytdTotals().buyAmount) }}</p>
+      </div>
+      <div class="rounded-lg p-3"
+           [class.bg-slate-800]="themeService.isDark()"
+           [class.bg-gray-100]="themeService.isLight()">
+        <p class="text-xs"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.ytdDividends') }}</p>
+        <p class="text-lg font-semibold text-emerald-400">{{ formatCurrency(ytdTotals().dividendAmount) }}</p>
+      </div>
+      <div class="rounded-lg p-3"
+           [class.bg-slate-800]="themeService.isDark()"
+           [class.bg-gray-100]="themeService.isLight()">
+        <p class="text-xs"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.ytdNetInvested') }}</p>
+        <p class="text-lg font-semibold"
+           [class.text-white]="themeService.isDark()"
+           [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(ytdTotals().netInvested) }}</p>
+      </div>
+    </div>
+
+    <!-- Monthly Table -->
+    <div class="overflow-hidden rounded-lg border"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b text-xs uppercase"
+               [class.border-slate-800]="themeService.isDark()"
+               [class.bg-slate-800/50]="themeService.isDark()"
+               [class.text-slate-400]="themeService.isDark()"
+               [class.border-gray-200]="themeService.isLight()"
+               [class.bg-gray-50]="themeService.isLight()"
+               [class.text-gray-600]="themeService.isLight()">
+          <tr>
+            <th class="px-4 py-3">{{ lang.t('analytics.month') }}</th>
+            <th class="px-4 py-3 text-right">{{ lang.t('analytics.purchases') }}</th>
+            <th class="px-4 py-3 text-right">{{ lang.t('analytics.dividends') }}</th>
+            <th class="px-4 py-3 text-right">{{ lang.t('analytics.netInvested') }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y"
+               [class.divide-slate-800]="themeService.isDark()"
+               [class.divide-gray-200]="themeService.isLight()">
+          @for (row of monthlyTotals(); track trackByMonth($index, row)) {
+            <tr class="transition"
+                [class.hover:bg-slate-800/50]="themeService.isDark()"
+                [class.hover:bg-gray-50]="themeService.isLight()">
+              <td class="px-4 py-3 font-medium"
+                  [class.text-white]="themeService.isDark()"
+                  [class.text-gray-900]="themeService.isLight()">{{ formatMonth(row.month) }}</td>
+              <td class="px-4 py-3 text-right"
+                  [class.text-slate-300]="themeService.isDark()"
+                  [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(row.buyAmount) }}</td>
+              <td class="px-4 py-3 text-right text-emerald-400">{{ formatCurrency(row.dividendAmount) }}</td>
+              <td class="px-4 py-3 text-right"
+                  [class.text-white]="themeService.isDark()"
+                  [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(row.netInvested) }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="px-4 py-8 text-center"
+                  [class.text-slate-500]="themeService.isDark()"
+                  [class.text-gray-500]="themeService.isLight()">
+                {{ lang.t('analytics.noTransactions') }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

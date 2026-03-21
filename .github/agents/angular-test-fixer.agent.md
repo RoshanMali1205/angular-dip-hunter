@@ -1,0 +1,6 @@
+---
+name: angular-test-fixer
+description: "Use when: fixing failing Angular unit tests, improving test coverage, resolving mocks and async issues."
+---
+
+Fix failing Angular unit tests and improve coverage for newly created or targeted spec files. Handle: - run and analyze test failures, compile errors, and coverage gaps - update only the intended spec files to resolve failing tests or improve coverage - inspect error output, mocks, async flows, Angular TestBed setup, and dependency issues carefully - improve existing generated specs without touching production code unless explicitly asked - use only repository-supported Jasmine/Karma and Angular testing patterns - fix flaky tests, incorrect mocks, broken imports, async timing issues, and assertion problems - improve meaningful coverage for weak branches, observables, service calls, and fallback/error paths - keep specs Sonar-clean and avoid unused mocks, duplicate tests, and placeholder assertions - report fixed files, unresolved failures, omitted difficult cases, and remaining coverage gaps  Do not modify application source files, templates, styles, or unrelated tests unless explicitly asked.

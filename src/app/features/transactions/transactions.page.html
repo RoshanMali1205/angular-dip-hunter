@@ -1,0 +1,605 @@
+<!-- Transactions Page Template -->
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div>
+    <h1 class="text-2xl font-bold"
+        [class.text-white]="themeService.isDark()"
+        [class.text-gray-900]="themeService.isLight()">{{ lang.t('transactions.title') }}</h1>
+    <p class="text-sm"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">{{ lang.t('transactions.subtitle') }}</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-1 rounded-lg p-1"
+       [class.bg-slate-800]="themeService.isDark()"
+       [class.bg-gray-100]="themeService.isLight()">
+    <button
+      (click)="setTab('buy')"
+      [class]="activeTab() === 'buy' ? 'bg-emerald-600 text-white' : themeService.isDark() ? 'text-slate-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'"
+      class="flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors">
+      {{ lang.t('transactions.buy') }}
+    </button>
+    <button
+      (click)="setTab('dividend')"
+      [class]="activeTab() === 'dividend' ? 'bg-emerald-600 text-white' : themeService.isDark() ? 'text-slate-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'"
+      class="flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors">
+      {{ lang.t('transactions.dividend') }}
+    </button>
+    <button
+      (click)="setTab('holdings')"
+      [class]="activeTab() === 'holdings' ? 'bg-emerald-600 text-white' : themeService.isDark() ? 'text-slate-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'"
+      class="flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors">
+      {{ lang.t('transactions.holdings') }}
+    </button>
+  </div>
+
+  <!-- Buy Transactions Tab -->
+  @if (activeTab() === 'buy') {
+    <div class="grid gap-6 lg:grid-cols-3">
+      <!-- Add Buy Form -->
+      <div class="lg:col-span-1">
+        <div class="rounded-xl border p-4 relative overflow-hidden"
+             [class.border-emerald-500/20]="themeService.isDark()"
+             [class.bg-gradient-to-br]="true"
+             [class.from-emerald-950/20]="themeService.isDark()"
+             [class.via-slate-900/95]="themeService.isDark()"
+             [class.to-slate-900]="themeService.isDark()"
+             [class.border-emerald-200]="themeService.isLight()"
+             [class.from-emerald-50/30]="themeService.isLight()"
+             [class.via-white]="themeService.isLight()"
+             [class.to-white]="themeService.isLight()">
+          <h3 class="mb-4 font-semibold"
+              [class.text-white]="themeService.isDark()"
+              [class.text-gray-900]="themeService.isLight()">{{ lang.t('transactions.addBuyTransaction') }}</h3>
+          <form (ngSubmit)="onSubmitBuy()" class="space-y-4">
+            <div>
+              <label class="mb-1 block text-sm"
+                     [class.text-slate-400]="themeService.isDark()"
+                     [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.folder') }}</label>
+              <select
+                [ngModel]="buyForm().folderId"
+                (ngModelChange)="updateBuyField('folderId', $event)"
+                name="folderId"
+                class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.text-white]="themeService.isDark()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.bg-white]="themeService.isLight()"
+                [class.text-gray-900]="themeService.isLight()">
+                <option value="GROWTH_20">Growth Twenty</option>
+                <option value="DIVIDEND_10">Dividend Ten</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm"
+                     [class.text-slate-400]="themeService.isDark()"
+                     [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.symbol') }}</label>
+              <select
+                [ngModel]="buyForm().symbol"
+                (ngModelChange)="updateBuyField('symbol', $event)"
+                name="symbol"
+                class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.text-white]="themeService.isDark()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.bg-white]="themeService.isLight()"
+                [class.text-gray-900]="themeService.isLight()">
+                <option value="">{{ lang.t('transactions.selectStock') }}</option>
+                @for (stock of availableStocks(); track trackByStock($index, stock)) {
+                  <option [value]="stock.symbol">{{ stock.symbol }}</option>
+                }
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="mb-1 block text-sm"
+                       [class.text-slate-400]="themeService.isDark()"
+                       [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.quantity') }}</label>
+                <input
+                  type="number"
+                  [ngModel]="buyForm().qty"
+                  (ngModelChange)="updateBuyField('qty', $event)"
+                  name="qty"
+                  min="1"
+                  step="1"
+                  class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  [class.border-slate-700]="themeService.isDark()"
+                  [class.bg-slate-800]="themeService.isDark()"
+                  [class.text-white]="themeService.isDark()"
+                  [class.border-gray-300]="themeService.isLight()"
+                  [class.bg-white]="themeService.isLight()"
+                  [class.text-gray-900]="themeService.isLight()">
+              </div>
+              <div>
+                <label class="mb-1 block text-sm"
+                       [class.text-slate-400]="themeService.isDark()"
+                       [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.price') }}</label>
+                <input
+                  type="number"
+                  [ngModel]="buyForm().price"
+                  (ngModelChange)="updateBuyField('price', $event)"
+                  name="price"
+                  min="0"
+                  step="0.01"
+                  class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  [class.border-slate-700]="themeService.isDark()"
+                  [class.bg-slate-800]="themeService.isDark()"
+                  [class.text-white]="themeService.isDark()"
+                  [class.border-gray-300]="themeService.isLight()"
+                  [class.bg-white]="themeService.isLight()"
+                  [class.text-gray-900]="themeService.isLight()">
+              </div>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm"
+                     [class.text-slate-400]="themeService.isDark()"
+                     [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.date') }}</label>
+              <input
+                type="date"
+                [ngModel]="buyForm().date"
+                (ngModelChange)="updateBuyField('date', $event)"
+                name="date"
+                class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.text-white]="themeService.isDark()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.bg-white]="themeService.isLight()"
+                [class.text-gray-900]="themeService.isLight()">
+            </div>
+            <button
+              type="submit"
+              class="w-full rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+              {{ lang.t('transactions.addTransaction') }}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Buy Transactions List -->
+      <div class="lg:col-span-2">
+        <!-- Filters -->
+        <div class="mb-4 flex flex-wrap items-center gap-3">
+          <input
+            type="text"
+            [ngModel]="filters().symbol"
+            (ngModelChange)="updateFilter('symbol', $event)"
+            [placeholder]="lang.t('transactions.filterBySymbol')"
+            class="rounded-lg border px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+          <input
+            type="date"
+            [ngModel]="filters().startDate"
+            (ngModelChange)="updateFilter('startDate', $event)"
+            class="rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+          <input
+            type="date"
+            [ngModel]="filters().endDate"
+            (ngModelChange)="updateFilter('endDate', $event)"
+            class="rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+          <button
+            (click)="clearFilters()"
+            class="text-sm transition"
+            [class.text-slate-400]="themeService.isDark()"
+            [class.hover:text-white]="themeService.isDark()"
+            [class.text-gray-500]="themeService.isLight()"
+            [class.hover:text-gray-700]="themeService.isLight()">
+            {{ lang.t('transactions.clear') }}
+          </button>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="overflow-hidden rounded-xl border"
+             [class.border-slate-800]="themeService.isDark()"
+             [class.bg-slate-900]="themeService.isDark()"
+             [class.border-gray-200]="themeService.isLight()"
+             [class.bg-white]="themeService.isLight()">
+          <table class="w-full text-left text-sm">
+            <thead class="border-b text-xs uppercase"
+                   [class.border-slate-800]="themeService.isDark()"
+                   [class.bg-slate-800/50]="themeService.isDark()"
+                   [class.text-slate-400]="themeService.isDark()"
+                   [class.border-gray-200]="themeService.isLight()"
+                   [class.bg-gray-50]="themeService.isLight()"
+                   [class.text-gray-600]="themeService.isLight()">
+              <tr>
+                <th class="px-4 py-3">{{ lang.t('transactions.date') }}</th>
+                <th class="px-4 py-3">{{ lang.t('transactions.symbol') }}</th>
+                <th class="px-4 py-3 text-right">{{ lang.t('transactions.qty') }}</th>
+                <th class="px-4 py-3 text-right">{{ lang.t('transactions.price') }}</th>
+                <th class="px-4 py-3 text-right">{{ lang.t('transactions.total') }}</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y"
+                   [class.divide-slate-800]="themeService.isDark()"
+                   [class.divide-gray-200]="themeService.isLight()">
+              @for (tx of filteredBuyTransactions(); track trackByTx($index, tx)) {
+                <tr class="transition"
+                    [class.hover:bg-slate-800/50]="themeService.isDark()"
+                    [class.hover:bg-gray-50]="themeService.isLight()">
+                  <td class="px-4 py-3"
+                      [class.text-slate-400]="themeService.isDark()"
+                      [class.text-gray-500]="themeService.isLight()">{{ formatDate(tx.date) }}</td>
+                  <td class="px-4 py-3 font-medium"
+                      [class.text-white]="themeService.isDark()"
+                      [class.text-gray-900]="themeService.isLight()">{{ tx.symbol }}</td>
+                  <td class="px-4 py-3 text-right"
+                      [class.text-slate-300]="themeService.isDark()"
+                      [class.text-gray-700]="themeService.isLight()">{{ tx.qty }}</td>
+                  <td class="px-4 py-3 text-right"
+                      [class.text-slate-300]="themeService.isDark()"
+                      [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(tx.price) }}</td>
+                  <td class="px-4 py-3 text-right"
+                      [class.text-white]="themeService.isDark()"
+                      [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(tx.totalAmount) }}</td>
+                  <td class="px-4 py-3 text-right">
+                    <button
+                      (click)="onDeleteBuy(tx)"
+                      class="text-red-400 hover:text-red-300">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="px-4 py-8 text-center"
+                      [class.text-slate-500]="themeService.isDark()"
+                      [class.text-gray-500]="themeService.isLight()">
+                    {{ lang.t('transactions.noBuyTransactions') }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Dividends Tab -->
+  @if (activeTab() === 'dividend') {
+    <div class="grid gap-6 lg:grid-cols-3">
+      <!-- Add Dividend Form -->
+      <div class="lg:col-span-1">
+        <div class="rounded-xl border p-4"
+             [class.border-slate-800]="themeService.isDark()"
+             [class.bg-slate-900]="themeService.isDark()"
+             [class.border-gray-200]="themeService.isLight()"
+             [class.bg-white]="themeService.isLight()">
+          <h3 class="mb-4 font-semibold"
+              [class.text-white]="themeService.isDark()"
+              [class.text-gray-900]="themeService.isLight()">{{ lang.t('transactions.addDividend') }}</h3>
+          <form (ngSubmit)="onSubmitDividend()" class="space-y-4">
+            <div>
+              <label class="mb-1 block text-sm"
+                     [class.text-slate-400]="themeService.isDark()"
+                     [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.folder') }}</label>
+              <select
+                [ngModel]="dividendForm().folderId"
+                (ngModelChange)="updateDividendField('folderId', $event)"
+                name="folderId"
+                class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.text-white]="themeService.isDark()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.bg-white]="themeService.isLight()"
+                [class.text-gray-900]="themeService.isLight()">
+                <option value="GROWTH_20">Growth Twenty</option>
+                <option value="DIVIDEND_10">Dividend Ten</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm"
+                     [class.text-slate-400]="themeService.isDark()"
+                     [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.symbol') }}</label>
+              <select
+                [ngModel]="dividendForm().symbol"
+                (ngModelChange)="updateDividendField('symbol', $event)"
+                name="symbol"
+                class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.text-white]="themeService.isDark()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.bg-white]="themeService.isLight()"
+                [class.text-gray-900]="themeService.isLight()">
+                <option value="">{{ lang.t('transactions.selectStock') }}</option>
+                @for (stock of availableStocks(); track trackByStock($index, stock)) {
+                  <option [value]="stock.symbol">{{ stock.symbol }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm"
+                     [class.text-slate-400]="themeService.isDark()"
+                     [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.amount') }} (₹)</label>
+              <input
+                type="number"
+                [ngModel]="dividendForm().amount"
+                (ngModelChange)="updateDividendField('amount', $event)"
+                name="amount"
+                min="0"
+                step="0.01"
+                class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.text-white]="themeService.isDark()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.bg-white]="themeService.isLight()"
+                [class.text-gray-900]="themeService.isLight()">
+            </div>
+            <div>
+              <label class="mb-1 block text-sm"
+                     [class.text-slate-400]="themeService.isDark()"
+                     [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.date') }}</label>
+              <input
+                type="date"
+                [ngModel]="dividendForm().date"
+                (ngModelChange)="updateDividendField('date', $event)"
+                name="date"
+                class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.text-white]="themeService.isDark()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.bg-white]="themeService.isLight()"
+                [class.text-gray-900]="themeService.isLight()">
+            </div>
+            <button
+              type="submit"
+              class="w-full rounded-lg bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+              {{ lang.t('transactions.addTransaction') }}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Dividends List -->
+      <div class="lg:col-span-2">
+        <!-- Filters -->
+        <div class="mb-4 flex flex-wrap items-center gap-3">
+          <input
+            type="text"
+            [ngModel]="filters().symbol"
+            (ngModelChange)="updateFilter('symbol', $event)"
+            [placeholder]="lang.t('transactions.filterBySymbol')"
+            class="rounded-lg border px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+          <input
+            type="date"
+            [ngModel]="filters().startDate"
+            (ngModelChange)="updateFilter('startDate', $event)"
+            class="rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+          <input
+            type="date"
+            [ngModel]="filters().endDate"
+            (ngModelChange)="updateFilter('endDate', $event)"
+            class="rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+          <button
+            (click)="clearFilters()"
+            class="text-sm transition"
+            [class.text-slate-400]="themeService.isDark()"
+            [class.hover:text-white]="themeService.isDark()"
+            [class.text-gray-500]="themeService.isLight()"
+            [class.hover:text-gray-700]="themeService.isLight()">
+            {{ lang.t('transactions.clear') }}
+          </button>
+        </div>
+
+        <!-- Dividends Table -->
+        <div class="overflow-hidden rounded-xl border"
+             [class.border-slate-800]="themeService.isDark()"
+             [class.bg-slate-900]="themeService.isDark()"
+             [class.border-gray-200]="themeService.isLight()"
+             [class.bg-white]="themeService.isLight()">
+          <table class="w-full text-left text-sm">
+            <thead class="border-b text-xs uppercase"
+                   [class.border-slate-800]="themeService.isDark()"
+                   [class.bg-slate-800/50]="themeService.isDark()"
+                   [class.text-slate-400]="themeService.isDark()"
+                   [class.border-gray-200]="themeService.isLight()"
+                   [class.bg-gray-50]="themeService.isLight()"
+                   [class.text-gray-600]="themeService.isLight()">
+              <tr>
+                <th class="px-4 py-3">{{ lang.t('transactions.date') }}</th>
+                <th class="px-4 py-3">{{ lang.t('transactions.symbol') }}</th>
+                <th class="px-4 py-3 text-right">{{ lang.t('transactions.amount') }}</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y"
+                   [class.divide-slate-800]="themeService.isDark()"
+                   [class.divide-gray-200]="themeService.isLight()">
+              @for (tx of filteredDividendTransactions(); track trackByTx($index, tx)) {
+                <tr class="transition"
+                    [class.hover:bg-slate-800/50]="themeService.isDark()"
+                    [class.hover:bg-gray-50]="themeService.isLight()">
+                  <td class="px-4 py-3"
+                      [class.text-slate-400]="themeService.isDark()"
+                      [class.text-gray-500]="themeService.isLight()">{{ formatDate(tx.date) }}</td>
+                  <td class="px-4 py-3 font-medium"
+                      [class.text-white]="themeService.isDark()"
+                      [class.text-gray-900]="themeService.isLight()">{{ tx.symbol }}</td>
+                  <td class="px-4 py-3 text-right text-emerald-400">{{ formatCurrency(tx.amount) }}</td>
+                  <td class="px-4 py-3 text-right">
+                    <button
+                      (click)="onDeleteDividend(tx)"
+                      class="text-red-400 hover:text-red-300">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="px-4 py-8 text-center"
+                      [class.text-slate-500]="themeService.isDark()"
+                      [class.text-gray-500]="themeService.isLight()">
+                    {{ lang.t('transactions.noDividendTransactions') }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Holdings Tab -->
+  @if (activeTab() === 'holdings') {
+    <div class="space-y-6">
+      <!-- Refresh Button & Summary -->
+      <div class="flex items-center justify-between">
+        @if (holdingsSummary(); as summary) {
+          <div class="flex items-center gap-6 text-sm">
+            <span [class.text-slate-400]="themeService.isDark()"
+                  [class.text-gray-500]="themeService.isLight()">{{ lang.t('transactions.totalValue') }}: 
+              <span class="font-semibold"
+                    [class.text-white]="themeService.isDark()"
+                    [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(summary.totalCurrentValue) }}</span>
+            </span>
+            <span [class.text-slate-400]="themeService.isDark()"
+                  [class.text-gray-500]="themeService.isLight()">{{ lang.t('transactions.pl') }}: 
+              <span [class]="summary.totalUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-red-400'" class="font-semibold">
+                {{ formatCurrency(summary.totalUnrealizedPL) }} ({{ formatPercent(summary.totalUnrealizedPLPercent) }})
+              </span>
+            </span>
+            <span [class.text-slate-400]="themeService.isDark()"
+                  [class.text-gray-500]="themeService.isLight()">{{ lang.t('transactions.dividendsReceived') }}: 
+              <span class="text-emerald-400 font-semibold">{{ formatCurrency(summary.totalDividends) }}</span>
+            </span>
+          </div>
+        }
+        <button
+          (click)="loadHoldings()"
+          [disabled]="isLoading()"
+          class="flex items-center gap-2 rounded-lg px-4 py-2 text-sm transition"
+          [class.bg-slate-800]="themeService.isDark()"
+          [class.text-white]="themeService.isDark()"
+          [class.hover:bg-slate-700]="themeService.isDark()"
+          [class.bg-gray-100]="themeService.isLight()"
+          [class.text-gray-700]="themeService.isLight()"
+          [class.hover:bg-gray-200]="themeService.isLight()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" [class.animate-spin]="isLoading()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          {{ lang.t('transactions.refreshQuotes') }}
+        </button>
+      </div>
+
+      <!-- All Holdings -->
+      <div class="overflow-hidden rounded-xl border"
+           [class.border-slate-800]="themeService.isDark()"
+           [class.bg-slate-900]="themeService.isDark()"
+           [class.border-gray-200]="themeService.isLight()"
+           [class.bg-white]="themeService.isLight()">
+        <table class="w-full text-left text-sm">
+          <thead class="border-b text-xs uppercase"
+                 [class.border-slate-800]="themeService.isDark()"
+                 [class.bg-slate-800/50]="themeService.isDark()"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.border-gray-200]="themeService.isLight()"
+                 [class.bg-gray-50]="themeService.isLight()"
+                 [class.text-gray-600]="themeService.isLight()">
+            <tr>
+              <th class="px-4 py-3">{{ lang.t('transactions.symbol') }}</th>
+              <th class="px-4 py-3">{{ lang.t('transactions.folder') }}</th>
+              <th class="px-4 py-3 text-right">{{ lang.t('transactions.shares') }}</th>
+              <th class="px-4 py-3 text-right">{{ lang.t('transactions.avgPrice') }}</th>
+              <th class="px-4 py-3 text-right">{{ lang.t('transactions.currentPrice') }}</th>
+              <th class="px-4 py-3 text-right">{{ lang.t('transactions.marketValue') }}</th>
+              <th class="px-4 py-3 text-right">{{ lang.t('transactions.pl') }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y"
+                 [class.divide-slate-800]="themeService.isDark()"
+                 [class.divide-gray-200]="themeService.isLight()">
+            @for (h of holdings(); track trackByHolding($index, h)) {
+              <tr class="transition"
+                  [class.hover:bg-slate-800/50]="themeService.isDark()"
+                  [class.hover:bg-gray-50]="themeService.isLight()">
+                <td class="px-4 py-3">
+                  <p class="font-medium"
+                     [class.text-white]="themeService.isDark()"
+                     [class.text-gray-900]="themeService.isLight()">{{ h.symbol }}</p>
+                  <p class="text-xs"
+                     [class.text-slate-500]="themeService.isDark()"
+                     [class.text-gray-500]="themeService.isLight()">{{ h.displayName }}</p>
+                </td>
+                <td class="px-4 py-3"
+                    [class.text-slate-400]="themeService.isDark()"
+                    [class.text-gray-500]="themeService.isLight()">{{ h.folderId === 'GROWTH_20' ? 'G20' : 'D10' }}</td>
+                <td class="px-4 py-3 text-right"
+                    [class.text-slate-300]="themeService.isDark()"
+                    [class.text-gray-700]="themeService.isLight()">{{ h.totalQty }}</td>
+                <td class="px-4 py-3 text-right"
+                    [class.text-slate-300]="themeService.isDark()"
+                    [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(h.avgPrice) }}</td>
+                <td class="px-4 py-3 text-right"
+                    [class.text-slate-300]="themeService.isDark()"
+                    [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(h.currentPrice) }}</td>
+                <td class="px-4 py-3 text-right"
+                    [class.text-white]="themeService.isDark()"
+                    [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(h.currentValue) }}</td>
+                <td class="px-4 py-3 text-right" [class]="(h.unrealizedPL || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'">
+                  {{ formatCurrency(h.unrealizedPL) }} ({{ formatPercent(h.unrealizedPLPercent) }})
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="px-4 py-8 text-center"
+                    [class.text-slate-500]="themeService.isDark()"
+                    [class.text-gray-500]="themeService.isLight()">
+                  {{ lang.t('transactions.noHoldings') }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

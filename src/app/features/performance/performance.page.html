@@ -1,0 +1,307 @@
+<!-- Performance Page Template -->
+<div class="space-y-4">
+  <!-- Page Header -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-xl font-bold flex items-center gap-2"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">
+        📊 {{ lang.t('performance.title') }}
+      </h1>
+      <p class="text-xs mt-0.5"
+         [class.text-slate-400]="themeService.isDark()"
+         [class.text-gray-500]="themeService.isLight()">
+        {{ lang.t('performance.subtitle') }}
+      </p>
+    </div>
+    
+    <!-- View Mode Toggle (Single Stock / Multistock / Sector) -->
+    <div class="flex items-center gap-1">
+      <button
+        (click)="viewMode.set('single')"
+        class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition"
+        [class.bg-emerald-500]="viewMode() === 'single'"
+        [class.text-white]="viewMode() === 'single'"
+        [class.bg-slate-800]="viewMode() !== 'single' && themeService.isDark()"
+        [class.text-slate-300]="viewMode() !== 'single' && themeService.isDark()"
+        [class.bg-gray-100]="viewMode() !== 'single' && themeService.isLight()"
+        [class.text-gray-700]="viewMode() !== 'single' && themeService.isLight()">
+        {{ lang.t('performance.singleStock') }}
+      </button>
+      <button
+        (click)="viewMode.set('multistock')"
+        class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition"
+        [class.bg-emerald-500]="viewMode() === 'multistock'"
+        [class.text-white]="viewMode() === 'multistock'"
+        [class.bg-slate-800]="viewMode() !== 'multistock' && themeService.isDark()"
+        [class.text-slate-300]="viewMode() !== 'multistock' && themeService.isDark()"
+        [class.bg-gray-100]="viewMode() !== 'multistock' && themeService.isLight()"
+        [class.text-gray-700]="viewMode() !== 'multistock' && themeService.isLight()">
+        {{ lang.t('performance.folderView') }}
+      </button>
+      <button
+        (click)="viewMode.set('sector')"
+        class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition"
+        [class.bg-emerald-500]="viewMode() === 'sector'"
+        [class.text-white]="viewMode() === 'sector'"
+        [class.bg-slate-800]="viewMode() !== 'sector' && themeService.isDark()"
+        [class.text-slate-300]="viewMode() !== 'sector' && themeService.isDark()"
+        [class.bg-gray-100]="viewMode() !== 'sector' && themeService.isLight()"
+        [class.text-gray-700]="viewMode() !== 'sector' && themeService.isLight()">
+        {{ lang.t('performance.sectorView') }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Controls Row -->
+  <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <!-- Left: Time Range + Folder/Stock Selection -->
+    <div class="flex flex-wrap items-center gap-2">
+      <!-- Time Range Selector -->
+      <app-time-range-selector
+        [selected]="selectedRange()"
+        (rangeChange)="onRangeChange($event)" />
+      
+      <!-- Folder Selector (always visible) -->
+      <select
+        [value]="selectedFolder()"
+        (change)="onFolderChange($event)"
+        class="px-3 py-1.5 rounded-lg border text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        [class.bg-slate-800]="themeService.isDark()"
+        [class.border-slate-700]="themeService.isDark()"
+        [class.text-slate-300]="themeService.isDark()"
+        [class.bg-white]="themeService.isLight()"
+        [class.border-gray-300]="themeService.isLight()"
+        [class.text-gray-700]="themeService.isLight()">
+        <option value="GROWTH_20">{{ lang.t('dashboard.growthTwenty') }}</option>
+        <option value="DIVIDEND_10">{{ lang.t('dashboard.dividendTen') }}</option>
+      </select>
+      
+      <!-- Stock Selector (Single Mode) -->
+      @if (viewMode() === 'single') {
+        <select
+          [value]="selectedStockId()"
+          (change)="onStockChange($event)"
+          class="px-3 py-1.5 rounded-lg border text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 max-w-xs"
+          [class.bg-slate-800]="themeService.isDark()"
+          [class.border-slate-700]="themeService.isDark()"
+          [class.text-slate-300]="themeService.isDark()"
+          [class.bg-white]="themeService.isLight()"
+          [class.border-gray-300]="themeService.isLight()"
+          [class.text-gray-700]="themeService.isLight()">
+          @for (stock of folderStocks(); track stock.id) {
+            <option [value]="stock.id">{{ stock.symbol }} - {{ stock.displayName }}</option>
+          }
+        </select>
+      }
+      
+      <!-- Sector Selector (Sector Mode) -->
+      @if (viewMode() === 'sector') {
+        <select
+          [value]="selectedSector()"
+          (change)="onSectorChange($event)"
+          class="px-3 py-1.5 rounded-lg border text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 min-w-[100px]"
+          [class.bg-slate-800]="themeService.isDark()"
+          [class.border-slate-700]="themeService.isDark()"
+          [class.text-slate-300]="themeService.isDark()"
+          [class.bg-white]="themeService.isLight()"
+          [class.border-gray-300]="themeService.isLight()"
+          [class.text-gray-700]="themeService.isLight()">
+          @for (sector of availableSectors(); track sector) {
+            <option [value]="sector">{{ sector }}</option>
+          }
+        </select>
+        <span class="text-[10px] px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 whitespace-nowrap">
+          {{ sectorStocks().length }} stocks
+        </span>
+      }
+    </div>
+    
+    <!-- Right: Compare Selector + Options (Multistock Mode) -->
+    @if (viewMode() === 'multistock') {
+      <div class="flex flex-wrap items-center gap-3">
+        <app-compare-stocks-selector
+          [stocks]="folderStocks()"
+          [selected]="selectedCompareStocks()"
+          [maxSelection]="5"
+          (selectionChange)="onCompareSelectionChange($event)" />
+        
+        <!-- Aggregate Toggle -->
+        <label class="flex items-center gap-1.5 cursor-pointer">
+          <input
+            type="checkbox"
+            [checked]="showAggregate()"
+            (change)="showAggregate.set(!showAggregate())"
+            class="w-3.5 h-3.5 rounded border-2 text-emerald-500 focus:ring-emerald-500"
+            [class.border-slate-600]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()">
+          <span class="text-xs font-medium"
+                [class.text-slate-300]="themeService.isDark()"
+                [class.text-gray-700]="themeService.isLight()">
+            {{ lang.t('performance.showAggregate') }}
+          </span>
+        </label>
+        
+        <!-- Normalize Toggle -->
+        <label class="flex items-center gap-1.5 cursor-pointer">
+          <input
+            type="checkbox"
+            [checked]="normalizeChart()"
+            (change)="normalizeChart.set(!normalizeChart())"
+            class="w-3.5 h-3.5 rounded border-2 text-emerald-500 focus:ring-emerald-500"
+            [class.border-slate-600]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()">
+          <span class="text-xs font-medium"
+                [class.text-slate-300]="themeService.isDark()"
+                [class.text-gray-700]="themeService.isLight()">
+            {{ lang.t('performance.normalizeView') }}
+          </span>
+        </label>
+      </div>
+    }
+    
+    <!-- Right: Options (Sector Mode) -->
+    @if (viewMode() === 'sector') {
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Aggregate Toggle -->
+        <label class="flex items-center gap-1.5 cursor-pointer">
+          <input
+            type="checkbox"
+            [checked]="showAggregate()"
+            (change)="showAggregate.set(!showAggregate())"
+            class="w-3.5 h-3.5 rounded border-2 text-emerald-500 focus:ring-emerald-500"
+            [class.border-slate-600]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()">
+          <span class="text-xs font-medium"
+                [class.text-slate-300]="themeService.isDark()"
+                [class.text-gray-700]="themeService.isLight()">
+            {{ lang.t('performance.showAggregate') }}
+          </span>
+        </label>
+        
+        <!-- Normalize Toggle -->
+        <label class="flex items-center gap-1.5 cursor-pointer">
+          <input
+            type="checkbox"
+            [checked]="normalizeChart()"
+            (change)="normalizeChart.set(!normalizeChart())"
+            class="w-3.5 h-3.5 rounded border-2 text-emerald-500 focus:ring-emerald-500"
+            [class.border-slate-600]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()">
+          <span class="text-xs font-medium"
+                [class.text-slate-300]="themeService.isDark()"
+                [class.text-gray-700]="themeService.isLight()">
+            {{ lang.t('performance.normalizeView') }}
+          </span>
+        </label>
+      </div>
+    }
+  </div>
+
+  <!-- Chart Section -->
+  <div class="rounded-xl border p-3"
+       [class.bg-slate-800/50]="themeService.isDark()"
+       [class.border-slate-700]="themeService.isDark()"
+       [class.bg-white]="themeService.isLight()"
+       [class.border-gray-200]="themeService.isLight()"
+       [class.shadow-sm]="themeService.isLight()">
+    
+    <!-- Chart Header -->
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <h2 class="text-base font-semibold"
+            [class.text-white]="themeService.isDark()"
+            [class.text-gray-900]="themeService.isLight()">
+          @if (viewMode() === 'single' && selectedStock()) {
+            {{ selectedStock()!.symbol }} - {{ selectedStock()!.displayName }}
+          } @else if (viewMode() === 'sector' && selectedSector()) {
+            {{ selectedSector() }} Sector
+          } @else {
+            {{ selectedFolder() === 'GROWTH_20' ? lang.t('dashboard.growthTwenty') : lang.t('dashboard.dividendTen') }}
+          }
+        </h2>
+        <p class="text-[10px] mt-0.5"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">
+          {{ getRangeLabel() }}
+          @if (viewMode() === 'sector') {
+            · {{ sectorStocks().length }} stocks
+          }
+        </p>
+      </div>
+      
+      <!-- Chart Type Toggle (optional) -->
+      <div class="flex items-center gap-1">
+        <button
+          (click)="chartType.set('line')"
+          class="p-1.5 rounded-lg transition"
+          [class.bg-emerald-500/20]="chartType() === 'line'"
+          [class.text-emerald-400]="chartType() === 'line'"
+          [class.text-slate-400]="chartType() !== 'line' && themeService.isDark()"
+          [class.text-gray-500]="chartType() !== 'line' && themeService.isLight()"
+          title="Line Chart">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+          </svg>
+        </button>
+        <button
+          (click)="chartType.set('area')"
+          class="p-1.5 rounded-lg transition"
+          [class.bg-emerald-500/20]="chartType() === 'area'"
+          [class.text-emerald-400]="chartType() === 'area'"
+          [class.text-slate-400]="chartType() !== 'area' && themeService.isDark()"
+          [class.text-gray-500]="chartType() !== 'area' && themeService.isLight()"
+          title="Area Chart">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Performance Chart -->
+    @if (viewMode() === 'single') {
+      <app-performance-chart
+        [data]="singleStockData()"
+        [isLoading]="isLoading()"
+        [error]="error()"
+        [chartType]="chartType()"
+        [height]="'300px'"
+        (retryClick)="loadData()" />
+    } @else {
+      <app-performance-chart
+        [comparisons]="comparisonData()"
+        [aggregateData]="aggregateData()"
+        [showAggregate]="showAggregate()"
+        [isLoading]="isLoading()"
+        [error]="error()"
+        [chartType]="chartType()"
+        [normalized]="normalizeChart()"
+        [height]="'300px'"
+        (retryClick)="loadData()" />
+    }
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="mt-4">
+    @if (viewMode() === 'single') {
+      <app-performance-summary-cards
+        [summary]="singleStockSummary()"
+        [isLoading]="isLoading()" />
+    } @else if (comparisonData().length > 0) {
+      <!-- Multistock/Sector aggregate summary -->
+      <app-performance-summary-cards
+        [summary]="folderAggregateSummary()"
+        [isLoading]="isLoading()" />
+    }
+  </div>
+
+  <!-- Comparison Table (Multistock/Sector Mode) -->
+  @if ((viewMode() === 'multistock' || viewMode() === 'sector') && comparisonData().length > 0) {
+    <div class="mt-4">
+      <app-performance-table-snapshot
+        [stocks]="comparisonData()" />
+    </div>
+  }
+</div>

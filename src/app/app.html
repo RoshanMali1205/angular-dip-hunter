@@ -1,0 +1,458 @@
+<!-- Dip Hunter - Stock Portfolio Dashboard App Shell -->
+<div class="min-h-screen flex flex-col transition-colors duration-300 relative overflow-x-hidden"
+     [class.bg-slate-950]="themeService.isDark()"
+     [class.text-slate-100]="themeService.isDark()"
+     [class.bg-gray-50]="themeService.isLight()"
+     [class.text-gray-900]="themeService.isLight()">
+  
+  <!-- Futuristic Background Pattern -->
+  <div class="fixed inset-0 pointer-events-none opacity-30" [class.opacity-30]="themeService.isDark()" [class.opacity-20]="themeService.isLight()">
+    <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" [attr.stop-color]="themeService.isDark() ? '#10b981' : '#059669'" stop-opacity="0.1">
+            <animate attributeName="stop-opacity" values="0.05;0.15;0.05" dur="8s" repeatCount="indefinite"/>
+          </stop>
+          <stop offset="50%" [attr.stop-color]="themeService.isDark() ? '#06b6d4' : '#0891b2'" stop-opacity="0.08">
+            <animate attributeName="stop-opacity" values="0.03;0.12;0.03" dur="10s" repeatCount="indefinite"/>
+          </stop>
+          <stop offset="100%" [attr.stop-color]="themeService.isDark() ? '#8b5cf6' : '#7c3aed'" stop-opacity="0.1">
+            <animate attributeName="stop-opacity" values="0.05;0.15;0.05" dur="9s" repeatCount="indefinite"/>
+          </stop>
+        </linearGradient>
+
+        <!-- Hexagon pattern -->
+        <pattern id="hexPattern" x="0" y="0" width="60" height="52" patternUnits="userSpaceOnUse">
+          <path d="M30 0 L45 13 L45 39 L30 52 L15 39 L15 13 Z"
+                fill="none"
+                stroke="url(#bgGradient)"
+                stroke-width="0.5"
+                opacity="0.4"/>
+        </pattern>
+
+        <!-- Dot grid pattern -->
+        <pattern id="dotPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="1" fill="url(#bgGradient)" opacity="0.3"/>
+        </pattern>
+      </defs>
+
+      <!-- Apply patterns -->
+      <rect width="100%" height="100%" fill="url(#hexPattern)"/>
+      <rect width="100%" height="100%" fill="url(#dotPattern)"/>
+
+      <!-- Animated floating orbs -->
+      <circle cx="20%" cy="30%" r="150" fill="url(#bgGradient)" opacity="0.03">
+        <animate attributeName="cx" values="20%;25%;20%" dur="15s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="30%;35%;30%" dur="20s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="80%" cy="70%" r="200" fill="url(#bgGradient)" opacity="0.04">
+        <animate attributeName="cx" values="80%;75%;80%" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="70%;65%;70%" dur="22s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="50%" cy="50%" r="120" fill="url(#bgGradient)" opacity="0.02">
+        <animate attributeName="r" values="120;140;120" dur="12s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  </div>
+  
+  <!-- Header with Navigation (Hidden on Auth Pages) -->
+  @if (!isAuthPage()) {
+  <header class="sticky top-0 z-50 border-b backdrop-blur-xl relative"
+          [class.border-emerald-500/20]="themeService.isDark()"
+          [class.bg-gradient-to-br]="themeService.isDark()"
+          [class.from-slate-950/80]="themeService.isDark()"
+          [class.via-emerald-950/30]="themeService.isDark()"
+          [class.to-slate-900/80]="themeService.isDark()"
+          [class.border-emerald-200/30]="themeService.isLight()"
+          [class.bg-gradient-to-br]="themeService.isLight()"
+          [class.from-white/80]="themeService.isLight()"
+          [class.via-emerald-50/40]="themeService.isLight()"
+          [class.to-gray-50/80]="themeService.isLight()"
+          [class.shadow-lg]="true"
+          [class.shadow-emerald-500/10]="themeService.isDark()">
+    
+    <!-- Futuristic Animated Grid Background -->
+    <div class="absolute inset-0 opacity-20 pointer-events-none">
+      <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="gridGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" [attr.stop-color]="themeService.isDark() ? '#10b981' : '#059669'" stop-opacity="0.6">
+              <animate attributeName="stop-opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/>
+            </stop>
+            <stop offset="50%" [attr.stop-color]="themeService.isDark() ? '#06b6d4' : '#0891b2'" stop-opacity="0.4">
+              <animate attributeName="stop-opacity" values="0.2;0.6;0.2" dur="4s" repeatCount="indefinite"/>
+            </stop>
+            <stop offset="100%" [attr.stop-color]="themeService.isDark() ? '#8b5cf6' : '#7c3aed'" stop-opacity="0.6">
+              <animate attributeName="stop-opacity" values="0.3;0.8;0.3" dur="3.5s" repeatCount="indefinite"/>
+            </stop>
+          </linearGradient>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="url(#gridGradient)" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)"/>
+        
+        <!-- Floating geometric shapes -->
+        <circle cx="10%" cy="50%" r="3" fill="url(#gridGradient)" opacity="0.6">
+          <animate attributeName="cy" values="30%;70%;30%" dur="5s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="90%" cy="50%" r="2" fill="url(#gridGradient)" opacity="0.5">
+          <animate attributeName="cy" values="70%;30%;70%" dur="4s" repeatCount="indefinite"/>
+        </circle>
+        <rect x="30%" y="20%" width="4" height="4" fill="url(#gridGradient)" opacity="0.4" transform="rotate(45 32 22)">
+          <animate attributeName="y" values="10%;80%;10%" dur="6s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="70%" y="60%" width="3" height="3" fill="url(#gridGradient)" opacity="0.5" transform="rotate(45 71 61)">
+          <animate attributeName="y" values="80%;20%;80%" dur="5.5s" repeatCount="indefinite"/>
+        </rect>
+      </svg>
+    </div>
+    
+    <!-- Glow effect line -->
+    <div class="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-50"></div>
+
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 relative z-10">
+      <!-- Logo -->
+      <a routerLink="/" class="flex items-center gap-2 group">
+        <div class="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/30 via-cyan-500/20 to-emerald-500/30 backdrop-blur-sm border border-emerald-400/30 shadow-lg shadow-emerald-500/20 transition-all duration-300 group-hover:shadow-emerald-400/40 group-hover:scale-105">
+          <span class="text-xl">📈</span>
+          <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-400/0 via-emerald-400/10 to-emerald-400/0 group-hover:from-emerald-400/20 group-hover:to-cyan-400/20 transition-all duration-300"></div>
+        </div>
+        <div class="hidden sm:block">
+          <p class="text-base font-bold leading-none bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent whitespace-nowrap">Dip Hunter</p>
+          <p class="text-[10px] font-medium whitespace-nowrap"
+             [class.text-slate-400]="themeService.isDark()"
+             [class.text-gray-500]="themeService.isLight()">Stock Portfolio</p>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden items-center gap-1.5 md:flex">
+        <a routerLink="/" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50" [routerLinkActiveOptions]="{exact: true}"
+           class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800/60]="themeService.isDark()"
+           [class.hover:border-emerald-400/30]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100/60]="themeService.isLight()">
+          <span class="relative z-10">{{ lang.t('nav.dashboard') }}</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </a>
+        <a routerLink="/folders" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
+           class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800/60]="themeService.isDark()"
+           [class.hover:border-emerald-400/30]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100/60]="themeService.isLight()">
+          <span class="relative z-10">{{ lang.t('nav.folders') }}</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </a>
+        <a routerLink="/planner" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
+           data-tour="nav-planner"
+           class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800/60]="themeService.isDark()"
+           [class.hover:border-emerald-400/30]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100/60]="themeService.isLight()">
+          <span class="relative z-10">{{ lang.t('nav.planner') }}</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </a>
+        <a routerLink="/transactions" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
+           data-tour="nav-transactions"
+           class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800/60]="themeService.isDark()"
+           [class.hover:border-emerald-400/30]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100/60]="themeService.isLight()">
+          <span class="relative z-10">{{ lang.t('nav.transactions') }}</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </a>
+        <a routerLink="/analytics" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
+           class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800/60]="themeService.isDark()"
+           [class.hover:border-emerald-400/30]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100/60]="themeService.isLight()">
+          <span class="relative z-10">{{ lang.t('nav.analytics') }}</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </a>
+        <a routerLink="/performance" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
+           class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800/60]="themeService.isDark()"
+           [class.hover:border-emerald-400/30]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100/60]="themeService.isLight()">
+          <span class="relative z-10">{{ lang.t('nav.performance') }}</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </a>
+        <a routerLink="/settings" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
+           data-tour="nav-settings"
+           class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800/60]="themeService.isDark()"
+           [class.hover:border-emerald-400/30]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100/60]="themeService.isLight()">
+          <span class="relative z-10">{{ lang.t('nav.settings') }}</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </a>
+      </nav>
+
+      <!-- Right side controls -->
+      <div class="flex items-center gap-2">
+        <!-- Language Selector (Custom Dropdown) -->
+        <div class="relative z-[200] lang-menu-container">
+          <button (click)="toggleLangMenu()"
+                  class="flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400/50 backdrop-blur-md transition-all duration-300 shadow-sm group"
+                  [class.bg-slate-800/70]="themeService.isDark()"
+                  [class.border-emerald-500/30]="themeService.isDark()"
+                  [class.text-slate-300]="themeService.isDark()"
+                  [class.hover:border-emerald-400/50]="themeService.isDark()"
+                  [class.hover:bg-slate-700/70]="themeService.isDark()"
+                  [class.bg-white/70]="themeService.isLight()"
+                  [class.border-emerald-300]="themeService.isLight()"
+                  [class.text-gray-700]="themeService.isLight()"
+                  [class.hover:bg-gray-50/70]="themeService.isLight()">
+            <span>{{ lang.currentLanguage()?.nativeName || 'English' }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform duration-200" 
+                 [class.rotate-180]="showLangMenu()"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          <!-- Language Dropdown Menu -->
+          @if (showLangMenu()) {
+            <div class="absolute right-0 top-full mt-2 w-36 rounded-xl border overflow-hidden backdrop-blur-xl shadow-xl z-[9999]"
+                 [class.bg-slate-900/90]="themeService.isDark()"
+                 [class.border-emerald-500/30]="themeService.isDark()"
+                 [class.shadow-emerald-500/10]="themeService.isDark()"
+                 [class.bg-white/90]="themeService.isLight()"
+                 [class.border-emerald-200]="themeService.isLight()"
+                 [class.shadow-gray-200]="themeService.isLight()">
+              @for (l of lang.languages; track l.code) {
+                <button (click)="selectLanguage(l.code)"
+                        class="w-full px-4 py-2.5 text-left text-sm font-medium transition-all duration-200 flex items-center gap-2"
+                        [class.bg-emerald-600/20]="lang.language() === l.code"
+                        [class.text-emerald-400]="lang.language() === l.code && themeService.isDark()"
+                        [class.text-emerald-600]="lang.language() === l.code && themeService.isLight()"
+                        [class.text-slate-300]="lang.language() !== l.code && themeService.isDark()"
+                        [class.hover:bg-slate-800/50]="themeService.isDark()"
+                        [class.text-gray-700]="lang.language() !== l.code && themeService.isLight()"
+                        [class.hover:bg-gray-100/50]="themeService.isLight()">
+                  @if (lang.language() === l.code) {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  } @else {
+                    <span class="w-4"></span>
+                  }
+                  {{ l.nativeName }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Theme Toggle -->
+        <button (click)="themeService.toggleTheme()"
+                class="relative rounded-xl p-2.5 transition-all duration-300 backdrop-blur-sm border overflow-hidden group shadow-sm"
+                [class.bg-slate-800/60]="themeService.isDark()"
+                [class.border-emerald-500/30]="themeService.isDark()"
+                [class.text-yellow-400]="themeService.isDark()"
+                [class.hover:bg-slate-700/60]="themeService.isDark()"
+                [class.hover:border-emerald-400/50]="themeService.isDark()"
+                [class.hover:shadow-lg]="themeService.isDark()"
+                [class.hover:shadow-emerald-500/20]="themeService.isDark()"
+                [class.bg-white/60]="themeService.isLight()"
+                [class.border-emerald-300]="themeService.isLight()"
+                [class.text-indigo-600]="themeService.isLight()"
+                [class.hover:bg-gray-50/60]="themeService.isLight()"
+                [title]="themeService.isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          @if (themeService.isDark()) {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 relative z-10 transition-transform duration-300 group-hover:rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 relative z-10 transition-transform duration-300 group-hover:rotate-[-15deg]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          }
+        </button>
+
+        <!-- User Profile with Dropdown -->
+        <div class="relative z-[200] user-menu-container">
+          <button (click)="toggleUserMenu()"
+                  class="flex items-center gap-2 rounded-xl px-2 py-1.5 cursor-pointer transition-all duration-300 backdrop-blur-sm border shadow-sm group"
+                  [class.bg-slate-800/60]="themeService.isDark()"
+                  [class.border-emerald-500/30]="themeService.isDark()"
+                  [class.hover:bg-slate-700/60]="themeService.isDark()"
+                  [class.hover:border-emerald-400/50]="themeService.isDark()"
+                  [class.hover:shadow-lg]="themeService.isDark()"
+                  [class.hover:shadow-emerald-500/20]="themeService.isDark()"
+                  [class.bg-white/60]="themeService.isLight()"
+                  [class.border-emerald-300]="themeService.isLight()"
+                  [class.hover:bg-gray-50/60]="themeService.isLight()">
+            @if (authService.user()?.avatar) {
+              <img [src]="authService.user()?.avatar" 
+                   [alt]="authService.user()?.name"
+                   class="h-6 w-6 rounded-full object-cover border-2 border-emerald-400/50 transition-transform duration-300 group-hover:scale-110">
+            } @else {
+              <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-[10px] font-bold text-white">
+                {{ getUserInitials() }}
+              </div>
+            }
+            <span class="hidden text-xs font-medium lg:block whitespace-nowrap max-w-[100px] truncate"
+                  [class.text-slate-300]="themeService.isDark()"
+                  [class.text-gray-700]="themeService.isLight()">
+              {{ authService.user()?.name || 'User' }}
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-500]="themeService.isLight()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- User Dropdown Menu -->
+          @if (showUserMenu()) {
+            <div class="absolute right-0 top-full mt-2 w-52 rounded-xl border overflow-hidden backdrop-blur-xl shadow-xl z-[9999]"
+                 [class.bg-slate-900/90]="themeService.isDark()"
+                 [class.border-emerald-500/30]="themeService.isDark()"
+                 [class.shadow-emerald-500/10]="themeService.isDark()"
+                 [class.bg-white/90]="themeService.isLight()"
+                 [class.border-emerald-200]="themeService.isLight()"
+                 [class.shadow-gray-200]="themeService.isLight()">
+              <div class="px-4 py-3 border-b"
+                   [class.border-slate-700/50]="themeService.isDark()"
+                   [class.border-gray-200]="themeService.isLight()">
+                <p class="text-sm font-medium"
+                   [class.text-white]="themeService.isDark()"
+                   [class.text-gray-900]="themeService.isLight()">{{ authService.user()?.name }}</p>
+                <p class="text-xs truncate"
+                   [class.text-slate-400]="themeService.isDark()"
+                   [class.text-gray-500]="themeService.isLight()">{{ authService.user()?.email }}</p>
+              </div>
+              <a routerLink="/settings" (click)="showUserMenu.set(false)"
+                 class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all duration-200"
+                 [class.text-slate-300]="themeService.isDark()"
+                 [class.hover:bg-slate-800/50]="themeService.isDark()"
+                 [class.text-gray-700]="themeService.isLight()"
+                 [class.hover:bg-gray-100/50]="themeService.isLight()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                {{ lang.t('nav.settings') }}
+              </a>
+              <button (click)="logout()"
+                      class="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-medium text-left transition-all duration-200 text-red-400 hover:bg-red-500/10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                {{ lang.t('auth.logout') }}
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button (click)="toggleMobileMenu()" 
+                class="rounded-lg p-2 md:hidden"
+                [class.text-slate-400]="themeService.isDark()"
+                [class.hover:bg-slate-800]="themeService.isDark()"
+                [class.text-gray-500]="themeService.isLight()"
+                [class.hover:bg-gray-100]="themeService.isLight()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    @if (mobileMenuOpen()) {
+      <nav class="border-t px-4 py-2 md:hidden"
+           [class.border-slate-800]="themeService.isDark()"
+           [class.bg-slate-900]="themeService.isDark()"
+           [class.border-gray-200]="themeService.isLight()"
+           [class.bg-white]="themeService.isLight()">
+        <a routerLink="/" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400" [routerLinkActiveOptions]="{exact: true}"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.dashboard') }}</a>
+        <a routerLink="/folders" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.folders') }}</a>
+        <a routerLink="/planner" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.planner') }}</a>
+        <a routerLink="/transactions" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.transactions') }}</a>
+        <a routerLink="/analytics" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.analytics') }}</a>
+        <a routerLink="/performance" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.performance') }}</a>
+        <a routerLink="/settings" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.settings') }}</a>
+        <!-- Logout in Mobile Menu -->
+        <button (click)="logout()" 
+                class="block w-full text-left rounded-lg px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10">
+          {{ lang.t('auth.logout') }}
+        </button>
+      </nav>
+    }
+  </header>
+  }
+
+  <!-- Main Content -->
+  <main [class]="isAuthPage() ? 'flex-1' : 'flex-1 mx-auto w-full max-w-7xl px-4 py-4 pb-2'">
+    <router-outlet />
+  </main>
+
+  <!-- Footer (Hidden on Auth Pages) -->
+  @if (!isAuthPage()) {
+  <footer class="border-t px-4 py-2 text-center text-xs mt-auto"
+          [class.border-slate-800]="themeService.isDark()"
+          [class.bg-slate-950]="themeService.isDark()"
+          [class.text-slate-500]="themeService.isDark()"
+          [class.border-gray-200]="themeService.isLight()"
+          [class.bg-white]="themeService.isLight()"
+          [class.text-gray-500]="themeService.isLight()">
+    <p>Dip Hunter © 2026 · By Roshan Mali</p>
+  </footer>
+  }
+</div>
+
+<!-- Tour Overlay (Global) -->
+<app-tour-overlay />

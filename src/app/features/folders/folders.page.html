@@ -1,0 +1,339 @@
+<!-- Folders Page Template -->
+<div class="space-y-4">
+  <!-- Page Header -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-xl font-bold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('folders.title') }}</h1>
+      <p class="text-xs"
+         [class.text-slate-400]="themeService.isDark()"
+         [class.text-gray-500]="themeService.isLight()">{{ lang.t('folders.subtitle') }}</p>
+    </div>
+    <button 
+      (click)="showAddForm.set(true)"
+      class="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      {{ lang.t('folders.addStock') }}
+    </button>
+  </div>
+
+  <!-- Folder Tabs -->
+  <div class="flex gap-1.5">
+    @for (folder of folders(); track folder.id) {
+      <button
+        (click)="onFolderChange(folder.id)"
+        [class]="selectedFolderId() === folder.id 
+          ? 'bg-emerald-600 text-white' 
+          : themeService.isDark() ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+        class="rounded-lg px-3 py-1.5 text-xs font-medium transition flex items-center">
+        {{ folder.name }}
+        <span class="ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
+              [class.bg-emerald-700]="selectedFolderId() === folder.id"
+              [class.text-white]="selectedFolderId() === folder.id"
+              [class.bg-slate-700]="selectedFolderId() !== folder.id && themeService.isDark()"
+              [class.text-slate-300]="selectedFolderId() !== folder.id && themeService.isDark()"
+              [class.bg-gray-300]="selectedFolderId() !== folder.id && themeService.isLight()"
+              [class.text-gray-700]="selectedFolderId() !== folder.id && themeService.isLight()">
+          {{ getFolderStockCount(folder.id) }}
+        </span>
+      </button>
+    }
+  </div>
+
+  <!-- Add Stock Form -->
+  @if (showAddForm()) {
+    <div class="rounded-lg border p-4 relative overflow-hidden"
+         [class.border-emerald-500/20]="themeService.isDark()"
+         [class.bg-gradient-to-br]="true"
+         [class.from-emerald-950/20]="themeService.isDark()"
+         [class.via-slate-900/95]="themeService.isDark()"
+         [class.to-slate-900]="themeService.isDark()"
+         [class.border-emerald-200]="themeService.isLight()"
+         [class.from-emerald-50/30]="themeService.isLight()"
+         [class.via-white]="themeService.isLight()"
+         [class.to-white]="themeService.isLight()">
+      <h3 class="mb-3 text-sm font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('folders.addNewStock') }}</h3>
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <label class="mb-1 block text-xs"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-600]="themeService.isLight()">{{ lang.t('folders.symbol') }} *</label>
+          <input
+            type="text"
+            [ngModel]="newStock().symbol"
+            (ngModelChange)="updateSymbol($event)"
+            placeholder="e.g., RELIANCE"
+            class="w-full rounded-lg border px-3 py-2 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+        </div>
+        <div>
+          <label class="mb-1 block text-sm"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-600]="themeService.isLight()">{{ lang.t('folders.displayName') }} *</label>
+          <input
+            type="text"
+            [ngModel]="newStock().displayName"
+            (ngModelChange)="updateDisplayName($event)"
+            placeholder="e.g., Reliance Industries"
+            class="w-full rounded-lg border px-3 py-2 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+        </div>
+        <div>
+          <label class="mb-1 block text-sm"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-600]="themeService.isLight()">{{ lang.t('folders.exchange') }}</label>
+          <select
+            [ngModel]="newStock().exchange"
+            (ngModelChange)="updateExchange($event)"
+            class="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+            <option value="NSE">NSE</option>
+            <option value="BSE">BSE</option>
+          </select>
+        </div>
+        <div>
+          <label class="mb-1 block text-sm"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-600]="themeService.isLight()">{{ lang.t('folders.sector') }}</label>
+          <input
+            type="text"
+            [ngModel]="newStock().sector"
+            (ngModelChange)="updateSector($event)"
+            placeholder="e.g., IT, Banking"
+            class="w-full rounded-lg border px-3 py-2 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+        </div>
+      </div>
+      <div class="mt-4 flex gap-3">
+        <button 
+          (click)="onAddStock()"
+          class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+          {{ lang.t('folders.addStock') }}
+        </button>
+        <button 
+          (click)="showAddForm.set(false)"
+          class="rounded-lg px-4 py-2 text-sm font-medium transition"
+          [class.bg-slate-700]="themeService.isDark()"
+          [class.text-slate-300]="themeService.isDark()"
+          [class.hover:bg-slate-600]="themeService.isDark()"
+          [class.bg-gray-200]="themeService.isLight()"
+          [class.text-gray-700]="themeService.isLight()"
+          [class.hover:bg-gray-300]="themeService.isLight()">
+          {{ lang.t('folders.cancel') }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Stock List with fixed height and scrollbar -->
+  <div class="rounded-xl border overflow-hidden"
+       [class.border-slate-800]="themeService.isDark()"
+       [class.bg-slate-900]="themeService.isDark()"
+       [class.border-gray-200]="themeService.isLight()"
+       [class.bg-white]="themeService.isLight()">
+    <!-- Table container with scroll -->
+    <div class="overflow-auto" style="max-height: 560px;">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b text-xs uppercase sticky top-0 z-10"
+               [class.border-slate-800]="themeService.isDark()"
+               [class.bg-slate-800]="themeService.isDark()"
+               [class.text-slate-400]="themeService.isDark()"
+               [class.border-gray-200]="themeService.isLight()"
+               [class.bg-gray-50]="themeService.isLight()"
+               [class.text-gray-600]="themeService.isLight()">
+          <tr>
+            <th class="px-4 py-2.5 w-16">{{ lang.t('folders.rank') }}</th>
+            <th class="px-4 py-2.5">{{ lang.t('folders.symbol') }}</th>
+            <th class="px-4 py-2.5">{{ lang.t('folders.displayName') }}</th>
+            <th class="px-4 py-2.5">{{ lang.t('folders.exchange') }}</th>
+            <th class="px-4 py-2.5">{{ lang.t('folders.sector') }}</th>
+            <th class="px-4 py-2.5 text-center">{{ lang.t('folders.status') }}</th>
+            <th class="px-4 py-2.5 text-right">{{ lang.t('folders.actions') }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y"
+               [class.divide-slate-800]="themeService.isDark()"
+               [class.divide-gray-200]="themeService.isLight()">
+          @for (stock of paginatedStocks(); track trackByStock($index, stock)) {
+            <tr class="transition"
+                [class.hover:bg-slate-800/50]="themeService.isDark()"
+                [class.hover:bg-gray-50]="themeService.isLight()"
+                [class.opacity-50]="!stock.isActive">
+              <td class="px-4 py-2.5">
+                <div class="flex items-center gap-1">
+                  <span [class.text-slate-500]="themeService.isDark()"
+                        [class.text-gray-400]="themeService.isLight()">{{ stock.rank }}</span>
+                  <div class="flex flex-col">
+                    <button (click)="onMoveUp(stock)" 
+                            class="hover:text-white transition"
+                            [class.text-slate-500]="themeService.isDark()"
+                            [class.text-gray-400]="themeService.isLight()"
+                            [disabled]="stock.rank === 1">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                      </svg>
+                    </button>
+                    <button (click)="onMoveDown(stock)" 
+                            class="hover:text-white transition"
+                            [class.text-slate-500]="themeService.isDark()"
+                            [class.text-gray-400]="themeService.isLight()"
+                            [disabled]="stock.rank === currentFolderStocks().length">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-2.5 font-medium"
+                  [class.text-white]="themeService.isDark()"
+                  [class.text-gray-900]="themeService.isLight()">{{ stock.symbol }}</td>
+              <td class="px-4 py-2.5"
+                  [class.text-slate-300]="themeService.isDark()"
+                  [class.text-gray-700]="themeService.isLight()">{{ stock.displayName }}</td>
+              <td class="px-4 py-2.5"
+                  [class.text-slate-400]="themeService.isDark()"
+                  [class.text-gray-500]="themeService.isLight()">{{ stock.exchange }}</td>
+              <td class="px-4 py-2.5"
+                  [class.text-slate-400]="themeService.isDark()"
+                  [class.text-gray-500]="themeService.isLight()">{{ stock.sector || '—' }}</td>
+              <td class="px-4 py-2.5 text-center">
+                <button 
+                  (click)="onToggleActive(stock)"
+                  [class]="stock.isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-400'"
+                  class="rounded-full px-3 py-0.5 text-xs font-medium">
+                  {{ stock.isActive ? lang.t('folders.active') : lang.t('folders.inactive') }}
+                </button>
+              </td>
+              <td class="px-4 py-2.5 text-right">
+                <button 
+                  (click)="onRemoveStock(stock)"
+                  class="text-red-400 hover:text-red-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="px-4 py-8 text-center"
+                  [class.text-slate-500]="themeService.isDark()"
+                  [class.text-gray-500]="themeService.isLight()">
+                {{ lang.t('folders.noStocks') }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex items-center justify-between border-t p-3"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()">
+      <!-- Page size selector -->
+      <div class="flex items-center gap-2">
+        <span class="text-sm"
+              [class.text-slate-400]="themeService.isDark()"
+              [class.text-gray-600]="themeService.isLight()">Show:</span>
+        <select [(ngModel)]="pageSize" 
+                (change)="onPageSizeChange(pageSize())"
+                class="rounded-lg border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.text-slate-300]="themeService.isDark()"
+                [class.bg-white]="themeService.isLight()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.text-gray-700]="themeService.isLight()">
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+        <span class="text-sm"
+              [class.text-slate-400]="themeService.isDark()"
+              [class.text-gray-600]="themeService.isLight()">
+          of {{ currentFolderStocks().length }} records
+        </span>
+      </div>
+
+      <!-- Page navigation -->
+      <div class="flex items-center gap-2">
+        <button 
+          (click)="onPageChange(currentPage() - 1)"
+          [disabled]="currentPage() === 1"
+          class="rounded-lg px-3 py-1 text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+          [class.bg-slate-800]="themeService.isDark()"
+          [class.text-slate-300]="themeService.isDark()"
+          [class.hover:bg-slate-700]="themeService.isDark()"
+          [class.bg-gray-100]="themeService.isLight()"
+          [class.text-gray-700]="themeService.isLight()"
+          [class.hover:bg-gray-200]="themeService.isLight()">
+          Previous
+        </button>
+        
+        <div class="flex items-center gap-1">
+          @for (page of pageNumbers(); track $index) {
+            @if (page === -1) {
+              <span class="px-2 text-sm"
+                    [class.text-slate-500]="themeService.isDark()"
+                    [class.text-gray-400]="themeService.isLight()">...</span>
+            } @else {
+              <button 
+                (click)="onPageChange(page)"
+                [class.bg-emerald-600]="currentPage() === page"
+                [class.text-white]="currentPage() === page"
+                class="rounded-lg px-3 py-1 text-sm transition min-w-[36px]"
+                [class.bg-slate-800]="themeService.isDark() && currentPage() !== page"
+                [class.text-slate-300]="themeService.isDark() && currentPage() !== page"
+                [class.hover:bg-slate-700]="themeService.isDark() && currentPage() !== page"
+                [class.bg-gray-100]="themeService.isLight() && currentPage() !== page"
+                [class.text-gray-700]="themeService.isLight() && currentPage() !== page"
+                [class.hover:bg-gray-200]="themeService.isLight() && currentPage() !== page">
+                {{ page }}
+              </button>
+            }
+          }
+        </div>
+
+        <button 
+          (click)="onPageChange(currentPage() + 1)"
+          [disabled]="currentPage() === totalPages()"
+          class="rounded-lg px-3 py-1 text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+          [class.bg-slate-800]="themeService.isDark()"
+          [class.text-slate-300]="themeService.isDark()"
+          [class.hover:bg-slate-700]="themeService.isDark()"
+          [class.bg-gray-100]="themeService.isLight()"
+          [class.text-gray-700]="themeService.isLight()"
+          [class.hover:bg-gray-200]="themeService.isLight()">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

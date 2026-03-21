@@ -1,0 +1,535 @@
+<!-- Settings Page Template -->
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div>
+    <h1 class="text-2xl font-bold"
+        [class.text-white]="themeService.isDark()"
+        [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.title') }}</h1>
+    <p class="text-sm"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">{{ lang.t('settings.subtitle') }}</p>
+  </div>
+
+  <!-- User Profile Section -->
+  <div class="rounded-xl border p-6 relative overflow-hidden"
+       [class.border-blue-500/20]="themeService.isDark()"
+       [class.bg-gradient-to-br]="true"
+       [class.from-blue-950/20]="themeService.isDark()"
+       [class.via-slate-900/95]="themeService.isDark()"
+       [class.to-slate-900]="themeService.isDark()"
+       [class.border-blue-200]="themeService.isLight()"
+       [class.from-blue-50/30]="themeService.isLight()"
+       [class.via-white]="themeService.isLight()"
+       [class.to-white]="themeService.isLight()">
+    <h3 class="mb-4 text-lg font-semibold"
+        [class.text-white]="themeService.isDark()"
+        [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.profile') }}</h3>
+    
+    <div class="flex flex-col sm:flex-row gap-6 items-start">
+      <!-- Avatar -->
+      <div class="flex flex-col items-center gap-3">
+        @if (userService.user().avatar) {
+          <img [src]="userService.user().avatar" 
+               [alt]="userService.user().name"
+               class="h-24 w-24 rounded-full object-cover border-4 border-emerald-500/50">
+        } @else {
+          <div class="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-2xl font-bold text-white">
+            {{ userService.user().initials }}
+          </div>
+        }
+        <div class="flex gap-2">
+          <label class="cursor-pointer rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500">
+            <input type="file" accept="image/*" (change)="onAvatarFileSelect($event)" class="hidden">
+            Upload
+          </label>
+          @if (userService.user().avatar) {
+            <button (click)="removeAvatar()" class="rounded-lg border px-3 py-1.5 text-xs font-medium transition"
+                    [class.border-slate-700]="themeService.isDark()"
+                    [class.text-slate-400]="themeService.isDark()"
+                    [class.hover:bg-slate-800]="themeService.isDark()"
+                    [class.border-gray-300]="themeService.isLight()"
+                    [class.text-gray-600]="themeService.isLight()"
+                    [class.hover:bg-gray-100]="themeService.isLight()">
+              Remove
+            </button>
+          }
+        </div>
+      </div>
+      
+      <!-- User Name -->
+      <div class="flex-1">
+        <label class="mb-2 block text-sm"
+               [class.text-slate-400]="themeService.isDark()"
+               [class.text-gray-600]="themeService.isLight()">Display Name</label>
+        <input type="text"
+               [ngModel]="userName()"
+               (ngModelChange)="userName.set($event)"
+               (blur)="onUserNameChange()"
+               placeholder="Enter your name"
+               class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+               [class.bg-slate-800]="themeService.isDark()"
+               [class.border-slate-700]="themeService.isDark()"
+               [class.text-white]="themeService.isDark()"
+               [class.bg-white]="themeService.isLight()"
+               [class.border-gray-300]="themeService.isLight()"
+               [class.text-gray-900]="themeService.isLight()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme & Language Row -->
+  <div class="grid gap-6 lg:grid-cols-2">
+    <!-- Theme Settings -->
+    <div class="rounded-xl border p-6 relative overflow-hidden"
+         [class.border-purple-500/20]="themeService.isDark()"
+         [class.bg-gradient-to-br]="true"
+         [class.from-purple-950/20]="themeService.isDark()"
+         [class.via-slate-900/95]="themeService.isDark()"
+         [class.to-slate-900]="themeService.isDark()"
+         [class.border-purple-200]="themeService.isLight()"
+         [class.from-purple-50/30]="themeService.isLight()"
+         [class.via-white]="themeService.isLight()"
+         [class.to-white]="themeService.isLight()">
+      <h3 class="mb-4 text-lg font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.theme') }}</h3>
+      
+      <div class="flex gap-4">
+        <button (click)="themeService.setTheme('dark')"
+                class="flex-1 rounded-lg border-2 p-4 transition"
+                [class.border-emerald-500]="themeService.isDark()"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.border-slate-700]="themeService.isLight()"
+                [class.bg-slate-900]="true">
+          <div class="mb-2 text-2xl">🌙</div>
+          <p class="text-sm font-medium text-white">Dark</p>
+        </button>
+        <button (click)="themeService.setTheme('light')"
+                class="flex-1 rounded-lg border-2 p-4 transition"
+                [class.border-emerald-500]="themeService.isLight()"
+                [class.bg-white]="true"
+                [class.border-gray-300]="themeService.isDark()">
+          <div class="mb-2 text-2xl">☀️</div>
+          <p class="text-sm font-medium text-gray-900">Light</p>
+        </button>
+      </div>
+    </div>
+
+    <!-- Language Settings -->
+    <div class="rounded-xl border p-6"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.bg-slate-900]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()"
+         [class.bg-white]="themeService.isLight()">
+      <h3 class="mb-4 text-lg font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.language') }}</h3>
+      
+      <div class="flex flex-wrap gap-2">
+        @for (l of lang.languages; track l.code) {
+          <button (click)="onLanguageChange(l.code)"
+                  class="rounded-lg border px-4 py-2 text-sm font-medium transition"
+                  [class.border-emerald-500]="lang.language() === l.code"
+                  [class.bg-emerald-500/20]="lang.language() === l.code"
+                  [class.text-emerald-400]="lang.language() === l.code"
+                  [class.border-slate-700]="lang.language() !== l.code && themeService.isDark()"
+                  [class.text-slate-300]="lang.language() !== l.code && themeService.isDark()"
+                  [class.hover:bg-slate-800]="lang.language() !== l.code && themeService.isDark()"
+                  [class.border-gray-300]="lang.language() !== l.code && themeService.isLight()"
+                  [class.text-gray-700]="lang.language() !== l.code && themeService.isLight()"
+                  [class.hover:bg-gray-100]="lang.language() !== l.code && themeService.isLight()">
+            {{ l.nativeName }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <!-- Red Rule Settings -->
+    <div class="rounded-xl border p-6"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.bg-slate-900]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()"
+         [class.bg-white]="themeService.isLight()">
+      <h3 class="mb-4 text-lg font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.redRule') }}</h3>
+      <p class="mb-4 text-sm"
+         [class.text-slate-400]="themeService.isDark()"
+         [class.text-gray-500]="themeService.isLight()">
+        Define when a stock is considered "red" (down/buying opportunity)
+      </p>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="mb-2 block text-sm"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-600]="themeService.isLight()">Rule Type</label>
+          <div class="space-y-2">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="radio"
+                name="ruleType"
+                value="CHANGE_PERCENT_NEGATIVE"
+                [checked]="selectedRuleType() === 'CHANGE_PERCENT_NEGATIVE'"
+                (change)="onRuleTypeChange('CHANGE_PERCENT_NEGATIVE')"
+                class="h-4 w-4 text-emerald-500 bg-slate-800 border-slate-600 focus:ring-emerald-500">
+              <span class="text-slate-300">Negative Change (changePercent &lt; 0%)</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="radio"
+                name="ruleType"
+                value="CHANGE_PERCENT_THRESHOLD"
+                [checked]="selectedRuleType() === 'CHANGE_PERCENT_THRESHOLD'"
+                (change)="onRuleTypeChange('CHANGE_PERCENT_THRESHOLD')"
+                class="h-4 w-4 text-emerald-500 bg-slate-800 border-slate-600 focus:ring-emerald-500">
+              <span class="text-slate-300">Custom Threshold</span>
+            </label>
+          </div>
+        </div>
+        
+        @if (selectedRuleType() === 'CHANGE_PERCENT_THRESHOLD') {
+          <div>
+            <label class="mb-2 block text-sm text-slate-400">Threshold Value</label>
+            <div class="flex items-center gap-3">
+              <span class="text-slate-300">changePercent &lt;</span>
+              <input
+                type="number"
+                [ngModel]="thresholdValue()"
+                (ngModelChange)="thresholdValue.set($event)"
+                (blur)="onThresholdChange()"
+                step="0.1"
+                class="w-24 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white focus:border-emerald-500 focus:outline-none">
+              <span class="text-slate-300">%</span>
+            </div>
+          </div>
+        }
+        
+        <div class="rounded-lg bg-slate-800 p-3">
+          <p class="text-sm text-slate-400">Current rule:</p>
+          <p class="text-white">{{ getRedRuleDescription() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Refresh Settings -->
+    <div class="rounded-xl border p-6"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.bg-slate-900]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()"
+         [class.bg-white]="themeService.isLight()">
+      <h3 class="mb-4 text-lg font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.refresh') }}</h3>
+      <p class="mb-4 text-sm"
+         [class.text-slate-400]="themeService.isDark()"
+         [class.text-gray-500]="themeService.isLight()">
+        {{ lang.t('settings.refreshSubtitle') }}
+      </p>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="mb-2 block text-sm text-slate-400">Refresh Interval</label>
+          <div class="flex items-center gap-3">
+            <input
+              type="number"
+              [ngModel]="refreshSeconds()"
+              (ngModelChange)="refreshSeconds.set($event)"
+              (blur)="onRefreshIntervalChange()"
+              min="60"
+              max="3600"
+              step="60"
+              class="w-32 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white focus:border-emerald-500 focus:outline-none">
+            <span class="text-slate-300">seconds</span>
+          </div>
+        </div>
+        
+        <div class="rounded-lg bg-slate-800 p-3">
+          <p class="text-sm text-slate-400">
+            Quotes will refresh every {{ refreshSeconds() / 60 | number:'1.0-1' }} minute(s) when the dashboard is open.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quote Data Source Settings -->
+  <div class="rounded-xl border p-6 relative overflow-hidden"
+       [class.border-cyan-500/20]="themeService.isDark()"
+       [class.bg-gradient-to-br]="true"
+       [class.from-cyan-950/20]="themeService.isDark()"
+       [class.via-slate-900/95]="themeService.isDark()"
+       [class.to-slate-900]="themeService.isDark()"
+       [class.border-cyan-200]="themeService.isLight()"
+       [class.from-cyan-50/30]="themeService.isLight()"
+       [class.via-white]="themeService.isLight()"
+       [class.to-white]="themeService.isLight()">
+    <h3 class="mb-4 text-lg font-semibold"
+        [class.text-white]="themeService.isDark()"
+        [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.dataSource') }}</h3>
+    <p class="mb-4 text-sm"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      {{ lang.t('settings.dataSourceSubtitle') }}
+    </p>
+    
+    <div class="space-y-4">
+      <div>
+        <label class="mb-2 block text-sm"
+               [class.text-slate-400]="themeService.isDark()"
+               [class.text-gray-600]="themeService.isLight()">{{ lang.t('settings.selectSource') }}</label>
+        <div class="flex gap-4">
+          <button (click)="onDataSourceChange('yahoo')"
+                  class="flex-1 rounded-lg border-2 p-4 transition"
+                  [class.border-emerald-500]="selectedDataSource() === 'yahoo'"
+                  [class.bg-slate-800/50]="selectedDataSource() === 'yahoo' && themeService.isDark()"
+                  [class.bg-emerald-50]="selectedDataSource() === 'yahoo' && themeService.isLight()"
+                  [class.border-slate-700]="selectedDataSource() !== 'yahoo' && themeService.isDark()"
+                  [class.bg-slate-800/30]="selectedDataSource() !== 'yahoo' && themeService.isDark()"
+                  [class.border-gray-300]="selectedDataSource() !== 'yahoo' && themeService.isLight()"
+                  [class.bg-gray-50]="selectedDataSource() !== 'yahoo' && themeService.isLight()">
+            <div class="mb-2 text-2xl">📈</div>
+            <p class="text-sm font-medium"
+               [class.text-white]="themeService.isDark()"
+               [class.text-gray-900]="themeService.isLight()">Yahoo Finance</p>
+            <p class="text-xs mt-1"
+               [class.text-slate-400]="themeService.isDark()"
+               [class.text-gray-500]="themeService.isLight()">Real-time data (15 min delay)</p>
+          </button>
+          <button (click)="onDataSourceChange('mock')"
+                  class="flex-1 rounded-lg border-2 p-4 transition"
+                  [class.border-emerald-500]="selectedDataSource() === 'mock'"
+                  [class.bg-slate-800/50]="selectedDataSource() === 'mock' && themeService.isDark()"
+                  [class.bg-emerald-50]="selectedDataSource() === 'mock' && themeService.isLight()"
+                  [class.border-slate-700]="selectedDataSource() !== 'mock' && themeService.isDark()"
+                  [class.bg-slate-800/30]="selectedDataSource() !== 'mock' && themeService.isDark()"
+                  [class.border-gray-300]="selectedDataSource() !== 'mock' && themeService.isLight()"
+                  [class.bg-gray-50]="selectedDataSource() !== 'mock' && themeService.isLight()">
+            <div class="mb-2 text-2xl">🧪</div>
+            <p class="text-sm font-medium"
+               [class.text-white]="themeService.isDark()"
+               [class.text-gray-900]="themeService.isLight()">Mock Data</p>
+            <p class="text-xs mt-1"
+               [class.text-slate-400]="themeService.isDark()"
+               [class.text-gray-500]="themeService.isLight()">Demo/Testing purposes</p>
+          </button>
+        </div>
+      </div>
+      
+      <div class="rounded-lg p-3"
+           [class.bg-slate-800]="themeService.isDark()"
+           [class.bg-gray-100]="themeService.isLight()">
+        <div class="flex items-start gap-2">
+          @if (selectedDataSource() === 'yahoo') {
+            <span class="text-emerald-400">✓</span>
+            <div>
+              <p class="text-sm"
+                 [class.text-slate-300]="themeService.isDark()"
+                 [class.text-gray-700]="themeService.isLight()">
+                Using <strong>Yahoo Finance API</strong> for real stock prices
+              </p>
+              <p class="text-xs mt-1"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-500]="themeService.isLight()">
+                NSE stocks with .NS suffix • 15-minute delayed quotes
+              </p>
+            </div>
+          } @else {
+            <span class="text-amber-400">⚠️</span>
+            <div>
+              <p class="text-sm"
+                 [class.text-slate-300]="themeService.isDark()"
+                 [class.text-gray-700]="themeService.isLight()">
+                Using <strong>Mock Data</strong> with random price fluctuations
+              </p>
+              <p class="text-xs mt-1"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-500]="themeService.isLight()">
+                Great for testing • Prices change randomly on refresh
+              </p>
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Clear Cache Button -->
+      <div class="flex items-center justify-between pt-2 border-t"
+           [class.border-slate-700]="themeService.isDark()"
+           [class.border-gray-200]="themeService.isLight()">
+        <div>
+          <p class="text-sm font-medium"
+             [class.text-slate-300]="themeService.isDark()"
+             [class.text-gray-700]="themeService.isLight()">
+            {{ lang.t('settings.clearQuoteCache') }}
+          </p>
+          <p class="text-xs"
+             [class.text-slate-400]="themeService.isDark()"
+             [class.text-gray-500]="themeService.isLight()">
+            {{ lang.t('settings.clearQuoteCacheDesc') }}
+          </p>
+        </div>
+        <button (click)="onClearQuoteCache()"
+                class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-500 transition">
+          {{ lang.t('settings.clearCache') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Management -->
+  <div class="rounded-xl border p-6"
+       [class.border-slate-800]="themeService.isDark()"
+       [class.bg-slate-900]="themeService.isDark()"
+       [class.border-gray-200]="themeService.isLight()"
+       [class.bg-white]="themeService.isLight()">
+    <h3 class="mb-4 text-lg font-semibold"
+        [class.text-white]="themeService.isDark()"
+        [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.backup') }}</h3>
+    
+    <div class="grid gap-6 md:grid-cols-2">
+      <!-- Export -->
+      <div>
+        <h4 class="mb-2 font-medium"
+            [class.text-white]="themeService.isDark()"
+            [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.exportBackup') }}</h4>
+        <p class="mb-4 text-sm"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">
+          {{ lang.t('settings.exportDescription') }}
+        </p>
+        
+        @if (!exportData()) {
+          <button
+            (click)="onExport()"
+            class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+            {{ lang.t('settings.generateBackup') }}
+          </button>
+        } @else {
+          <div class="space-y-3">
+            <div class="flex gap-2">
+              <button
+                (click)="onDownloadExport()"
+                class="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+                {{ lang.t('settings.downloadJSON') }}
+              </button>
+              <button
+                (click)="onCopyExport()"
+                class="rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-sm text-white hover:bg-slate-700">
+                {{ lang.t('settings.copy') }}
+              </button>
+            </div>
+            <textarea
+              [value]="exportData()"
+              readonly
+              rows="4"
+              class="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-xs text-slate-300 font-mono"></textarea>
+          </div>
+        }
+      </div>
+
+      <!-- Import -->
+      <div>
+        <h4 class="mb-2 font-medium"
+            [class.text-white]="themeService.isDark()"
+            [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.importBackup') }}</h4>
+        <p class="mb-4 text-sm"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">
+          {{ lang.t('settings.importDescription') }}
+        </p>
+        
+        <div class="space-y-3">
+          <label class="flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-slate-700 bg-slate-800/50 p-6 hover:border-emerald-500">
+            <input
+              type="file"
+              accept=".json"
+              (change)="onImportFileSelect($event)"
+              class="hidden">
+            <div class="text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              <p class="mt-2 text-sm text-slate-400">Click to select backup file</p>
+            </div>
+          </label>
+          
+          @if (importError()) {
+            <div class="rounded-lg bg-red-500/20 p-3 text-sm text-red-400">
+              {{ importError() }}
+            </div>
+          }
+          
+          @if (importSuccess()) {
+            <div class="rounded-lg bg-emerald-500/20 p-3 text-sm text-emerald-400">
+              {{ lang.t('settings.importSuccess') }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Tour Section -->
+  <div class="rounded-xl border p-6 relative overflow-hidden"
+       [class.border-cyan-500/20]="themeService.isDark()"
+       [class.bg-gradient-to-br]="true"
+       [class.from-cyan-950/20]="themeService.isDark()"
+       [class.via-slate-900/95]="themeService.isDark()"
+       [class.to-slate-900]="themeService.isDark()"
+       [class.border-cyan-200]="themeService.isLight()"
+       [class.from-cyan-50/30]="themeService.isLight()"
+       [class.via-white]="themeService.isLight()"
+       [class.to-white]="themeService.isLight()">
+    <h3 class="mb-4 text-lg font-semibold"
+        [class.text-white]="themeService.isDark()"
+        [class.text-gray-900]="themeService.isLight()">🎯 App Tour</h3>
+    
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">
+          Take a guided tour of the app features to learn how everything works.
+        </p>
+      </div>
+      <button
+        (click)="restartTour()"
+        class="rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 px-4 py-2 text-sm font-medium text-white hover:from-emerald-400 hover:to-cyan-400 shadow-lg shadow-emerald-500/25 transition">
+        {{ lang.t('tour.restartTour') }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="rounded-xl border border-red-500/30 p-6"
+       [class.bg-slate-900]="themeService.isDark()"
+       [class.bg-red-50]="themeService.isLight()">
+    <h3 class="mb-4 text-lg font-semibold text-red-400">{{ lang.t('settings.dangerZone') }}</h3>
+    
+    <div class="flex items-center justify-between">
+      <div>
+        <h4 class="font-medium"
+            [class.text-white]="themeService.isDark()"
+            [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.resetData') }}</h4>
+        <p class="text-sm"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">
+          {{ lang.t('settings.resetDescription') }}
+        </p>
+      </div>
+      <button
+        (click)="onResetData()"
+        class="rounded-lg border border-red-500 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500 hover:text-white">
+        {{ lang.t('settings.resetEverything') }}
+      </button>
+    </div>
+  </div>
+
+  <!-- App Info -->
+  <div class="text-center text-sm text-slate-500">
+    <p>Dip Hunter v1.0.0</p>
+    <p class="mt-1">Stock Portfolio Dashboard for Buying the Dip</p>
+  </div>
+</div>

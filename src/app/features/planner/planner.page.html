@@ -1,0 +1,325 @@
+<!-- Planner Page Template -->
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">{{ lang.t('planner.title') }}</h1>
+      <p class="text-sm"
+         [class.text-slate-400]="themeService.isDark()"
+         [class.text-gray-500]="themeService.isLight()">{{ lang.t('planner.subtitle') }}</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <input
+        type="month"
+        [value]="selectedMonth()"
+        (change)="onMonthChange($any($event.target).value)"
+        class="rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        [class.border-slate-700]="themeService.isDark()"
+        [class.bg-slate-800]="themeService.isDark()"
+        [class.text-white]="themeService.isDark()"
+        [class.border-gray-300]="themeService.isLight()"
+        [class.bg-white]="themeService.isLight()"
+        [class.text-gray-900]="themeService.isLight()">
+    </div>
+  </div>
+
+  <!-- Plan Status -->
+  @if (currentPlan(); as plan) {
+    <div class="flex items-center gap-4">
+      <span 
+        [class]="plan.status === 'FINAL' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'"
+        class="rounded-full px-3 py-1 text-sm font-medium">
+        {{ plan.status === 'FINAL' ? lang.t('planner.finalized') : lang.t('planner.draft') }}
+      </span>
+      <span class="text-sm"
+            [class.text-slate-400]="themeService.isDark()"
+            [class.text-gray-500]="themeService.isLight()">
+        {{ plan.items.length }} {{ lang.t('common.stocks') }} · {{ formatCurrency(plan.totalPlannedAmount) }}
+      </span>
+    </div>
+  }
+
+  <div class="grid gap-6 lg:grid-cols-3">
+    <!-- Plan Editor (2 cols) -->
+    <div class="lg:col-span-2 space-y-4">
+      @if (!currentPlan()) {
+        <!-- No Plan - Create one -->
+        <div class="rounded-xl border p-8 text-center relative overflow-hidden"
+             [class.border-blue-500/20]="themeService.isDark()"
+             [class.bg-gradient-to-br]="true"
+             [class.from-blue-950/20]="themeService.isDark()"
+             [class.via-slate-900/95]="themeService.isDark()"
+             [class.to-slate-900]="themeService.isDark()"
+             [class.border-blue-200]="themeService.isLight()"
+             [class.from-blue-50/30]="themeService.isLight()"
+             [class.via-white]="themeService.isLight()"
+             [class.to-white]="themeService.isLight()">
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+               [class.bg-slate-800]="themeService.isDark()"
+               [class.bg-gray-100]="themeService.isLight()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-400]="themeService.isLight()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3 class="mb-2 text-lg font-semibold"
+              [class.text-white]="themeService.isDark()"
+              [class.text-gray-900]="themeService.isLight()">{{ lang.t('planner.noPlan') }} {{ selectedMonth() }}</h3>
+          <p class="mb-4 text-sm"
+             [class.text-slate-400]="themeService.isDark()"
+             [class.text-gray-500]="themeService.isLight()">{{ lang.t('planner.createPlanSubtitle') }}</p>
+          <button 
+            (click)="onCreatePlan()"
+            class="rounded-lg bg-emerald-600 px-6 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+            {{ lang.t('planner.createPlan') }}
+          </button>
+        </div>
+      } @else {
+        <!-- Budget & Strategy -->
+        <div class="rounded-xl border p-4 relative overflow-hidden"
+             [class.border-purple-500/20]="themeService.isDark()"
+             [class.bg-gradient-to-br]="true"
+             [class.from-purple-950/20]="themeService.isDark()"
+             [class.via-slate-900/95]="themeService.isDark()"
+             [class.to-slate-900]="themeService.isDark()"
+             [class.border-purple-200]="themeService.isLight()"
+             [class.from-purple-50/30]="themeService.isLight()"
+             [class.via-white]="themeService.isLight()"
+             [class.to-white]="themeService.isLight()">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div class="flex-1">
+              <label class="mb-1 block text-sm"
+                     [class.text-slate-400]="themeService.isDark()"
+                     [class.text-gray-600]="themeService.isLight()">{{ lang.t('planner.budget') }}</label>
+              <input
+                type="number"
+                [ngModel]="budget()"
+                (ngModelChange)="budget.set($event)"
+                [disabled]="isPlanLocked()"
+                class="w-full rounded-lg border px-3 py-2 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.text-white]="themeService.isDark()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.bg-white]="themeService.isLight()"
+                [class.text-gray-900]="themeService.isLight()">
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <button 
+                (click)="onClearBudget()"
+                [disabled]="isPlanLocked()"
+                class="rounded-lg bg-red-600/80 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-50"
+                [title]="lang.t('planner.clearBudget')">
+                <span class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  {{ lang.t('planner.clearBudget') }}
+                </span>
+              </button>
+              <button 
+                (click)="onApplyEqualWeight()"
+                [disabled]="isPlanLocked() || currentPlan()!.items.length === 0"
+                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50">
+                {{ lang.t('planner.applyEqualWeight') }}
+              </button>
+              @if (!isPlanLocked()) {
+                <button 
+                  (click)="onFinalizePlan()"
+                  [disabled]="currentPlan()!.items.length === 0"
+                  class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50">
+                  {{ lang.t('planner.finalizePlan') }}
+                </button>
+              }
+              <button 
+                (click)="onExportToExcel()"
+                [disabled]="currentPlan()!.items.length === 0"
+                class="rounded-lg px-4 py-2 text-sm font-medium hover:opacity-80 disabled:opacity-50 border"
+                [class.bg-slate-800]="themeService.isDark()"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.text-white]="themeService.isDark()"
+                [class.bg-white]="themeService.isLight()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.text-gray-700]="themeService.isLight()"
+                [title]="lang.t('planner.exportExcel')">
+                <span class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  {{ lang.t('planner.exportExcel') }}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Allocation Suggestions -->
+        @if (currentPlan() && availableRedStocks().length > 0) {
+          <app-allocation-suggestions
+            [stocks]="availableRedStocks()"
+            [budget]="budget()"
+            (onApplyAllocation)="onApplyAllocation($event)" />
+        }
+
+        <!-- Plan Items Table -->
+        <div class="overflow-hidden rounded-xl border"
+             [class.border-slate-800]="themeService.isDark()"
+             [class.bg-slate-900]="themeService.isDark()"
+             [class.border-gray-200]="themeService.isLight()"
+             [class.bg-white]="themeService.isLight()">
+          <table class="w-full text-left text-sm">
+            <thead class="border-b text-xs uppercase"
+                   [class.border-slate-800]="themeService.isDark()"
+                   [class.bg-slate-800/50]="themeService.isDark()"
+                   [class.text-slate-400]="themeService.isDark()"
+                   [class.border-gray-200]="themeService.isLight()"
+                   [class.bg-gray-50]="themeService.isLight()"
+                   [class.text-gray-600]="themeService.isLight()">
+              <tr>
+                <th class="px-4 py-3">{{ lang.t('planner.stock') }}</th>
+                <th class="px-4 py-3 text-right">{{ lang.t('planner.plannedPrice') }}</th>
+                <th class="px-4 py-3 text-right">{{ lang.t('planner.targetAmount') }}</th>
+                <th class="px-4 py-3 text-right">{{ lang.t('planner.targetQty') }}</th>
+                <th class="px-4 py-3 text-center">{{ lang.t('planner.status') }}</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y"
+                   [class.divide-slate-800]="themeService.isDark()"
+                   [class.divide-gray-200]="themeService.isLight()">
+              @for (item of currentPlan()!.items; track trackByItem($index, item)) {
+                <tr class="transition"
+                    [class.hover:bg-slate-800/50]="themeService.isDark()"
+                    [class.hover:bg-gray-50]="themeService.isLight()">
+                  <td class="px-4 py-3">
+                    <p class="font-medium"
+                       [class.text-white]="themeService.isDark()"
+                       [class.text-gray-900]="themeService.isLight()">{{ item.symbol }}</p>
+                  </td>
+                  <td class="px-4 py-3 text-right"
+                      [class.text-slate-300]="themeService.isDark()"
+                      [class.text-gray-700]="themeService.isLight()">
+                    {{ formatCurrency(item.plannedPrice) }}
+                  </td>
+                  <td class="px-4 py-3 text-right"
+                      [class.text-white]="themeService.isDark()"
+                      [class.text-gray-900]="themeService.isLight()">
+                    {{ formatCurrency(item.targetAmount) }}
+                  </td>
+                  <td class="px-4 py-3 text-right"
+                      [class.text-slate-300]="themeService.isDark()"
+                      [class.text-gray-700]="themeService.isLight()">
+                    {{ item.targetQty || '—' }}
+                  </td>
+                  <td class="px-4 py-3 text-center">
+                    @if (item.isExecuted) {
+                      <span class="rounded-full bg-emerald-500/20 px-2 py-1 text-xs text-emerald-400">{{ lang.t('planner.executed') }}</span>
+                    } @else {
+                      <span class="rounded-full px-2 py-1 text-xs"
+                            [class.bg-slate-700]="themeService.isDark()"
+                            [class.text-slate-400]="themeService.isDark()"
+                            [class.bg-gray-200]="themeService.isLight()"
+                            [class.text-gray-500]="themeService.isLight()">{{ lang.t('planner.pending') }}</span>
+                    }
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    @if (!isPlanLocked()) {
+                      <button 
+                        (click)="onRemoveItem(item)"
+                        class="text-red-400 hover:text-red-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="px-4 py-8 text-center"
+                      [class.text-slate-500]="themeService.isDark()"
+                      [class.text-gray-500]="themeService.isLight()">
+                    {{ lang.t('planner.noPlanItems') }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Delete Plan -->
+        @if (!isPlanLocked()) {
+          <div class="flex justify-end">
+            <button 
+              (click)="onDeletePlan()"
+              class="text-sm text-red-400 hover:text-red-300">
+              {{ lang.t('planner.deletePlan') }}
+            </button>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Available Red Stocks (1 col) -->
+    <div class="lg:col-span-1">
+      <div class="rounded-xl border p-4"
+           [class.border-slate-800]="themeService.isDark()"
+           [class.bg-slate-900]="themeService.isDark()"
+           [class.border-gray-200]="themeService.isLight()"
+           [class.bg-white]="themeService.isLight()">
+        <div class="mb-4 flex items-center justify-between">
+          <h3 class="font-semibold"
+              [class.text-white]="themeService.isDark()"
+              [class.text-gray-900]="themeService.isLight()">{{ lang.t('planner.availableRedStocks') }}</h3>
+          <button 
+            (click)="loadQuotes()"
+            [disabled]="isLoading()"
+            class="text-emerald-400 hover:text-emerald-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" [class.animate-spin]="isLoading()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+        
+        <div class="space-y-2 max-h-96 overflow-y-auto">
+          @for (vm of availableRedStocks(); track vm.stockId) {
+            <div class="flex items-center justify-between rounded-lg p-3"
+                 [class.bg-slate-800]="themeService.isDark()"
+                 [class.bg-gray-100]="themeService.isLight()">
+              <div>
+                <p class="font-medium"
+                   [class.text-white]="themeService.isDark()"
+                   [class.text-gray-900]="themeService.isLight()">{{ vm.symbol }}</p>
+                <p class="text-xs text-red-400">{{ formatPercent(vm.changePercent) }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm"
+                   [class.text-white]="themeService.isDark()"
+                   [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(vm.price) }}</p>
+                @if (currentPlan() && !isPlanLocked()) {
+                  <button 
+                    (click)="onAddItem(vm)"
+                    class="mt-1 text-xs text-emerald-400 hover:text-emerald-300">
+                    {{ lang.t('planner.addItem') }}
+                  </button>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="rounded-lg p-4 text-center"
+                 [class.bg-slate-800]="themeService.isDark()"
+                 [class.text-slate-500]="themeService.isDark()"
+                 [class.bg-gray-100]="themeService.isLight()"
+                 [class.text-gray-500]="themeService.isLight()">
+              <p>{{ lang.t('planner.noRedStocks') }}</p>
+              <p class="mt-1 text-xs">{{ lang.t('planner.allGreen') }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
