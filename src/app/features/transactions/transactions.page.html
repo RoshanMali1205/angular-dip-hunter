@@ -160,7 +160,7 @@
       </div>
 
       <!-- Buy Transactions List -->
-      <div class="lg:col-span-2">
+      <div class="lg:col-span-2 min-w-0">
         <!-- Filters -->
         <div class="mb-4 flex flex-wrap items-center gap-3">
           <input
@@ -381,7 +381,7 @@
       </div>
 
       <!-- Dividends List -->
-      <div class="lg:col-span-2">
+      <div class="lg:col-span-2 min-w-0">
         <!-- Filters -->
         <div class="mb-4 flex flex-wrap items-center gap-3">
           <input
@@ -436,7 +436,7 @@
              [class.border-gray-200]="themeService.isLight()"
              [class.bg-white]="themeService.isLight()">
           <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
+          <table class="w-full min-w-[400px] text-left text-sm">
             <thead class="border-b text-xs uppercase"
                    [class.border-slate-800]="themeService.isDark()"
                    [class.bg-slate-800/50]="themeService.isDark()"

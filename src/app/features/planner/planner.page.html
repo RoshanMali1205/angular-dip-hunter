@@ -43,7 +43,7 @@
 
   <div class="grid gap-6 lg:grid-cols-3">
     <!-- Plan Editor (2 cols) -->
-    <div class="lg:col-span-2 space-y-4">
+    <div class="lg:col-span-2 space-y-4 min-w-0">
       @if (!currentPlan()) {
         <!-- No Plan - Create one -->
         <div class="rounded-xl border p-8 text-center relative overflow-hidden"
@@ -266,7 +266,7 @@
     </div>
 
     <!-- Available Red Stocks (1 col) -->
-    <div class="lg:col-span-1">
+    <div class="lg:col-span-1 min-w-0">
       <div class="rounded-xl border p-4"
            [class.border-slate-800]="themeService.isDark()"
            [class.bg-slate-900]="themeService.isDark()"
