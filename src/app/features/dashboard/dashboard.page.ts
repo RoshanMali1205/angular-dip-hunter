@@ -216,12 +216,11 @@ export class DashboardPageComponent implements OnInit {
   }
 
   /**
-   * Load quotes for current folder
+   * Load quotes for all folders at once so switching tabs is instant
    */
   loadQuotes(): void {
     this.isLoading.set(true);
-    const symbols = this.portfolioService.getActiveSymbols(this.selectedFolderId());
-    // Updating the quote cache signal auto-recomputes holdings via computed()
+    const symbols = this.portfolioService.getActiveSymbols(); // all folders
     this.quoteService.fetchQuotes(symbols).subscribe({
       next: () => this.isLoading.set(false),
       error: () => this.isLoading.set(false)
@@ -229,11 +228,11 @@ export class DashboardPageComponent implements OnInit {
   }
 
   /**
-   * Refresh quotes (bypass cache)
+   * Refresh quotes (bypass cache) — fetch all 30 stocks at once
    */
   onRefresh(): void {
     this.isLoading.set(true);
-    const symbols = this.portfolioService.getActiveSymbols(this.selectedFolderId());
+    const symbols = this.portfolioService.getActiveSymbols(); // all folders
     this.quoteService.refresh(symbols).subscribe({
       next: () => this.isLoading.set(false),
       error: () => this.isLoading.set(false)
