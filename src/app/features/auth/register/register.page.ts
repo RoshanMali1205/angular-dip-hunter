@@ -132,6 +132,7 @@ import { getPasswordStrength, validatePassword } from '../../../core/models/auth
             <button
               type="button"
               (click)="togglePassword()"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
               class="absolute inset-y-0 right-0 flex items-center pr-3 transition"
               [class.text-slate-500]="themeService.isDark()"
               [class.hover:text-slate-300]="themeService.isDark()"
@@ -207,6 +208,7 @@ import { getPasswordStrength, validatePassword } from '../../../core/models/auth
             <button
               type="button"
               (click)="toggleConfirmPassword()"
+              [attr.aria-label]="showConfirmPassword() ? 'Hide password' : 'Show password'"
               class="absolute inset-y-0 right-0 flex items-center pr-3 transition"
               [class.text-slate-500]="themeService.isDark()"
               [class.hover:text-slate-300]="themeService.isDark()"
@@ -240,9 +242,9 @@ import { getPasswordStrength, validatePassword } from '../../../core/models/auth
                 [class.text-slate-400]="themeService.isDark()"
                 [class.text-gray-600]="themeService.isLight()">
             {{ lang.t('auth.agreeToTerms') }}
-            <a href="javascript:void(0)" class="text-emerald-500 hover:text-emerald-400">{{ lang.t('auth.termsOfService') }}</a>
+            <button type="button" class="text-emerald-500 hover:text-emerald-400 underline">{{ lang.t('auth.termsOfService') }}</button>
             {{ lang.t('auth.and') }}
-            <a href="javascript:void(0)" class="text-emerald-500 hover:text-emerald-400">{{ lang.t('auth.privacyPolicy') }}</a>
+            <button type="button" class="text-emerald-500 hover:text-emerald-400 underline">{{ lang.t('auth.privacyPolicy') }}</button>
           </span>
         </label>
 

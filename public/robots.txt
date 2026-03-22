@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Auth pages are fine to index
+Allow: /auth/login
+Allow: /auth/register

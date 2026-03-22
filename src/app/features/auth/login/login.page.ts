@@ -111,6 +111,7 @@ import { LanguageService } from '../../../core/services/language.service';
             <button
               type="button"
               (click)="togglePassword()"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
               class="absolute inset-y-0 right-0 flex items-center pr-3 transition"
               [class.text-slate-500]="themeService.isDark()"
               [class.hover:text-slate-300]="themeService.isDark()"
@@ -142,9 +143,9 @@ import { LanguageService } from '../../../core/services/language.service';
                   [class.text-slate-400]="themeService.isDark()"
                   [class.text-gray-600]="themeService.isLight()">{{ lang.t('auth.rememberMe') }}</span>
           </label>
-          <a href="javascript:void(0)" class="text-sm text-emerald-500 hover:text-emerald-400 transition">
+          <button type="button" class="text-sm text-emerald-500 hover:text-emerald-400 transition">
             {{ lang.t('auth.forgotPassword') }}
-          </a>
+          </button>
         </div>
 
         <!-- Submit Button -->
