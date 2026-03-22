@@ -4,7 +4,9 @@
  * Fetches real-time NSE stock quotes directly from Yahoo Finance.
  * No npm dependencies — uses Node.js 18+ built-in fetch.
  *
- * Flow: get cookies → get crumb → batch quote request
+ * Strategy:
+ *   1. Try query2 without crumb (fast path, ~1s)
+ *   2. If blocked, fall back to cookie+crumb auth via query1 (~3-5s)
  */
 
 const CORS_HEADERS = {
@@ -53,6 +55,57 @@ async function getAuth() {
   return authCache;
 }
 
+/**
+ * Fast path: try query2 without crumb auth.
+ * Works intermittently — Yahoo doesn't always enforce crumb on query2.
+ */
+async function fetchWithoutCrumb(symbolsJoined) {
+  const url =
+    `https://query2.finance.yahoo.com/v7/finance/quote` +
+    `?symbols=${encodeURIComponent(symbolsJoined)}` +
+    `&lang=en-US&region=IN&corsDomain=finance.yahoo.com`;
+
+  const res = await fetch(url, {
+    headers: { 'User-Agent': UA, Accept: 'application/json' },
+  });
+
+  if (!res.ok) throw new Error(`query2 returned HTTP ${res.status}`);
+
+  const data = await res.json();
+  const results = data?.quoteResponse?.result ?? [];
+  if (results.length === 0) throw new Error('query2 returned empty results');
+
+  return results;
+}
+
+/**
+ * Slow path: full cookie+crumb auth via query1.
+ */
+async function fetchWithCrumb(symbolsJoined) {
+  const { crumb, cookieStr } = await getAuth();
+
+  const url =
+    `https://query1.finance.yahoo.com/v7/finance/quote` +
+    `?symbols=${encodeURIComponent(symbolsJoined)}` +
+    `&crumb=${encodeURIComponent(crumb)}` +
+    `&lang=en-US&region=IN&corsDomain=finance.yahoo.com`;
+
+  const res = await fetch(url, {
+    headers: { 'User-Agent': UA, Cookie: cookieStr },
+  });
+
+  if (!res.ok) {
+    authCache = null; // invalidate stale crumb
+    throw new Error(`query1 returned HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  const results = data?.quoteResponse?.result ?? [];
+  if (results.length === 0) throw new Error('query1 returned empty results');
+
+  return results;
+}
+
 export const handler = async (event) => {
   // CORS preflight
   if (event.httpMethod === 'OPTIONS') {
@@ -82,33 +135,21 @@ export const handler = async (event) => {
   }
 
   const timestamp = new Date().toISOString();
+  const symbolsJoined = symbols.join(',');
 
   try {
-    // Authenticate with Yahoo Finance
-    const { crumb, cookieStr } = await getAuth();
+    // Try fast path first, fall back to crumb auth
+    let results;
+    let usedFastPath = false;
 
-    // Batch quote request
-    const url =
-      `https://query1.finance.yahoo.com/v7/finance/quote` +
-      `?symbols=${encodeURIComponent(symbols.join(','))}` +
-      `&crumb=${encodeURIComponent(crumb)}` +
-      `&lang=en-US&region=IN&corsDomain=finance.yahoo.com`;
-
-    const res = await fetch(url, {
-      headers: { 'User-Agent': UA, Cookie: cookieStr },
-    });
-
-    if (!res.ok) {
-      // Crumb might be stale — clear cache and throw so caller can retry
-      authCache = null;
-      throw new Error(`Yahoo Finance returned HTTP ${res.status}`);
-    }
-
-    const data = await res.json();
-    const results = data?.quoteResponse?.result ?? [];
-
-    if (results.length === 0) {
-      throw new Error('Yahoo Finance returned empty result');
+    try {
+      results = await fetchWithoutCrumb(symbolsJoined);
+      usedFastPath = true;
+      console.log(`[quotes] Fast path OK — ${results.length} symbols`);
+    } catch (fastErr) {
+      console.log(`[quotes] Fast path failed (${fastErr.message}), trying crumb auth...`);
+      results = await fetchWithCrumb(symbolsJoined);
+      console.log(`[quotes] Crumb path OK — ${results.length} symbols`);
     }
 
     // Build response in the shape Angular's QuoteService expects
@@ -157,6 +198,7 @@ export const handler = async (event) => {
           fetched: successCount,
           errors: errors.length,
           timestamp,
+          path: usedFastPath ? 'fast' : 'crumb',
         },
         ...(errors.length > 0 ? { errors } : {}),
       }),

@@ -3,6 +3,9 @@
   publish = "dist/angular-dip-hunter/browser"
   functions = "netlify/functions"
 
+[functions]
+  timeout = 26
+
 [dev]
   command = "ng serve"
   targetPort = 4200
