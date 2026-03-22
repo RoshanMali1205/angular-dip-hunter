@@ -8,10 +8,7 @@
   targetPort = 4200
   port = 8888
   autoLaunch = false
-
-[functions]
-  node_bundler = "esbuild"
-  external_node_modules = ["yahoo-finance2"]
+  framework = "#custom"
 
 # Route /api/quotes to the Netlify serverless function
 [[redirects]]

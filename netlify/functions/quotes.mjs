@@ -1,14 +1,11 @@
 /**
  * Netlify Serverless Function: /api/quotes
  *
- * Fetches real-time stock quotes from Yahoo Finance using yahoo-finance2.
- * Called by the Angular QuoteService when quoteDataSource is set to 'yahoo'.
+ * Fetches real-time NSE stock quotes directly from Yahoo Finance.
+ * No npm dependencies — uses Node.js 18+ built-in fetch.
  *
- * Query params:
- *   symbols — comma-separated Yahoo Finance symbols (e.g. RELIANCE.NS,TCS.NS)
+ * Flow: get cookies → get crumb → batch quote request
  */
-
-import yahooFinance from 'yahoo-finance2';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -17,14 +14,52 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json',
 };
 
+const UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+// Cache crumb in Lambda memory (~25 min lifetime)
+let authCache = null;
+
+async function getAuth() {
+  if (authCache && Date.now() - authCache.time < 25 * 60 * 1000) {
+    return authCache;
+  }
+
+  // Step 1: hit Yahoo Finance consent page to get session cookies
+  const cookieRes = await fetch('https://fc.yahoo.com', {
+    headers: { 'User-Agent': UA, Accept: 'text/html' },
+    redirect: 'follow',
+  });
+
+  // Collect all Set-Cookie values and extract name=value pairs only
+  const rawCookie = cookieRes.headers.get('set-cookie') || '';
+  const cookieStr = rawCookie
+    .split(/,\s*(?=[A-Za-z0-9_-]+=)/) // split on comma that starts a new cookie
+    .map((c) => c.split(';')[0].trim())
+    .filter(Boolean)
+    .join('; ');
+
+  // Step 2: exchange cookies for a crumb token
+  const crumbRes = await fetch('https://query1.finance.yahoo.com/v1/test/getcrumb', {
+    headers: { 'User-Agent': UA, Cookie: cookieStr },
+  });
+  const crumb = await crumbRes.text();
+
+  if (!crumb || crumb.length < 2 || crumb.startsWith('<') || crumb === 'Not Found') {
+    throw new Error(`Could not get Yahoo Finance crumb (got: "${crumb}")`);
+  }
+
+  authCache = { crumb: crumb.trim(), cookieStr, time: Date.now() };
+  return authCache;
+}
+
 export const handler = async (event) => {
-  // Handle CORS preflight
+  // CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers: CORS_HEADERS, body: '' };
   }
 
   const symbolsParam = event.queryStringParameters?.symbols;
-
   if (!symbolsParam) {
     return {
       statusCode: 400,
@@ -47,63 +82,91 @@ export const handler = async (event) => {
   }
 
   const timestamp = new Date().toISOString();
-  const quotes = {};
-  const errors = [];
-  let successCount = 0;
 
-  // Fetch all symbols in parallel
-  await Promise.allSettled(
-    symbols.map(async (yahooSymbol) => {
-      try {
-        const data = await yahooFinance.quote(yahooSymbol, {}, { validateResult: false });
+  try {
+    // Authenticate with Yahoo Finance
+    const { crumb, cookieStr } = await getAuth();
 
-        // Strip exchange suffix to get base symbol (e.g. RELIANCE.NS → RELIANCE)
-        const baseSymbol = yahooSymbol.replace(/\.(NS|BSE|BO)$/i, '');
+    // Batch quote request
+    const url =
+      `https://query1.finance.yahoo.com/v7/finance/quote` +
+      `?symbols=${encodeURIComponent(symbols.join(','))}` +
+      `&crumb=${encodeURIComponent(crumb)}` +
+      `&lang=en-US&region=IN&corsDomain=finance.yahoo.com`;
 
-        quotes[yahooSymbol] = {
-          symbol: baseSymbol,
-          yahooSymbol,
-          price: data.regularMarketPrice ?? 0,
-          previousClose: data.regularMarketPreviousClose ?? 0,
-          change: data.regularMarketChange ?? 0,
-          changePercent: data.regularMarketChangePercent ?? 0,
-          dayHigh: data.regularMarketDayHigh ?? 0,
-          dayLow: data.regularMarketDayLow ?? 0,
-          volume: data.regularMarketVolume ?? 0,
-          fiftyTwoWeekHigh: data.fiftyTwoWeekHigh ?? 0,
-          fiftyTwoWeekLow: data.fiftyTwoWeekLow ?? 0,
-          currency: data.currency ?? 'INR',
-          name: data.shortName ?? data.longName ?? baseSymbol,
+    const res = await fetch(url, {
+      headers: { 'User-Agent': UA, Cookie: cookieStr },
+    });
+
+    if (!res.ok) {
+      // Crumb might be stale — clear cache and throw so caller can retry
+      authCache = null;
+      throw new Error(`Yahoo Finance returned HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const results = data?.quoteResponse?.result ?? [];
+
+    if (results.length === 0) {
+      throw new Error('Yahoo Finance returned empty result');
+    }
+
+    // Build response in the shape Angular's QuoteService expects
+    const quotes = {};
+    let successCount = 0;
+
+    for (const item of results) {
+      const yahooSymbol = item.symbol; // e.g. "RELIANCE.NS"
+      const baseSymbol = yahooSymbol.replace(/\.(NS|BSE|BO)$/i, '');
+
+      quotes[yahooSymbol] = {
+        symbol: baseSymbol,
+        yahooSymbol,
+        price: item.regularMarketPrice ?? 0,
+        previousClose: item.regularMarketPreviousClose ?? 0,
+        change: item.regularMarketChange ?? 0,
+        changePercent: item.regularMarketChangePercent ?? 0,
+        dayHigh: item.regularMarketDayHigh ?? 0,
+        dayLow: item.regularMarketDayLow ?? 0,
+        volume: item.regularMarketVolume ?? 0,
+        fiftyTwoWeekHigh: item.fiftyTwoWeekHigh ?? 0,
+        fiftyTwoWeekLow: item.fiftyTwoWeekLow ?? 0,
+        currency: item.currency ?? 'INR',
+        name: item.shortName ?? item.longName ?? baseSymbol,
+        timestamp,
+        source: 'yahoo',
+      };
+      successCount++;
+    }
+
+    // Symbols that came back with no data
+    const returnedSet = new Set(results.map((r) => r.symbol));
+    const errors = symbols
+      .filter((s) => !returnedSet.has(s))
+      .map((s) => ({ symbol: s, error: 'No data returned by Yahoo Finance' }));
+
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({
+        quotes,
+        meta: {
+          requested: symbols.length,
+          success: successCount,
+          cached: 0,
+          fetched: successCount,
+          errors: errors.length,
           timestamp,
-          source: 'yahoo',
-        };
-        successCount++;
-      } catch (err) {
-        console.error(`[quotes] Failed to fetch ${yahooSymbol}:`, err.message);
-        errors.push({ symbol: yahooSymbol, error: err.message });
-      }
-    })
-  );
-
-  const body = {
-    quotes,
-    meta: {
-      requested: symbols.length,
-      success: successCount,
-      cached: 0,
-      fetched: successCount,
-      errors: errors.length,
-      timestamp,
-    },
-  };
-
-  if (errors.length > 0) {
-    body.errors = errors;
+        },
+        ...(errors.length > 0 ? { errors } : {}),
+      }),
+    };
+  } catch (err) {
+    console.error('[quotes] Error:', err.message);
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: err.message }),
+    };
   }
-
-  return {
-    statusCode: 200,
-    headers: CORS_HEADERS,
-    body: JSON.stringify(body),
-  };
 };
