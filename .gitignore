@@ -48,3 +48,6 @@ temp_lang.ts
 
 # AI assistant local notes
 .claude/
+
+# Local Netlify folder
+.netlify

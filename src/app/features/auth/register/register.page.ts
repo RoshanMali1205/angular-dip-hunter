@@ -36,6 +36,17 @@ import { getPasswordStrength, validatePassword } from '../../../core/models/auth
         </div>
       }
 
+      @if (validationError()) {
+        <div class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            {{ validationError() }}
+          </div>
+        </div>
+      }
+
       <!-- Form -->
       <form (ngSubmit)="onSubmit()" class="space-y-4">
         <!-- Name Field -->
@@ -315,6 +326,7 @@ export class RegisterPageComponent {
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   passwordStrength = signal(0);
+  validationError = signal<string | null>(null);
 
   togglePassword(): void {
     this.showPassword.update(v => !v);
@@ -351,9 +363,10 @@ export class RegisterPageComponent {
 
     const validation = validatePassword(this.password);
     if (!validation.valid) {
-      // Show first error - in production, you might want to show all errors
+      this.validationError.set(validation.errors[0]);
       return;
     }
+    this.validationError.set(null);
 
     await this.authService.register({
       name: this.name,

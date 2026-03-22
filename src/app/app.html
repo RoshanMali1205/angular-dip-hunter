@@ -148,26 +148,14 @@
           <span class="relative z-10">{{ lang.t('nav.folders') }}</span>
           <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </a>
-        <a routerLink="/planner" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
-           data-tour="nav-planner"
+        <a routerLink="/performance" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
            class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
            [class.text-slate-300]="themeService.isDark()"
            [class.hover:bg-slate-800/60]="themeService.isDark()"
            [class.hover:border-emerald-400/30]="themeService.isDark()"
            [class.text-gray-600]="themeService.isLight()"
            [class.hover:bg-gray-100/60]="themeService.isLight()">
-          <span class="relative z-10">{{ lang.t('nav.planner') }}</span>
-          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        </a>
-        <a routerLink="/transactions" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
-           data-tour="nav-transactions"
-           class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
-           [class.text-slate-300]="themeService.isDark()"
-           [class.hover:bg-slate-800/60]="themeService.isDark()"
-           [class.hover:border-emerald-400/30]="themeService.isDark()"
-           [class.text-gray-600]="themeService.isLight()"
-           [class.hover:bg-gray-100/60]="themeService.isLight()">
-          <span class="relative z-10">{{ lang.t('nav.transactions') }}</span>
+          <span class="relative z-10">{{ lang.t('nav.performance') }}</span>
           <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </a>
         <a routerLink="/analytics" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
@@ -180,14 +168,36 @@
           <span class="relative z-10">{{ lang.t('nav.analytics') }}</span>
           <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </a>
-        <a routerLink="/performance" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
+        <a routerLink="/planner" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
+           data-tour="nav-planner"
            class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
            [class.text-slate-300]="themeService.isDark()"
            [class.hover:bg-slate-800/60]="themeService.isDark()"
            [class.hover:border-emerald-400/30]="themeService.isDark()"
            [class.text-gray-600]="themeService.isLight()"
            [class.hover:bg-gray-100/60]="themeService.isLight()">
-          <span class="relative z-10">{{ lang.t('nav.performance') }}</span>
+          <span class="relative z-10">{{ lang.t('nav.planner') }}</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </a>
+        <a routerLink="/drafts" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
+           class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800/60]="themeService.isDark()"
+           [class.hover:border-emerald-400/30]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100/60]="themeService.isLight()">
+          <span class="relative z-10">Drafts</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </a>
+        <a routerLink="/transactions" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
+           data-tour="nav-transactions"
+           class="relative rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-300 backdrop-blur-sm border border-transparent overflow-hidden group whitespace-nowrap"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800/60]="themeService.isDark()"
+           [class.hover:border-emerald-400/30]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100/60]="themeService.isLight()">
+          <span class="relative z-10">{{ lang.t('nav.transactions') }}</span>
           <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </a>
         <a routerLink="/settings" routerLinkActive="bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 text-emerald-300 shadow-lg shadow-emerald-500/20 border-emerald-400/50"
@@ -299,8 +309,8 @@
                   [class.bg-white/60]="themeService.isLight()"
                   [class.border-emerald-300]="themeService.isLight()"
                   [class.hover:bg-gray-50/60]="themeService.isLight()">
-            @if (authService.user()?.avatar) {
-              <img [src]="authService.user()?.avatar" 
+            @if (userService.user().avatar) {
+              <img [src]="userService.user().avatar" 
                    [alt]="authService.user()?.name"
                    class="h-6 w-6 rounded-full object-cover border-2 border-emerald-400/50 transition-transform duration-300 group-hover:scale-110">
             } @else {
@@ -395,30 +405,36 @@
            [class.hover:bg-slate-800]="themeService.isDark()"
            [class.text-gray-600]="themeService.isLight()"
            [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.folders') }}</a>
-        <a routerLink="/planner" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
-           class="block rounded-lg px-3 py-2 text-sm font-medium"
-           [class.text-slate-300]="themeService.isDark()"
-           [class.hover:bg-slate-800]="themeService.isDark()"
-           [class.text-gray-600]="themeService.isLight()"
-           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.planner') }}</a>
-        <a routerLink="/transactions" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
-           class="block rounded-lg px-3 py-2 text-sm font-medium"
-           [class.text-slate-300]="themeService.isDark()"
-           [class.hover:bg-slate-800]="themeService.isDark()"
-           [class.text-gray-600]="themeService.isLight()"
-           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.transactions') }}</a>
-        <a routerLink="/analytics" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
-           class="block rounded-lg px-3 py-2 text-sm font-medium"
-           [class.text-slate-300]="themeService.isDark()"
-           [class.hover:bg-slate-800]="themeService.isDark()"
-           [class.text-gray-600]="themeService.isLight()"
-           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.analytics') }}</a>
         <a routerLink="/performance" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
            class="block rounded-lg px-3 py-2 text-sm font-medium"
            [class.text-slate-300]="themeService.isDark()"
            [class.hover:bg-slate-800]="themeService.isDark()"
            [class.text-gray-600]="themeService.isLight()"
            [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.performance') }}</a>
+        <a routerLink="/analytics" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.analytics') }}</a>
+        <a routerLink="/planner" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.planner') }}</a>
+        <a routerLink="/drafts" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">Drafts</a>
+        <a routerLink="/transactions" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
+           class="block rounded-lg px-3 py-2 text-sm font-medium"
+           [class.text-slate-300]="themeService.isDark()"
+           [class.hover:bg-slate-800]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()"
+           [class.hover:bg-gray-100]="themeService.isLight()">{{ lang.t('nav.transactions') }}</a>
         <a routerLink="/settings" (click)="closeMobileMenu()" routerLinkActive="text-emerald-400"
            class="block rounded-lg px-3 py-2 text-sm font-medium"
            [class.text-slate-300]="themeService.isDark()"
@@ -465,7 +481,7 @@
      [class.border-slate-800]="themeService.isDark()"
      [class.bg-white/97]="themeService.isLight()"
      [class.border-gray-200]="themeService.isLight()">
-  <div class="grid grid-cols-6 px-1 pt-1.5 pb-1">
+  <div class="grid grid-cols-8 px-1 pt-1.5 pb-1">
 
     <!-- Dashboard -->
     <a routerLink="/" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="text-emerald-400"
@@ -489,27 +505,15 @@
       <span>Folders</span>
     </a>
 
-    <!-- Planner -->
-    <a routerLink="/planner" routerLinkActive="text-emerald-400"
+    <!-- Performance -->
+    <a routerLink="/performance" routerLinkActive="text-emerald-400"
        class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
        [class.text-slate-400]="themeService.isDark()"
        [class.text-gray-500]="themeService.isLight()">
       <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
       </svg>
-      <span>Planner</span>
-    </a>
-
-    <!-- Transactions -->
-    <a routerLink="/transactions" routerLinkActive="text-emerald-400"
-       class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
-       [class.text-slate-400]="themeService.isDark()"
-       [class.text-gray-500]="themeService.isLight()">
-      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-      </svg>
-      <span>Trades</span>
+      <span>Perform</span>
     </a>
 
     <!-- Analytics -->
@@ -522,6 +526,40 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
       </svg>
       <span>Analytics</span>
+    </a>
+
+    <!-- Planner -->
+    <a routerLink="/planner" routerLinkActive="text-emerald-400"
+       class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+      <span>Planner</span>
+    </a>
+
+    <!-- Drafts -->
+    <a routerLink="/drafts" routerLinkActive="text-emerald-400"
+       class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <span>Drafts</span>
+    </a>
+
+    <!-- Transactions -->
+    <a routerLink="/transactions" routerLinkActive="text-emerald-400"
+       class="flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition active:scale-95"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+      <span>Trades</span>
     </a>
 
     <!-- Settings -->

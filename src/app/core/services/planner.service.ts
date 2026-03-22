@@ -249,6 +249,32 @@ export class PlannerService {
   }
 
   /**
+   * Mark specific items as executed (after creating buy transactions)
+   */
+  markItemsExecuted(planId: string, stockIds: string[]): void {
+    const plans = this._plans();
+    const planIndex = plans.findIndex(p => p.id === planId);
+    if (planIndex === -1) return;
+
+    const plan = plans[planIndex];
+    const executedAt = new Date().toISOString();
+    const stockSet = new Set(stockIds);
+
+    const updatedPlan: MonthlyPlan = {
+      ...plan,
+      items: plan.items.map(i =>
+        stockSet.has(i.stockId) ? { ...i, isExecuted: true, executedAt } : i
+      ),
+      updatedAt: executedAt
+    };
+
+    const updated = [...plans];
+    updated[planIndex] = updatedPlan;
+    this._plans.set(updated);
+    this.saveToStorage();
+  }
+
+  /**
    * Check if stock is in current plan
    */
   isInCurrentPlan(stockId: string): boolean {

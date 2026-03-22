@@ -229,6 +229,7 @@
                 <th class="px-3 py-3 text-right">{{ lang.t('transactions.qty') }}</th>
                 <th class="px-3 py-3 text-right">{{ lang.t('transactions.price') }}</th>
                 <th class="px-3 py-3 text-right">{{ lang.t('transactions.total') }}</th>
+                <th class="px-3 py-3">Plan</th>
                 <th class="px-3 py-3"></th>
               </tr>
             </thead>
@@ -254,6 +255,13 @@
                   <td class="px-3 py-3 text-right"
                       [class.text-white]="themeService.isDark()"
                       [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(tx.totalAmount) }}</td>
+                  <td class="px-3 py-3">
+                    @if (getPlanLabel(tx.planId); as label) {
+                      <span class="rounded-full bg-purple-500/20 px-2 py-0.5 text-xs font-medium text-purple-400 whitespace-nowrap">
+                        {{ label }}
+                      </span>
+                    }
+                  </td>
                   <td class="px-3 py-3 text-right">
                     <button
                       (click)="onDeleteBuy(tx)"
@@ -266,7 +274,7 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="6" class="px-4 py-8 text-center"
+                  <td colspan="7" class="px-4 py-8 text-center"
                       [class.text-slate-500]="themeService.isDark()"
                       [class.text-gray-500]="themeService.isLight()">
                     {{ lang.t('transactions.noBuyTransactions') }}

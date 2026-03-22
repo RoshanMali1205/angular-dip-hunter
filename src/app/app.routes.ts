@@ -60,6 +60,15 @@ export const routes: Routes = [
 		title: 'Planner'
 	},
 	{
+		path: 'drafts',
+		loadComponent: () =>
+			import('./features/drafts/drafts.page').then(
+				(m) => m.DraftsPageComponent
+			),
+		canActivate: [authGuard],
+		title: 'Drafts'
+	},
+	{
 		path: 'transactions',
 		loadComponent: () =>
 			import('./features/transactions/transactions.page').then(

@@ -89,9 +89,10 @@
              [class.from-purple-50/30]="themeService.isLight()"
              [class.via-white]="themeService.isLight()"
              [class.to-white]="themeService.isLight()">
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div class="flex-1">
-              <label class="mb-1 block text-sm"
+          <div class="flex flex-col gap-3">
+            <!-- Monthly Budget Input -->
+            <div class="flex items-center gap-3">
+              <label class="shrink-0 text-sm font-medium"
                      [class.text-slate-400]="themeService.isDark()"
                      [class.text-gray-600]="themeService.isLight()">{{ lang.t('planner.budget') }}</label>
               <input
@@ -99,7 +100,7 @@
                 [ngModel]="budget()"
                 (ngModelChange)="budget.set($event)"
                 [disabled]="isPlanLocked()"
-                class="w-full rounded-lg border px-3 py-2 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                class="w-48 rounded-lg border px-3 py-2 text-sm disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 [class.border-slate-700]="themeService.isDark()"
                 [class.bg-slate-800]="themeService.isDark()"
                 [class.text-white]="themeService.isDark()"
@@ -107,6 +108,7 @@
                 [class.bg-white]="themeService.isLight()"
                 [class.text-gray-900]="themeService.isLight()">
             </div>
+            <!-- Action Buttons -->
             <div class="flex gap-2 flex-wrap">
               <button 
                 (click)="onClearBudget()"
@@ -134,7 +136,7 @@
                   {{ lang.t('planner.finalizePlan') }}
                 </button>
               }
-              <button 
+              <button
                 (click)="onExportToExcel()"
                 [disabled]="currentPlan()!.items.length === 0"
                 class="rounded-lg px-4 py-2 text-sm font-medium hover:opacity-80 disabled:opacity-50 border"
@@ -150,6 +152,34 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   {{ lang.t('planner.exportExcel') }}
+                </span>
+              </button>
+
+              <!-- Save as Draft -->
+              <button
+                (click)="onSaveAsDraft()"
+                [disabled]="currentPlan()!.items.length === 0 || !canSaveDraft()"
+                class="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 disabled:opacity-50"
+                [title]="canSaveDraft() ? 'Save as Draft (' + draftCount() + '/5)' : 'Max 5 drafts reached'">
+                <span class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                  </svg>
+                  Save Draft ({{ draftCount() }}/5)
+                </span>
+              </button>
+
+              <!-- Execute to Transactions -->
+              <button
+                (click)="onExecutePlan()"
+                [disabled]="currentPlan()!.items.length === 0"
+                class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-500 disabled:opacity-50"
+                title="Execute plan — create buy transactions">
+                <span class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Execute
                 </span>
               </button>
             </div>

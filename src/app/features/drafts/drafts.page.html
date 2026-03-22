@@ -1,0 +1,377 @@
+<!-- Drafts Page -->
+<div class="space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">Plan Drafts</h1>
+      <p class="text-sm"
+         [class.text-slate-400]="themeService.isDark()"
+         [class.text-gray-500]="themeService.isLight()">
+        Save, edit and reuse your planning scenarios · {{ draftCount() }}/{{ MAX_DRAFTS }} used
+      </p>
+    </div>
+    <button
+      (click)="onToggleNewForm()"
+      [disabled]="!canCreate()"
+      class="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      @if (canCreate()) { New Draft } @else { Max 5 Reached }
+    </button>
+  </div>
+
+  <!-- New Draft Form -->
+  @if (showNewForm()) {
+    <div class="rounded-xl border p-4"
+         [class.border-emerald-500/30]="themeService.isDark()"
+         [class.bg-emerald-950/20]="themeService.isDark()"
+         [class.border-emerald-200]="themeService.isLight()"
+         [class.bg-emerald-50]="themeService.isLight()">
+      <h3 class="mb-3 text-sm font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-800]="themeService.isLight()">Create New Draft</h3>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div class="flex-1">
+          <label class="mb-1 block text-xs"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-600]="themeService.isLight()">Draft Name</label>
+          <input
+            type="text"
+            [ngModel]="newDraftName()"
+            (ngModelChange)="newDraftName.set($event)"
+            placeholder="e.g. Dip Buy March Strategy"
+            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+        </div>
+        <div class="w-36">
+          <label class="mb-1 block text-xs"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-600]="themeService.isLight()">Budget (₹)</label>
+          <input
+            type="number"
+            [ngModel]="newDraftBudget()"
+            (ngModelChange)="newDraftBudget.set($event)"
+            min="0"
+            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-white]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.bg-white]="themeService.isLight()"
+            [class.text-gray-900]="themeService.isLight()">
+        </div>
+        <div class="flex gap-2">
+          <button
+            (click)="onCreateDraft()"
+            [disabled]="!newDraftName().trim()"
+            class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50">
+            Create
+          </button>
+          <button
+            (click)="onToggleNewForm()"
+            class="rounded-lg px-4 py-2 text-sm font-medium border"
+            [class.border-slate-700]="themeService.isDark()"
+            [class.text-slate-300]="themeService.isDark()"
+            [class.hover:bg-slate-800]="themeService.isDark()"
+            [class.border-gray-300]="themeService.isLight()"
+            [class.text-gray-600]="themeService.isLight()"
+            [class.hover:bg-gray-100]="themeService.isLight()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (drafts().length === 0 && !showNewForm()) {
+    <div class="rounded-xl border p-12 text-center"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.bg-slate-900]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()"
+         [class.bg-white]="themeService.isLight()">
+      <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+           [class.bg-slate-800]="themeService.isDark()"
+           [class.bg-gray-100]="themeService.isLight()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8"
+             [class.text-slate-400]="themeService.isDark()"
+             [class.text-gray-400]="themeService.isLight()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
+      <h3 class="mb-1 text-lg font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">No Drafts Yet</h3>
+      <p class="mb-4 text-sm"
+         [class.text-slate-400]="themeService.isDark()"
+         [class.text-gray-500]="themeService.isLight()">
+        Create a draft to save your stock-picking scenarios and reuse them anytime.
+      </p>
+      <button
+        (click)="onToggleNewForm()"
+        class="rounded-lg bg-emerald-600 px-6 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+        Create First Draft
+      </button>
+    </div>
+  }
+
+  <!-- Draft Cards -->
+  @for (draft of drafts(); track trackByDraft($index, draft)) {
+    <div class="rounded-xl border overflow-hidden"
+         [class.border-slate-800]="themeService.isDark()"
+         [class.bg-slate-900]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()"
+         [class.bg-white]="themeService.isLight()">
+
+      <!-- Card Header -->
+      <div class="flex items-center gap-3 px-4 py-3">
+        <!-- Draft icon -->
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-500/20">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+
+        <!-- Name + meta -->
+        @if (editState()?.draftId === draft.id) {
+          <!-- Edit inline -->
+          <div class="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+            <input
+              type="text"
+              [ngModel]="editState()!.name"
+              (ngModelChange)="editState.update(s => s ? {...s, name: $event} : s)"
+              class="flex-1 rounded-lg border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              [class.border-slate-700]="themeService.isDark()"
+              [class.bg-slate-800]="themeService.isDark()"
+              [class.text-white]="themeService.isDark()"
+              [class.border-gray-300]="themeService.isLight()"
+              [class.bg-white]="themeService.isLight()"
+              [class.text-gray-900]="themeService.isLight()">
+            <input
+              type="number"
+              [ngModel]="editState()!.budget"
+              (ngModelChange)="editState.update(s => s ? {...s, budget: $event} : s)"
+              placeholder="Budget"
+              min="0"
+              class="w-32 rounded-lg border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              [class.border-slate-700]="themeService.isDark()"
+              [class.bg-slate-800]="themeService.isDark()"
+              [class.text-white]="themeService.isDark()"
+              [class.border-gray-300]="themeService.isLight()"
+              [class.bg-white]="themeService.isLight()"
+              [class.text-gray-900]="themeService.isLight()">
+            <div class="flex gap-2">
+              <button (click)="onSaveEdit()"
+                class="rounded-lg bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500">Save</button>
+              <button (click)="onCancelEdit()"
+                class="rounded-lg border px-3 py-1 text-xs font-medium"
+                [class.border-slate-700]="themeService.isDark()"
+                [class.text-slate-300]="themeService.isDark()"
+                [class.border-gray-300]="themeService.isLight()"
+                [class.text-gray-600]="themeService.isLight()">Cancel</button>
+            </div>
+          </div>
+        } @else {
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold truncate"
+                    [class.text-white]="themeService.isDark()"
+                    [class.text-gray-900]="themeService.isLight()">{{ draft.name }}</span>
+              <span class="rounded-full bg-purple-500/20 px-2 py-0.5 text-xs text-purple-400">
+                {{ draft.items.length }} stocks
+              </span>
+            </div>
+            <div class="flex gap-3 text-xs mt-0.5"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-500]="themeService.isLight()">
+              <span>Budget: {{ formatCurrency(draft.budget) }}</span>
+              <span>Allocated: {{ formatCurrency(draft.totalPlannedAmount) }}</span>
+              <span>Updated {{ formatDate(draft.updatedAt) }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Action buttons -->
+        @if (editState()?.draftId !== draft.id) {
+          <div class="flex shrink-0 items-center gap-1">
+            <!-- Expand/Collapse -->
+            <button
+              (click)="onToggleExpand(draft.id)"
+              class="rounded-lg p-2 transition"
+              [class.hover:bg-slate-800]="themeService.isDark()"
+              [class.hover:bg-gray-100]="themeService.isLight()"
+              [title]="expandedDraftId() === draft.id ? 'Collapse' : 'Expand'">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform"
+                   [class.text-slate-400]="themeService.isDark()"
+                   [class.text-gray-500]="themeService.isLight()"
+                   [class.rotate-180]="expandedDraftId() === draft.id"
+                   fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <!-- Load to Planner -->
+            <button
+              (click)="onLoadToPlanner(draft)"
+              class="rounded-lg p-2 text-emerald-400 transition hover:text-emerald-300"
+              [class.hover:bg-slate-800]="themeService.isDark()"
+              [class.hover:bg-gray-100]="themeService.isLight()"
+              title="Load to Planner">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            </button>
+            <!-- Edit -->
+            <button
+              (click)="onStartEdit(draft)"
+              class="rounded-lg p-2 transition"
+              [class.text-slate-400]="themeService.isDark()"
+              [class.hover:bg-slate-800]="themeService.isDark()"
+              [class.hover:text-white]="themeService.isDark()"
+              [class.text-gray-500]="themeService.isLight()"
+              [class.hover:bg-gray-100]="themeService.isLight()"
+              title="Edit draft name/budget">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <!-- Delete -->
+            <button
+              (click)="onDeleteDraft(draft)"
+              class="rounded-lg p-2 text-red-400 transition hover:text-red-300"
+              [class.hover:bg-slate-800]="themeService.isDark()"
+              [class.hover:bg-gray-100]="themeService.isLight()"
+              title="Delete draft">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Expanded Items Panel -->
+      @if (expandedDraftId() === draft.id) {
+        <div class="border-t px-4 py-4 space-y-4"
+             [class.border-slate-800]="themeService.isDark()"
+             [class.border-gray-200]="themeService.isLight()">
+
+          <!-- Toolbar -->
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Add stock picker -->
+            <select
+              (change)="onAddStock(draft.id, $any($event.target).value); $any($event.target).value=''"
+              class="rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              [class.border-slate-700]="themeService.isDark()"
+              [class.bg-slate-800]="themeService.isDark()"
+              [class.text-white]="themeService.isDark()"
+              [class.border-gray-300]="themeService.isLight()"
+              [class.bg-white]="themeService.isLight()"
+              [class.text-gray-900]="themeService.isLight()">
+              <option value="">+ Add Stock</option>
+              @for (stock of getAvailableStocks(draft); track stock.id) {
+                <option [value]="stock.id">{{ stock.symbol }} — {{ stock.displayName }}</option>
+              }
+            </select>
+
+            <!-- Equal weight -->
+            <button
+              (click)="onApplyEqualWeight(draft)"
+              [disabled]="draft.items.length === 0 || draft.budget <= 0"
+              class="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-50">
+              Equal Weight
+            </button>
+          </div>
+
+          <!-- Items table -->
+          @if (draft.items.length > 0) {
+            <div class="overflow-x-auto rounded-lg border"
+                 [class.border-slate-800]="themeService.isDark()"
+                 [class.border-gray-200]="themeService.isLight()">
+              <table class="w-full min-w-[420px] text-left text-sm">
+                <thead class="border-b text-xs uppercase"
+                       [class.border-slate-800]="themeService.isDark()"
+                       [class.bg-slate-800/50]="themeService.isDark()"
+                       [class.text-slate-400]="themeService.isDark()"
+                       [class.border-gray-200]="themeService.isLight()"
+                       [class.bg-gray-50]="themeService.isLight()"
+                       [class.text-gray-600]="themeService.isLight()">
+                  <tr>
+                    <th class="px-3 py-2">Stock</th>
+                    <th class="px-3 py-2 text-right">Price</th>
+                    <th class="px-3 py-2 text-right">Target ₹</th>
+                    <th class="px-3 py-2 text-right">Qty</th>
+                    <th class="px-3 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y"
+                       [class.divide-slate-800]="themeService.isDark()"
+                       [class.divide-gray-200]="themeService.isLight()">
+                  @for (item of draft.items; track trackByItem($index, item)) {
+                    <tr [class.hover:bg-slate-800/50]="themeService.isDark()"
+                        [class.hover:bg-gray-50]="themeService.isLight()">
+                      <td class="px-3 py-2 font-medium"
+                          [class.text-white]="themeService.isDark()"
+                          [class.text-gray-900]="themeService.isLight()">
+                        {{ item.symbol }}
+                        @if (item.displayName) {
+                          <span class="ml-1 text-xs"
+                                [class.text-slate-400]="themeService.isDark()"
+                                [class.text-gray-500]="themeService.isLight()">{{ item.displayName }}</span>
+                        }
+                      </td>
+                      <td class="px-3 py-2 text-right"
+                          [class.text-slate-300]="themeService.isDark()"
+                          [class.text-gray-600]="themeService.isLight()">{{ formatCurrency(item.plannedPrice) }}</td>
+                      <td class="px-3 py-2 text-right"
+                          [class.text-white]="themeService.isDark()"
+                          [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(item.targetAmount) }}</td>
+                      <td class="px-3 py-2 text-right"
+                          [class.text-slate-300]="themeService.isDark()"
+                          [class.text-gray-600]="themeService.isLight()">{{ item.targetQty ?? '—' }}</td>
+                      <td class="px-3 py-2 text-right">
+                        <button
+                          (click)="onRemoveItem(draft.id, item.stockId)"
+                          class="text-red-400 hover:text-red-300">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+                <tfoot class="border-t text-sm font-semibold"
+                       [class.border-slate-800]="themeService.isDark()"
+                       [class.text-white]="themeService.isDark()"
+                       [class.border-gray-200]="themeService.isLight()"
+                       [class.text-gray-900]="themeService.isLight()">
+                  <tr>
+                    <td class="px-3 py-2" colspan="2">Total</td>
+                    <td class="px-3 py-2 text-right">{{ formatCurrency(draft.totalPlannedAmount) }}</td>
+                    <td colspan="2"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          } @else {
+            <p class="text-sm"
+               [class.text-slate-500]="themeService.isDark()"
+               [class.text-gray-400]="themeService.isLight()">
+              No stocks added yet. Use the picker above to add stocks.
+            </p>
+          }
+        </div>
+      }
+    </div>
+  }
+
+</div>

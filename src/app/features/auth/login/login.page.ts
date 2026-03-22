@@ -1,7 +1,8 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { LanguageService } from '../../../core/services/language.service';
@@ -205,6 +206,7 @@ export class LoginPageComponent implements OnInit {
   protected readonly themeService = inject(ThemeService);
   protected readonly lang = inject(LanguageService);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Form fields
   email = '';
@@ -215,7 +217,7 @@ export class LoginPageComponent implements OnInit {
 
   ngOnInit(): void {
     // Check for registration success query param
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       if (params['registered'] === 'true') {
         this.showRegistrationSuccess.set(true);
         // Pre-fill email if provided

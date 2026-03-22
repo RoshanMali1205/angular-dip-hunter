@@ -49,3 +49,24 @@ export interface MonthlyPlan {
   updatedAt: string;
   finalizedAt?: string;
 }
+
+/** A named draft scenario — not tied to a specific month, max 5 */
+export interface PlanDraftItem {
+  stockId: string;
+  symbol: string;
+  displayName?: string;
+  targetAmount: number;
+  targetQty?: number;
+  plannedPrice: number;
+}
+
+export interface PlanDraft {
+  id: string;
+  name: string;
+  budget: number;
+  items: PlanDraftItem[];
+  totalPlannedAmount: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}

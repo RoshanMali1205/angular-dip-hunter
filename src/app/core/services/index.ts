@@ -15,3 +15,4 @@ export * from './user.service';
 export * from './portfolio-insights.service';
 export * from './stock-analysis.service';
 export * from './allocation-advisor.service';
+export * from './drafts.service';

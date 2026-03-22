@@ -13,9 +13,9 @@ export const authInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const token = authService.getAccessToken();
 
-  // Skip adding token for auth endpoints and external URLs
-  const isAuthEndpoint = req.url.includes('/auth/');
-  const isExternalUrl = req.url.startsWith('http') && !req.url.includes(window.location.host);
+  // Skip adding token for auth endpoints and fully-qualified external URLs
+  const isAuthEndpoint = req.url.includes('/auth/login') || req.url.includes('/auth/register');
+  const isExternalUrl = req.url.startsWith('http://') || req.url.startsWith('https://') || req.url.startsWith('//');
 
   if (token && !isAuthEndpoint && !isExternalUrl) {
     const clonedRequest = req.clone({

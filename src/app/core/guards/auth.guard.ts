@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 /**
@@ -9,7 +9,7 @@ import { AuthService } from '../services/auth.service';
 export const authGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
-) => {
+): boolean | UrlTree => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -20,9 +20,8 @@ export const authGuard: CanActivateFn = (
   // Store the attempted URL for redirecting after login
   authService.setRedirectUrl(state.url);
 
-  // Redirect to login page
-  router.navigate(['/auth/login']);
-  return false;
+  // Return UrlTree to avoid dual-navigation race condition
+  return router.createUrlTree(['/auth/login']);
 };
 
 /**
@@ -32,7 +31,7 @@ export const authGuard: CanActivateFn = (
 export const guestGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
-) => {
+): boolean | UrlTree => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -40,7 +39,6 @@ export const guestGuard: CanActivateFn = (
     return true;
   }
 
-  // Already logged in, redirect to dashboard
-  router.navigate(['/']);
-  return false;
+  // Already logged in, redirect to dashboard — return UrlTree to avoid race condition
+  return router.createUrlTree(['/']);
 };

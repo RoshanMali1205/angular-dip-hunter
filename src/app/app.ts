@@ -1,7 +1,8 @@
-import { Component, signal, inject, HostListener, ElementRef, OnInit } from '@angular/core';
+import { Component, signal, inject, HostListener, ElementRef, OnInit, DestroyRef } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { ThemeService } from './core/services/theme.service';
 import { LanguageService, Language } from './core/services/language.service';
@@ -28,7 +29,8 @@ export class App implements OnInit {
   private readonly router = inject(Router);
   private readonly elementRef = inject(ElementRef);
   readonly tourService = inject(TourService);
-  readonly swUpdate = inject(SwUpdate);
+  private readonly swUpdate = inject(SwUpdate);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Close menus when clicking outside
   @HostListener('document:click', ['$event'])
@@ -53,7 +55,8 @@ export class App implements OnInit {
   ) {
     // Track if we're on auth pages to hide header
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe((event: NavigationEnd) => {
       this.isAuthPage.set(event.urlAfterRedirects.startsWith('/auth'));
       this.closeMobileMenu();
@@ -78,7 +81,8 @@ export class App implements OnInit {
     // Check for service worker updates
     if (this.swUpdate.isEnabled) {
       this.swUpdate.versionUpdates.pipe(
-        filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY')
+        filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'),
+        takeUntilDestroyed(this.destroyRef)
       ).subscribe(() => {
         if (confirm('A new version of Dip Hunter is available. Load it now?')) {
           window.location.reload();

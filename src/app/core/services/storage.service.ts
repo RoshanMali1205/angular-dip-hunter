@@ -4,11 +4,12 @@
 
 import { Injectable } from '@angular/core';
 
-export type StorageKey = 
+export type StorageKey =
   | 'dh_folders'
   | 'dh_stocks'
   | 'dh_plans'
   | 'dh_transactions'
+  | 'dh_drafts'
   | 'dh_settings'
   | 'dh_quote_cache'
   | 'dh_user';
@@ -64,8 +65,10 @@ export class StorageService {
       'dh_stocks',
       'dh_plans',
       'dh_transactions',
+      'dh_drafts',
       'dh_settings',
-      'dh_quote_cache'
+      'dh_quote_cache',
+      'dh_user'
     ];
     keys.forEach(key => this.remove(key));
   }

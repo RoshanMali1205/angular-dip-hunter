@@ -7,6 +7,7 @@ import { HoldingsService } from '../../core/services/holdings.service';
 import { QuoteService } from '../../core/services/quote.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { PlannerService } from '../../core/services/planner.service';
 import { BuyTransaction, DividendTransaction, TransactionFilters } from '../../core/models/transaction.model';
 import { Holding } from '../../core/models/holding.model';
 import { Stock } from '../../core/models/stock.model';
@@ -152,8 +153,18 @@ export class TransactionsPageComponent implements OnInit {
     private transactionService: TransactionService,
     private portfolioService: PortfolioService,
     private holdingsService: HoldingsService,
-    private quoteService: QuoteService
+    private quoteService: QuoteService,
+    private plannerService: PlannerService
   ) {}
+
+  /** Get the month label for a planId badge (e.g. "Mar 2026") */
+  getPlanLabel(planId: string | undefined): string | null {
+    if (!planId) return null;
+    const plan = this.plannerService.plans().find(p => p.id === planId);
+    if (!plan) return null;
+    const [year, month] = plan.month.split('-');
+    return new Date(+year, +month - 1).toLocaleString('en-IN', { month: 'short', year: 'numeric' });
+  }
   
   ngOnInit(): void {
     this.loadHoldings();
@@ -183,11 +194,12 @@ export class TransactionsPageComponent implements OnInit {
     const current = this.buyForm();
     this.buyForm.set({ ...current, [field]: value });
     
-    // If symbol changed, update stockId
+    // If symbol changed, update stockId and auto-fetch price
     if (field === 'symbol') {
       const stock = this.portfolioService.getStockBySymbol(value);
       if (stock) {
-        this.buyForm.set({ ...this.buyForm(), stockId: stock.id });
+        const quote = this.quoteService.getQuote(stock.symbol);
+        this.buyForm.set({ ...this.buyForm(), stockId: stock.id, price: quote?.price ?? 0 });
       }
     }
     

@@ -6,7 +6,8 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PlannerService, QuoteService, PortfolioService, SettingsService, LanguageService, ThemeService } from '../../core/services';
+import { PlannerService, QuoteService, PortfolioService, SettingsService, LanguageService, ThemeService, DraftsService } from '../../core/services';
+import { TransactionService } from '../../core/services/transaction.service';
 import { MonthlyPlan, PlanItem, AdvisorStrategy, AllocationSuggestion } from '../../core/models/plan.model';
 import { StockViewModel } from '../../core/models';
 import { AllocationSuggestionsComponent } from './components';
@@ -22,8 +23,13 @@ export class PlannerPageComponent implements OnInit {
   private quoteService = inject(QuoteService);
   private portfolioService = inject(PortfolioService);
   private settingsService = inject(SettingsService);
+  private transactionService = inject(TransactionService);
+  private draftsService = inject(DraftsService);
   readonly lang = inject(LanguageService);
   readonly themeService = inject(ThemeService);
+
+  readonly draftCount = this.draftsService.draftCount;
+  readonly canSaveDraft = this.draftsService.canCreate;
 
   // UI State
   selectedMonth = signal(this.plannerService.currentMonth);
@@ -242,6 +248,66 @@ export class PlannerPageComponent implements OnInit {
     link.download = `DipHunter_Plan_${plan.month}_${date}.csv`;
     link.click();
     URL.revokeObjectURL(link.href);
+  }
+
+  /**
+   * Execute plan — create BUY transactions for all pending (non-executed) items
+   */
+  onExecutePlan(): void {
+    const plan = this.currentPlan();
+    if (!plan || plan.items.length === 0) return;
+
+    const pending = plan.items.filter(i => !i.isExecuted && i.targetQty && i.targetQty > 0);
+    if (pending.length === 0) {
+      alert('All items already executed.');
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const confirmed = confirm(
+      `Create ${pending.length} buy transaction(s) from plan ${plan.month}?\n` +
+      pending.map(i => `• ${i.symbol}: ${i.targetQty} qty @ ₹${i.plannedPrice}`).join('\n')
+    );
+    if (!confirmed) return;
+
+    const executedStockIds: string[] = [];
+    for (const item of pending) {
+      const price = this.quoteService.getQuote(item.symbol)?.price ?? item.plannedPrice;
+      this.transactionService.addBuy({
+        symbol: item.symbol,
+        stockId: item.stockId,
+        qty: item.targetQty!,
+        price,
+        charges: 0,
+        date: today,
+        planId: plan.id
+      });
+      executedStockIds.push(item.stockId);
+    }
+
+    this.plannerService.markItemsExecuted(plan.id, executedStockIds);
+    alert(`${executedStockIds.length} transaction(s) created. View them in Transactions page.`);
+  }
+
+  /**
+   * Save current plan as a named draft
+   */
+  onSaveAsDraft(): void {
+    const plan = this.currentPlan();
+    if (!plan || plan.items.length === 0) return;
+
+    if (!this.canSaveDraft()) {
+      alert('Maximum 5 drafts reached. Delete a draft first.');
+      return;
+    }
+
+    const name = prompt(`Name this draft (plan: ${plan.month}):`, `Plan ${plan.month}`);
+    if (name === null) return; // cancelled
+
+    const draft = this.draftsService.createFromPlan(plan, name);
+    if (draft) {
+      alert(`Draft "${draft.name}" saved! View it in the Drafts page.`);
+    }
   }
 
   formatCurrency(value: number | undefined): string {
