@@ -163,7 +163,9 @@ export class QuoteService {
 
     // Build batch request with .NS suffix for NSE stocks
     const yahooSymbols = symbols.map(s => `${s}.NS`).join(',');
-    const url = `${baseUrl}/api/quotes?symbols=${yahooSymbols}`;
+    // Use /.netlify/functions/quotes directly to avoid SPA catch-all redirect swallowing the request
+    const functionPath = baseUrl ? `${baseUrl}/api/quotes` : '/.netlify/functions/quotes';
+    const url = `${functionPath}?symbols=${yahooSymbols}`;
 
     return this.http.get<BatchQuotesResponse>(url).pipe(
       map(response => {
