@@ -30,12 +30,13 @@ export class SettingsService {
     const stored = this.storage.get<AppSettings>('dh_settings');
     if (stored) {
       // Merge stored with defaults, ensuring new fields get default values
-      const merged: AppSettings = { 
-        ...DEFAULT_SETTINGS, 
+      const merged: AppSettings = {
+        ...DEFAULT_SETTINGS,
         ...stored,
         // Ensure critical new fields use defaults if not present in stored
         quoteDataSource: stored.quoteDataSource || DEFAULT_SETTINGS.quoteDataSource,
-        yahooProxyUrl: stored.yahooProxyUrl || DEFAULT_SETTINGS.yahooProxyUrl,
+        // Migrate old '/api/quotes' value (caused double-path bug) to '' (same origin)
+        yahooProxyUrl: stored.yahooProxyUrl === '/api/quotes' ? '' : (stored.yahooProxyUrl ?? ''),
       };
       this._settings.set(merged);
       // Save merged settings to update storage with new fields

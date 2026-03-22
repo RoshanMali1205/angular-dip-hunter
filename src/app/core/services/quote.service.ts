@@ -152,7 +152,8 @@ export class QuoteService {
    */
   private fetchFromYahooFinance(symbols: string[]): Observable<Record<string, Quote>> {
     const settings = this.settingsService.settings();
-    const proxyUrl = settings.yahooProxyUrl || 'http://localhost:3001';
+    // Empty string = same origin (Netlify). Explicit URL = external proxy or local dev server.
+    const baseUrl = settings.yahooProxyUrl ?? '';
     const now = new Date().toISOString();
 
     // If no symbols, return empty
@@ -162,7 +163,7 @@ export class QuoteService {
 
     // Build batch request with .NS suffix for NSE stocks
     const yahooSymbols = symbols.map(s => `${s}.NS`).join(',');
-    const url = `${proxyUrl}/api/quotes?symbols=${yahooSymbols}`;
+    const url = `${baseUrl}/api/quotes?symbols=${yahooSymbols}`;
 
     return this.http.get<BatchQuotesResponse>(url).pipe(
       map(response => {

@@ -40,8 +40,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   redRule: {
     type: 'CHANGE_PERCENT_NEGATIVE'
   },
-  quoteDataSource: 'mock',  // 'mock' for now, 'yahoo' when Cloudflare worker is ready
-  yahooProxyUrl: '/api/quotes',  // Will be Cloudflare Worker URL
+  quoteDataSource: 'mock',  // Change to 'yahoo' in Settings page to use real data
+  yahooProxyUrl: '',  // Empty = same origin (/api/quotes). Set full URL for external proxy.
   autoRefresh: false,
   refreshIntervalSeconds: 900,  // 15 minutes (Yahoo Finance refresh rate)
   cacheTTLSeconds: 900,  // 15 minutes to match Yahoo Finance delay
