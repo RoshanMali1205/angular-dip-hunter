@@ -3,18 +3,19 @@
  * Main dashboard with folder view, KPIs, stock list, and red candidates
  */
 
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  PortfolioService, 
-  QuoteService, 
-  SettingsService, 
+import {
+  PortfolioService,
+  QuoteService,
+  SettingsService,
   PlannerService,
   HoldingsService,
   ThemeService,
   LanguageService
 } from '../../core/services';
+import { TourService } from '../../core/services/tour.service';
 import { FolderId } from '../../core/models/folder.model';
 import { StockViewModel, DashboardKPIs, Holding } from '../../core/models';
 import {
@@ -51,10 +52,21 @@ export class DashboardPageComponent implements OnInit {
   private quoteService = inject(QuoteService);
   private settingsService = inject(SettingsService);
   private plannerService = inject(PlannerService);
+  private tourService = inject(TourService);
   public holdingsService = inject(HoldingsService);
-  
+
   public themeService = inject(ThemeService);
   public lang = inject(LanguageService);
+
+  constructor() {
+    // Show data source popup after the tour finishes for first-time users
+    effect(() => {
+      if (this.tourService.justFinished()) {
+        this.showDataSourceModal.set(true);
+        this.tourService.consumeJustFinished();
+      }
+    });
+  }
 
   // UI State
   selectedFolderId = signal<FolderId>('GROWTH_20');
@@ -213,10 +225,6 @@ export class DashboardPageComponent implements OnInit {
   quoteError = this.quoteService.error;
 
   ngOnInit(): void {
-    // Show data source welcome modal once per browser (first login)
-    if (!localStorage.getItem('dh_welcome_shown')) {
-      this.showDataSourceModal.set(true);
-    }
     this.loadQuotes();
   }
 

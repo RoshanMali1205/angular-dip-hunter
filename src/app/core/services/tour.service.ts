@@ -34,11 +34,15 @@ export class TourService {
   private readonly _currentIndex = signal<number>(0);
   private readonly _isActive = signal<boolean>(false);
   private readonly _highlightedElement = signal<HTMLElement | null>(null);
+  /** Fires true when tour finishes/skips for the very first time (before data-source chosen) */
+  private readonly _justFinished = signal(false);
 
   // Computed values
   readonly steps = this._steps.asReadonly();
   readonly currentIndex = this._currentIndex.asReadonly();
   readonly isActive = this._isActive.asReadonly();
+  /** Consumed once by dashboard to show post-tour popup */
+  readonly justFinished = this._justFinished.asReadonly();
   readonly highlightedElement = this._highlightedElement.asReadonly();
   
   readonly currentStep = computed(() => {
@@ -126,10 +130,19 @@ export class TourService {
    */
   finish(): void {
     this.clearHighlight();
+    const isFirstTime = !localStorage.getItem('dh_welcome_shown');
     localStorage.setItem(this.storageKey, 'true');
     localStorage.removeItem(this.stepKey);
     this._isActive.set(false);
     this._currentIndex.set(0);
+    if (isFirstTime) {
+      this._justFinished.set(true);
+    }
+  }
+
+  /** Reset the justFinished flag after the consumer has handled it */
+  consumeJustFinished(): void {
+    this._justFinished.set(false);
   }
 
   /**
