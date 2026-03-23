@@ -19,7 +19,7 @@
     <div class="flex items-center gap-1">
       <button
         (click)="viewMode.set('single')"
-        class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition"
+        class="px-2.5 py-1.5 text-xs font-medium rounded-lg transition"
         [class.bg-emerald-500]="viewMode() === 'single'"
         [class.text-white]="viewMode() === 'single'"
         [class.bg-slate-800]="viewMode() !== 'single' && themeService.isDark()"
@@ -30,7 +30,7 @@
       </button>
       <button
         (click)="viewMode.set('multistock')"
-        class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition"
+        class="px-2.5 py-1.5 text-xs font-medium rounded-lg transition"
         [class.bg-emerald-500]="viewMode() === 'multistock'"
         [class.text-white]="viewMode() === 'multistock'"
         [class.bg-slate-800]="viewMode() !== 'multistock' && themeService.isDark()"
@@ -41,7 +41,7 @@
       </button>
       <button
         (click)="viewMode.set('sector')"
-        class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition"
+        class="px-2.5 py-1.5 text-xs font-medium rounded-lg transition"
         [class.bg-emerald-500]="viewMode() === 'sector'"
         [class.text-white]="viewMode() === 'sector'"
         [class.bg-slate-800]="viewMode() !== 'sector' && themeService.isDark()"
@@ -111,7 +111,7 @@
             <option [value]="sector">{{ sector }}</option>
           }
         </select>
-        <span class="text-[10px] px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 whitespace-nowrap">
+        <span class="text-xs px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 whitespace-nowrap">
           {{ sectorStocks().length }} stocks
         </span>
       }
@@ -220,7 +220,7 @@
             {{ selectedFolder() === 'GROWTH_20' ? lang.t('dashboard.growthTwenty') : lang.t('dashboard.dividendTen') }}
           }
         </h2>
-        <p class="text-[10px] mt-0.5"
+        <p class="text-xs mt-0.5"
            [class.text-slate-400]="themeService.isDark()"
            [class.text-gray-500]="themeService.isLight()">
           {{ getRangeLabel() }}

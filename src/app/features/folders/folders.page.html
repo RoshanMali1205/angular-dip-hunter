@@ -31,7 +31,7 @@
             : themeService.isDark() ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
           class="rounded-lg px-3 py-1.5 text-xs font-medium transition flex items-center whitespace-nowrap">
           {{ folder.name }}
-          <span class="ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
+          <span class="ml-1.5 rounded-full px-1.5 py-0.5 text-xs font-semibold"
                 [class.bg-emerald-700]="selectedFolderId() === folder.id"
                 [class.text-white]="selectedFolderId() === folder.id"
                 [class.bg-slate-700]="selectedFolderId() !== folder.id && themeService.isDark()"

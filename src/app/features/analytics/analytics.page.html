@@ -115,11 +115,48 @@
          [class.bg-slate-900]="themeService.isDark()"
          [class.border-gray-200]="themeService.isLight()"
          [class.bg-white]="themeService.isLight()">
-      <h3 class="mb-4 font-semibold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">
-        {{ lang.t('analytics.monthlyInvestment') }}
-      </h3>
-      <div class="h-80">
+      <!-- Header with range selector -->
+      <div class="mb-4 flex items-center justify-between gap-2 flex-wrap">
+        <h3 class="font-semibold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">
+          {{ lang.t('analytics.monthlyInvestment') }}
+        </h3>
+        <div class="flex gap-1 rounded-lg p-1"
+             [class.bg-slate-800]="themeService.isDark()"
+             [class.bg-gray-100]="themeService.isLight()">
+          @for (range of chartRanges; track range) {
+            <button
+              (click)="setChartRange(range)"
+              class="rounded-md px-2.5 py-1 text-xs font-medium transition"
+              [class.bg-slate-700]="chartRange() === range && themeService.isDark()"
+              [class.text-white]="chartRange() === range && themeService.isDark()"
+              [class.bg-white]="chartRange() === range && themeService.isLight()"
+              [class.text-gray-900]="chartRange() === range && themeService.isLight()"
+              [class.shadow-sm]="chartRange() === range"
+              [class.text-slate-400]="chartRange() !== range && themeService.isDark()"
+              [class.hover:text-white]="chartRange() !== range && themeService.isDark()"
+              [class.text-gray-500]="chartRange() !== range && themeService.isLight()"
+              [class.hover:text-gray-800]="chartRange() !== range && themeService.isLight()">
+              {{ range }}
+            </button>
+          }
+        </div>
+      </div>
+      <!-- Chart area with empty state -->
+      <div class="relative h-80">
         <canvas #monthlyLineChart></canvas>
+        @if (!hasChartData()) {
+          <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg"
+               [class.bg-slate-800/60]="themeService.isDark()"
+               [class.bg-gray-50/80]="themeService.isLight()">
+            <div class="text-4xl">📊</div>
+            <p class="text-sm font-medium"
+               [class.text-slate-300]="themeService.isDark()"
+               [class.text-gray-600]="themeService.isLight()">No transaction data yet</p>
+            <p class="text-xs text-center px-6"
+               [class.text-slate-500]="themeService.isDark()"
+               [class.text-gray-400]="themeService.isLight()">Execute a plan or add buy transactions to see your monthly investment trend here.</p>
+          </div>
+        }
       </div>
     </div>
   </div>

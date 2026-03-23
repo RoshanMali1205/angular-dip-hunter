@@ -27,6 +27,22 @@ export const routes: Routes = [
 					),
 				title: 'Register - Dip Hunter'
 			},
+			{
+				path: 'forgot-password',
+				loadComponent: () =>
+					import('./features/auth/forgot-password/forgot-password.page').then(
+						(m) => m.ForgotPasswordPageComponent
+					),
+				title: 'Forgot Password - Dip Hunter'
+			},
+			{
+				path: 'reset-password',
+				loadComponent: () =>
+					import('./features/auth/reset-password/reset-password.page').then(
+						(m) => m.ResetPasswordPageComponent
+					),
+				title: 'Reset Password - Dip Hunter'
+			},
 			{ path: '', redirectTo: 'login', pathMatch: 'full' }
 		]
 	},

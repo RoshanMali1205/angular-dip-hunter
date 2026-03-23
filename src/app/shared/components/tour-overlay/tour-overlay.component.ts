@@ -51,7 +51,7 @@ import { LanguageService } from '../../../core/services/language.service';
           <div class="p-4">
             <!-- Step Counter -->
             <div class="flex items-center justify-between mb-3">
-              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full"
+              <span class="text-xs font-medium px-2 py-0.5 rounded-full"
                     [class.bg-emerald-500/20]="themeService.isDark()"
                     [class.text-emerald-400]="themeService.isDark()"
                     [class.bg-emerald-100]="themeService.isLight()"

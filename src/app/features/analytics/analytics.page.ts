@@ -81,6 +81,9 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
     };
   });
   
+  // Chart time range
+  chartRange = signal<'3M' | '6M' | '1Y' | 'ALL'>('1Y');
+
   // Monthly totals
   monthlyTotals = computed(() => {
     const buys = this.buyTransactions();
@@ -119,6 +122,19 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
     return result.sort((a, b) => b.month.localeCompare(a.month));
   });
   
+  // Chart data filtered by range (ascending order for display)
+  chartMonthlyData = computed(() => {
+    const ascending = this.monthlyTotals().slice().reverse();
+    const range = this.chartRange();
+    if (range === 'ALL') return ascending;
+    const months = range === '3M' ? 3 : range === '6M' ? 6 : 12;
+    return ascending.slice(-months);
+  });
+
+  hasChartData = computed(() =>
+    this.chartMonthlyData().some(m => m.buyAmount > 0 || m.dividendAmount > 0)
+  );
+
   // Allocation data for charts
   growthAllocation = computed(() => {
     const holdings = this.growthHoldings();
@@ -214,7 +230,7 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
               color: textColor,
               padding: 10,
               usePointStyle: true,
-              font: { size: 11 }
+              font: { size: 12 }
             }
           },
           tooltip: {
@@ -223,7 +239,7 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
                 const value = context.raw as number;
                 const total = data.reduce((a, b) => a + b, 0);
                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
-                return `${context.label}: $${value.toFixed(2)} (${percentage}%)`;
+                return `${context.label}: ₹${value.toFixed(2)} (${percentage}%)`;
               }
             }
           }
@@ -239,7 +255,7 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
       this.monthlyChart.destroy();
     }
     
-    const monthlyData = this.monthlyTotals().slice().reverse().slice(-12);
+    const monthlyData = this.chartMonthlyData();
     const labels = monthlyData.map(m => this.formatMonth(m.month));
     const buyData = monthlyData.map(m => m.buyAmount);
     const dividendData = monthlyData.map(m => m.dividendAmount);
@@ -276,24 +292,26 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
         maintainAspectRatio: false,
         scales: {
           x: {
-            ticks: { color: textColor },
+            ticks: { color: textColor, font: { size: 12 } },
             grid: { color: gridColor }
           },
           y: {
-            ticks: { 
+            beginAtZero: true,
+            ticks: {
               color: textColor,
-              callback: (value) => '$' + value
+              font: { size: 12 },
+              callback: (value) => '₹' + value
             },
             grid: { color: gridColor }
           }
         },
         plugins: {
           legend: {
-            labels: { color: textColor }
+            labels: { color: textColor, font: { size: 12 } }
           },
           tooltip: {
             callbacks: {
-              label: (context) => `${context.dataset.label}: $${(context.raw as number).toFixed(2)}`
+              label: (context) => `${context.dataset.label}: ₹${(context.raw as number).toFixed(2)}`
             }
           }
         }
@@ -323,7 +341,7 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
       this.initMonthlyChart();
       return;
     }
-    const monthlyData = this.monthlyTotals().slice().reverse().slice(-12);
+    const monthlyData = this.chartMonthlyData();
     this.monthlyChart.data.labels = monthlyData.map(m => this.formatMonth(m.month));
     this.monthlyChart.data.datasets[0].data = monthlyData.map(m => m.buyAmount);
     this.monthlyChart.data.datasets[1].data = monthlyData.map(m => m.dividendAmount);
@@ -372,6 +390,13 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
   
   setFolder(folder: FolderId | 'ALL'): void {
     this.selectedFolder.set(folder);
+  }
+
+  readonly chartRanges: Array<'3M' | '6M' | '1Y' | 'ALL'> = ['3M', '6M', '1Y', 'ALL'];
+
+  setChartRange(range: '3M' | '6M' | '1Y' | 'ALL'): void {
+    this.chartRange.set(range);
+    setTimeout(() => this.updateMonthlyChart(), 0);
   }
   
   // Color palette for charts

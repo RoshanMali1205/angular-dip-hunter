@@ -50,18 +50,18 @@ import { ThemeService } from '../../../core/services';
                 <span class="shrink-0 mt-0.5">{{ getSeverityIcon(insight.severity) }}</span>
                 <div class="flex-1 min-w-0">
                   <p class="font-medium line-clamp-1">{{ insight.title }}</p>
-                  <p class="text-[10px] mt-0.5 opacity-90 line-clamp-2">{{ insight.message }}</p>
+                  <p class="text-xs mt-0.5 opacity-90 line-clamp-2">{{ insight.message }}</p>
                 </div>
                 @if (insight.metric !== undefined) {
                   <div class="shrink-0 text-right">
                     <p class="font-bold">{{ formatMetric(insight.metric) }}</p>
-                    <p class="text-[9px] opacity-75">{{ insight.metricLabel }}</p>
+                    <p class="text-xs opacity-75">{{ insight.metricLabel }}</p>
                   </div>
                 }
               </div>
 
               <!-- Recommendation (hover tooltip) -->
-              <p class="text-[9px] mt-1.5 opacity-75 border-t border-current border-opacity-20 pt-1.5"
+              <p class="text-xs mt-1.5 opacity-75 border-t border-current border-opacity-20 pt-1.5"
                  [title]="insight.recommendation">
                 📌 {{ insight.recommendation | slice:0:60 }}{{ insight.recommendation.length > 60 ? '...' : '' }}
               </p>
@@ -70,14 +70,14 @@ import { ThemeService } from '../../../core/services';
         </div>
 
         <!-- Meta Info -->
-        <div class="mt-3 pt-3 border-t text-[10px]"
+        <div class="mt-3 pt-3 border-t text-xs"
              [class.border-slate-700/30]="isDark()"
              [class.border-gray-200]="!isDark()">
           <div class="flex items-center justify-between"
                [class.text-slate-400]="isDark()"
                [class.text-gray-500]="!isDark()">
             <span>{{ insights().length }} total insights</span>
-            <span class="text-[9px]">Last updated: just now</span>
+            <span class="text-xs">Last updated: just now</span>
           </div>
         </div>
       }

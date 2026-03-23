@@ -41,7 +41,7 @@ interface ChartDataItem {
       <!-- Center Overlay -->
       <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div class="text-center">
-          <p class="text-[10px] uppercase tracking-wide"
+          <p class="text-xs uppercase tracking-wide"
              [class.text-slate-400]="isDark()"
              [class.text-gray-500]="!isDark()">Total Value</p>
           <p class="text-lg font-bold"

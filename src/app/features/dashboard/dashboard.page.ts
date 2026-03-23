@@ -62,6 +62,7 @@ export class DashboardPageComponent implements OnInit {
   showRedOnly = signal(false);
   isLoading = signal(false);
   pieGroupBy = signal<PieGroupBy>('stock');
+  showDataSourceModal = signal(false);
   
   // Pagination
   currentPage = signal(1);
@@ -212,6 +213,18 @@ export class DashboardPageComponent implements OnInit {
   quoteError = this.quoteService.error;
 
   ngOnInit(): void {
+    // Show data source welcome modal once per browser (first login)
+    if (!localStorage.getItem('dh_welcome_shown')) {
+      this.showDataSourceModal.set(true);
+    }
+    this.loadQuotes();
+  }
+
+  onChooseDataSource(source: 'yahoo' | 'mock'): void {
+    this.settingsService.updateSettings({ quoteDataSource: source });
+    localStorage.setItem('dh_welcome_shown', '1');
+    this.showDataSourceModal.set(false);
+    // Reload quotes with the chosen source
     this.loadQuotes();
   }
 

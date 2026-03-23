@@ -32,7 +32,7 @@ import { LanguageService } from '../../../core/services/language.service';
         </svg>
         {{ lang.t('performance.compare') }}
         @if (selectedCount() > 0) {
-          <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-emerald-500 text-white">
+          <span class="px-1.5 py-0.5 text-xs rounded-full bg-emerald-500 text-white">
             {{ selectedCount() }}
           </span>
         }

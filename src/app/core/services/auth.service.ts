@@ -15,6 +15,7 @@ export class AuthService {
   private readonly AUTH_USER_KEY = 'dh_auth_user';
   private readonly REMEMBER_KEY = 'dh_remember_me';
   private readonly REGISTERED_USERS_KEY = 'dh_registered_users';
+  private readonly RESET_TOKENS_KEY = 'dh_reset_tokens';
 
   private readonly router = inject(Router);
 
@@ -248,6 +249,69 @@ export class AuthService {
     }
   }
 
+  /**
+   * Request a password reset token for the given email.
+   * Returns the token if the email exists, null otherwise.
+   */
+  requestPasswordReset(email: string): string | null {
+    const users = this.getRegisteredUsers();
+    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!user) return null;
+
+    const token = this.generateResetToken();
+    const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
+
+    // Remove any previous token for this email, add new one
+    const tokens = this.getResetTokens().filter(
+      t => t.expiresAt > Date.now() && t.email.toLowerCase() !== email.toLowerCase()
+    );
+    tokens.push({ token, email, expiresAt });
+    localStorage.setItem(this.RESET_TOKENS_KEY, JSON.stringify(tokens));
+
+    return token;
+  }
+
+  /**
+   * Validate a reset token. Returns the associated email if valid, null if invalid/expired.
+   */
+  validateResetToken(token: string): string | null {
+    const found = this.getResetTokens().find(
+      t => t.token === token && t.expiresAt > Date.now()
+    );
+    return found ? found.email : null;
+  }
+
+  /**
+   * Reset the user's password using a valid reset token.
+   */
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    this._state.update(s => ({ ...s, isLoading: true, error: null }));
+    try {
+      await this.delay(800);
+
+      const email = this.validateResetToken(token);
+      if (!email) throw new Error('Reset link is invalid or has expired. Please request a new one.');
+
+      const users = this.getRegisteredUsers();
+      const idx = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+      if (idx === -1) throw new Error('Account not found.');
+
+      users[idx].password = newPassword;
+      this.saveRegisteredUsers(users);
+
+      // Invalidate the used token
+      const tokens = this.getResetTokens().filter(t => t.token !== token);
+      localStorage.setItem(this.RESET_TOKENS_KEY, JSON.stringify(tokens));
+
+      this._state.update(s => ({ ...s, isLoading: false }));
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Password reset failed.';
+      this._state.update(s => ({ ...s, isLoading: false, error: message }));
+      return false;
+    }
+  }
+
   // Helper methods
   private clearStorage(): void {
     sessionStorage.removeItem(this.AUTH_TOKEN_KEY);
@@ -268,6 +332,24 @@ export class AuthService {
   private generateMockToken(): string {
     return 'mock_token_' + Math.random().toString(36).substring(2, 15) + 
            Math.random().toString(36).substring(2, 15);
+  }
+
+  private generateResetToken(): string {
+    return (
+      'rst_' +
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15) +
+      Date.now().toString(36)
+    );
+  }
+
+  private getResetTokens(): Array<{ token: string; email: string; expiresAt: number }> {
+    try {
+      const json = localStorage.getItem(this.RESET_TOKENS_KEY);
+      return json ? JSON.parse(json) : [];
+    } catch {
+      return [];
+    }
   }
 
   private extractNameFromEmail(email: string): string {

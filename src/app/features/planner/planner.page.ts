@@ -36,14 +36,27 @@ export class PlannerPageComponent implements OnInit {
   budget = signal(50000);
   isLoading = signal(false);
   selectedAllocationStrategy = signal<AdvisorStrategy>('equal');
+  showStrategySection = signal(true);
 
   currentPlan = computed(() => 
     this.plannerService.getPlanForMonth(this.selectedMonth())
   );
 
-  isPlanLocked = computed(() => 
+  isPlanLocked = computed(() =>
     this.currentPlan()?.status === 'FINAL'
   );
+
+  // How much of the budget is allocated (sum of pending targetAmount)
+  budgetUsed = computed(() => {
+    const plan = this.currentPlan();
+    if (!plan) return 0;
+    return plan.items.filter(i => !i.isExecuted).reduce((s, i) => s + (i.targetAmount || 0), 0);
+  });
+
+  budgetUsedPercent = computed(() => {
+    const b = this.budget();
+    return b > 0 ? Math.min(100, Math.round((this.budgetUsed() / b) * 100)) : 0;
+  });
 
   // Red stocks available for planning
   availableRedStocks = computed<StockViewModel[]>(() => {
@@ -132,54 +145,48 @@ export class PlannerPageComponent implements OnInit {
   }
 
   /**
-   * Apply allocation suggestion from AI advisor
+   * Apply allocation suggestion from AI advisor.
+   * Replaces all pending (non-executed) items with the suggested allocation.
    */
   onApplyAllocation(suggestion: AllocationSuggestion): void {
     const plan = this.currentPlan();
     if (!plan || plan.status === 'FINAL') return;
 
-    // Update budget with current value
+    // Remove all pending (non-executed) items first so we get a clean slate
+    const pendingItems = plan.items.filter(i => !i.isExecuted);
+    pendingItems.forEach(item => this.plannerService.removeItem(plan.id, item.stockId));
+
     this.plannerService.updatePlan(plan.id, { budget: this.budget() });
 
     const quotes = this.quoteService.quotes();
-    
-    // Add stocks to plan
-    const addedSymbols = new Set<string>();
-    suggestion.allocations.forEach(alloc => {
-      const quote = quotes[alloc.symbol];
-      if (!quote || addedSymbols.has(alloc.symbol)) return;
+    const allStocks = this.portfolioService.activeStocks();
 
-      this.plannerService.addItem(plan.id, alloc.symbol, alloc.symbol, quote);
-      addedSymbols.add(alloc.symbol);
+    // Add each suggested stock using the correct stockId (not just the symbol)
+    suggestion.allocations.forEach(alloc => {
+      const stock = allStocks.find(s => s.symbol === alloc.symbol);
+      if (!stock) return;
+      const quote = quotes[alloc.symbol];
+      this.plannerService.addItem(plan.id, stock.id, alloc.symbol, quote);
     });
 
-    // Update plan with allocation amounts
-    const updatedPlan = this.plannerService.getPlanForMonth(this.selectedMonth());
-    if (!updatedPlan) return;
+    // Apply allocation amounts & quantities to the freshly added items
+    const refreshedPlan = this.plannerService.getPlanForMonth(this.selectedMonth());
+    if (!refreshedPlan) return;
 
-    const updatedItems = updatedPlan.items.map(item => {
+    const updatedItems = refreshedPlan.items.map(item => {
+      if (item.isExecuted) return item;
       const alloc = suggestion.allocations.find(a => a.symbol === item.symbol);
       if (!alloc) return item;
 
-      const quote = quotes[item.symbol];
-      const targetQty = quote && quote.price > 0 ? Math.floor(alloc.allocation / quote.price) : 0;
+      const price = quotes[item.symbol]?.price ?? item.plannedPrice;
+      const targetQty = price > 0 ? Math.floor(alloc.allocation / price) : 0;
 
-      return {
-        ...item,
-        targetAmount: alloc.allocation,
-        targetQty,
-        plannedPrice: quote?.price ?? item.plannedPrice
-      };
+      return { ...item, targetAmount: alloc.allocation, targetQty, plannedPrice: price };
     });
 
-    // Apply updated items
-    this.plannerService.updatePlan(plan.id, { 
-      items: updatedItems,
-      strategy: 'AI_ADVISOR'
-    });
-
-    // Update strategy indicator
+    this.plannerService.updatePlan(plan.id, { items: updatedItems, strategy: 'AI_ADVISOR' });
     this.selectedAllocationStrategy.set(suggestion.strategy);
+    this.showStrategySection.set(false); // Collapse the strategy panel after applying
   }
 
   onFinalizePlan(): void {

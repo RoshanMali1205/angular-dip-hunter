@@ -24,6 +24,18 @@ import { LanguageService } from '../../../core/services/language.service';
            [class.text-gray-500]="themeService.isLight()">{{ lang.t('auth.loginSubtitle') }}</p>
       </div>
 
+      <!-- Success Alert (after password reset) -->
+      @if (showPasswordResetSuccess()) {
+        <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ lang.t('auth.passwordResetSuccess') }}
+          </div>
+        </div>
+      }
+
       <!-- Success Alert (after registration) -->
       @if (showRegistrationSuccess()) {
         <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
@@ -144,9 +156,9 @@ import { LanguageService } from '../../../core/services/language.service';
                   [class.text-slate-400]="themeService.isDark()"
                   [class.text-gray-600]="themeService.isLight()">{{ lang.t('auth.rememberMe') }}</span>
           </label>
-          <button type="button" class="text-sm text-emerald-500 hover:text-emerald-400 transition">
+          <a routerLink="/auth/forgot-password" class="text-sm text-emerald-500 hover:text-emerald-400 transition">
             {{ lang.t('auth.forgotPassword') }}
-          </button>
+          </a>
         </div>
 
         <!-- Submit Button -->
@@ -214,18 +226,21 @@ export class LoginPageComponent implements OnInit {
   rememberMe = false;
   showPassword = signal(false);
   showRegistrationSuccess = signal(false);
+  showPasswordResetSuccess = signal(false);
 
   ngOnInit(): void {
-    // Check for registration success query param
+    // Check for registration/password-reset success query param
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       if (params['registered'] === 'true') {
         this.showRegistrationSuccess.set(true);
-        // Pre-fill email if provided
         if (params['email']) {
           this.email = params['email'];
         }
-        // Auto-hide success message after 5 seconds
         setTimeout(() => this.showRegistrationSuccess.set(false), 5000);
+      }
+      if (params['passwordReset'] === 'true') {
+        this.showPasswordResetSuccess.set(true);
+        setTimeout(() => this.showPasswordResetSuccess.set(false), 5000);
       }
     });
   }

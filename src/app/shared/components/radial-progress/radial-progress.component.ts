@@ -48,7 +48,7 @@ import { CommonModule } from '@angular/common';
         </div>
       </div>
       <!-- Label -->
-      <span class="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-center"
+      <span class="mt-1.5 text-xs font-medium uppercase tracking-wide text-center"
             [class.text-slate-400]="isDark()"
             [class.text-gray-500]="!isDark()">
         {{ label() }}
