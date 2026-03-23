@@ -8,7 +8,7 @@
           [class.text-gray-900]="themeService.isLight()">{{ lang.t('folders.title') }}</h1>
       <p class="text-xs"
          [class.text-slate-400]="themeService.isDark()"
-         [class.text-gray-500]="themeService.isLight()">{{ lang.t('folders.subtitle') }}</p>
+         [class.text-gray-600]="themeService.isLight()">{{ lang.t('folders.subtitle') }}</p>
     </div>
     <button 
       (click)="showAddForm.set(true)"
@@ -167,7 +167,7 @@
                [class.text-slate-400]="themeService.isDark()"
                [class.border-gray-200]="themeService.isLight()"
                [class.bg-gray-50]="themeService.isLight()"
-               [class.text-gray-600]="themeService.isLight()">
+               [class.text-gray-700]="themeService.isLight()">
           <tr>
             <th class="px-3 py-2.5 w-16">{{ lang.t('folders.rank') }}</th>
             <th class="px-3 py-2.5">{{ lang.t('folders.symbol') }}</th>
@@ -191,8 +191,9 @@
                   <span [class.text-slate-500]="themeService.isDark()"
                         [class.text-gray-400]="themeService.isLight()">{{ stock.rank }}</span>
                   <div class="flex flex-col">
-                    <button (click)="onMoveUp(stock)" 
-                            class="hover:text-white transition"
+                    <button (click)="onMoveUp(stock); $event.stopPropagation()"
+                            type="button"
+                            class="hover:text-emerald-400 transition"
                             [class.text-slate-500]="themeService.isDark()"
                             [class.text-gray-400]="themeService.isLight()"
                             [disabled]="stock.rank === 1">
@@ -200,8 +201,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                       </svg>
                     </button>
-                    <button (click)="onMoveDown(stock)" 
-                            class="hover:text-white transition"
+                    <button (click)="onMoveDown(stock); $event.stopPropagation()"
+                            type="button"
+                            class="hover:text-emerald-400 transition"
                             [class.text-slate-500]="themeService.isDark()"
                             [class.text-gray-400]="themeService.isLight()"
                             [disabled]="stock.rank === currentFolderStocks().length">
@@ -220,22 +222,26 @@
                   [class.text-gray-700]="themeService.isLight()">{{ stock.displayName }}</td>
               <td class="hidden md:table-cell px-3 py-2.5"
                   [class.text-slate-400]="themeService.isDark()"
-                  [class.text-gray-500]="themeService.isLight()">{{ stock.exchange }}</td>
+                  [class.text-gray-600]="themeService.isLight()">{{ stock.exchange }}</td>
               <td class="hidden md:table-cell px-3 py-2.5"
                   [class.text-slate-400]="themeService.isDark()"
-                  [class.text-gray-500]="themeService.isLight()">{{ stock.sector || '—' }}</td>
+                  [class.text-gray-600]="themeService.isLight()">{{ stock.sector || '—' }}</td>
               <td class="px-3 py-2.5 text-center">
-                <button 
-                  (click)="onToggleActive(stock)"
-                  [class]="stock.isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-400'"
-                  class="rounded-full px-3 py-0.5 text-xs font-medium">
+                <button
+                  type="button"
+                  (click)="onToggleActive(stock); $event.stopPropagation()"
+                  [class]="stock.isActive
+                    ? 'bg-emerald-500/20 text-emerald-600'
+                    : themeService.isDark() ? 'bg-slate-700 text-slate-400' : 'bg-gray-200 text-gray-500'"
+                  class="rounded-full px-3 py-0.5 text-xs font-medium transition">
                   {{ stock.isActive ? lang.t('folders.active') : lang.t('folders.inactive') }}
                 </button>
               </td>
               <td class="px-3 py-2.5 text-right">
-                <button 
-                  (click)="onRemoveStock(stock)"
-                  class="text-red-400 hover:text-red-300">
+                <button
+                  type="button"
+                  (click)="onDeleteClick(stock, $event)"
+                  class="rounded p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
@@ -263,7 +269,7 @@
       <div class="flex items-center gap-2">
         <span class="text-sm"
               [class.text-slate-400]="themeService.isDark()"
-              [class.text-gray-600]="themeService.isLight()">Show:</span>
+              [class.text-gray-700]="themeService.isLight()">Show:</span>
         <select [(ngModel)]="pageSize" 
                 (change)="onPageSizeChange(pageSize())"
                 class="rounded-lg border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -279,7 +285,7 @@
         </select>
         <span class="text-sm"
               [class.text-slate-400]="themeService.isDark()"
-              [class.text-gray-600]="themeService.isLight()">
+              [class.text-gray-700]="themeService.isLight()">
           of {{ currentFolderStocks().length }} records
         </span>
       </div>
@@ -338,4 +344,59 @@
       </div>
     </div>
   </div>
+
+  <!-- Delete Confirmation Modal -->
+  @if (stockToDelete()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+         (click)="onCancelDelete()">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+      <div class="relative w-full max-w-sm rounded-2xl border p-6 shadow-2xl"
+           [class.bg-slate-900]="themeService.isDark()"
+           [class.border-slate-700]="themeService.isDark()"
+           [class.bg-white]="themeService.isLight()"
+           [class.border-gray-200]="themeService.isLight()"
+           (click)="$event.stopPropagation()">
+        <!-- Warning icon -->
+        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
+             [class.bg-red-500/20]="themeService.isDark()"
+             [class.bg-red-50]="themeService.isLight()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </div>
+        <h3 class="mb-1 text-center text-base font-semibold"
+            [class.text-white]="themeService.isDark()"
+            [class.text-gray-900]="themeService.isLight()">Remove Stock</h3>
+        <p class="mb-6 text-center text-sm"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()">
+          Are you sure you want to remove
+          <span class="font-semibold"
+                [class.text-white]="themeService.isDark()"
+                [class.text-gray-900]="themeService.isLight()">{{ stockToDelete()?.symbol }}</span>
+          from this folder? This cannot be undone.
+        </p>
+        <div class="flex gap-3">
+          <button
+            type="button"
+            (click)="onCancelDelete()"
+            class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition"
+            [class.bg-slate-800]="themeService.isDark()"
+            [class.text-slate-300]="themeService.isDark()"
+            [class.hover:bg-slate-700]="themeService.isDark()"
+            [class.bg-gray-100]="themeService.isLight()"
+            [class.text-gray-700]="themeService.isLight()"
+            [class.hover:bg-gray-200]="themeService.isLight()">
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="onConfirmDelete()"
+            class="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-500">
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

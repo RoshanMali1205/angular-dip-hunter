@@ -26,6 +26,7 @@ export class FoldersPageComponent {
   selectedFolderId = signal<FolderId>('GROWTH_20');
   showAddForm = signal(false);
   editingStock = signal<Stock | null>(null);
+  stockToDelete = signal<Stock | null>(null);
   
   // Pagination state
   currentPage = signal(1);
@@ -139,10 +140,21 @@ export class FoldersPageComponent {
     this.portfolioService.toggleStockActive(stock.id);
   }
 
-  onRemoveStock(stock: Stock): void {
-    if (confirm(`Remove ${stock.symbol} from the folder?`)) {
+  onDeleteClick(stock: Stock, event: Event): void {
+    event.stopPropagation();
+    this.stockToDelete.set(stock);
+  }
+
+  onConfirmDelete(): void {
+    const stock = this.stockToDelete();
+    if (stock) {
       this.portfolioService.removeStock(stock.id);
+      this.stockToDelete.set(null);
     }
+  }
+
+  onCancelDelete(): void {
+    this.stockToDelete.set(null);
   }
 
   onMoveUp(stock: Stock): void {
