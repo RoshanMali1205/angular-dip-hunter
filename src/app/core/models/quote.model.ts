@@ -32,4 +32,5 @@ export interface QuoteCache {
   quotes: Record<string, Quote>;
   lastUpdated: string;
   ttlSeconds: number;
+  dataSource?: string; // Track which source populated this cache
 }

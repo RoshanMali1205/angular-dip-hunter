@@ -226,13 +226,22 @@ export class DashboardPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadQuotes();
+
+    // If the tour is already completed (returning user who cleared dh_welcome_shown),
+    // show the popup immediately since the tour won't run to trigger it.
+    // For first-time users (tour not completed), the effect() will show it after tour finishes.
+    if (!localStorage.getItem('dh_welcome_shown') && this.tourService.isCompleted()) {
+      this.showDataSourceModal.set(true);
+    }
   }
 
   onChooseDataSource(source: 'yahoo' | 'mock'): void {
     this.settingsService.updateSettings({ quoteDataSource: source });
     localStorage.setItem('dh_welcome_shown', '1');
     this.showDataSourceModal.set(false);
-    // Reload quotes with the chosen source
+    // Clear any cached quotes from the initial load (which used the default source)
+    // so the next fetch uses the correct source
+    this.quoteService.clearCache();
     this.loadQuotes();
   }
 

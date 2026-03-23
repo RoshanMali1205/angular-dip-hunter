@@ -41,15 +41,13 @@ import { ThemeService } from '../../../core/services';
           </div>
         </div>
         <!-- Recommendation badge -->
-        @if (recommendation()) {
-          <span class="hidden sm:flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
-                [class.bg-blue-500/15]="isDark()"
-                [class.text-blue-300]="isDark()"
-                [class.bg-blue-50]="!isDark()"
-                [class.text-blue-700]="!isDark()">
-            🎯 Recommended: {{ getStrategyShortLabel(recommendation()!.strategy) }}
-          </span>
-        }
+        <span class="hidden sm:flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
+              [class.bg-blue-500/15]="isDark()"
+              [class.text-blue-300]="isDark()"
+              [class.bg-blue-50]="!isDark()"
+              [class.text-blue-700]="!isDark()">
+          🎯 Recommended: {{ getStrategyShortLabel(recommendation().strategy) }}
+        </span>
       </div>
 
       <!-- Strategy Comparison Cards (3 side-by-side) -->
@@ -73,7 +71,7 @@ import { ThemeService } from '../../../core/services';
               [class.hover:border-gray-300]="selectedStrategy() !== s.strategy && !isDark()">
 
               <!-- Recommended star -->
-              @if (recommendation()?.strategy === s.strategy) {
+              @if (recommendation().strategy === s.strategy) {
                 <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-white text-[9px]">★</span>
               }
 

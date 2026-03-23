@@ -73,11 +73,15 @@ export class QuoteService {
    */
   private loadCachedQuotes(): void {
     const cache = this.storage.get<QuoteCache>('dh_quote_cache');
-    if (cache && cache.quotes) {
-      this._quotesCache.set(cache.quotes);
-      this._lastUpdated.set(cache.lastUpdated);
-      this.quotesSubject.next(cache.quotes);
-    }
+    if (!cache?.quotes) return;
+
+    const currentSource = this.settingsService.settings().quoteDataSource;
+    // Don't pre-load cache if it was built with a different data source
+    if (cache.dataSource && cache.dataSource !== currentSource) return;
+
+    this._quotesCache.set(cache.quotes);
+    this._lastUpdated.set(cache.lastUpdated);
+    this.quotesSubject.next(cache.quotes);
   }
 
   /**
@@ -107,9 +111,15 @@ export class QuoteService {
     if (!lastUpdated) return false;
 
     const settings = this.settingsService.settings();
+
+    // Invalidate if the stored cache was from a different data source
+    const storedCache = this.storage.get<QuoteCache>('dh_quote_cache');
+    if (storedCache?.dataSource && storedCache.dataSource !== settings.quoteDataSource) {
+      return false;
+    }
+
     const ttl = settings.cacheTTLSeconds * 1000;
     const age = Date.now() - new Date(lastUpdated).getTime();
-    
     return age < ttl;
   }
 
@@ -244,7 +254,8 @@ export class QuoteService {
     const cache: QuoteCache = {
       quotes: merged,
       lastUpdated: now,
-      ttlSeconds: settings.cacheTTLSeconds
+      ttlSeconds: settings.cacheTTLSeconds,
+      dataSource: settings.quoteDataSource
     };
     this.storage.set('dh_quote_cache', cache);
   }
