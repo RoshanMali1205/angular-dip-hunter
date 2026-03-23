@@ -8,6 +8,7 @@ import { QuoteService } from '../../core/services/quote.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { PlannerService } from '../../core/services/planner.service';
+import { DialogService } from '../../shared/components/dialog/dialog.service';
 import { BuyTransaction, DividendTransaction, TransactionFilters } from '../../core/models/transaction.model';
 import { Holding } from '../../core/models/holding.model';
 import { Stock } from '../../core/models/stock.model';
@@ -40,6 +41,7 @@ interface DividendFormData {
 export class TransactionsPageComponent implements OnInit {
   readonly lang = inject(LanguageService);
   readonly themeService = inject(ThemeService);
+  private readonly dialog = inject(DialogService);
   
   // State
   activeTab = signal<'buy' | 'dividend' | 'holdings'>('buy');
@@ -237,8 +239,9 @@ export class TransactionsPageComponent implements OnInit {
     });
   }
   
-  onDeleteBuy(tx: BuyTransaction): void {
-    if (confirm(`Delete buy transaction for ${tx.symbol}?`)) {
+  async onDeleteBuy(tx: BuyTransaction): Promise<void> {
+    const ok = await this.dialog.danger(`Delete buy transaction for ${tx.symbol}?`, 'Delete Transaction');
+    if (ok) {
       this.transactionService.deleteTransaction(tx.id);
     }
   }
@@ -286,8 +289,9 @@ export class TransactionsPageComponent implements OnInit {
     });
   }
   
-  onDeleteDividend(tx: DividendTransaction): void {
-    if (confirm(`Delete dividend transaction for ${tx.symbol}?`)) {
+  async onDeleteDividend(tx: DividendTransaction): Promise<void> {
+    const ok = await this.dialog.danger(`Delete dividend transaction for ${tx.symbol}?`, 'Delete Transaction');
+    if (ok) {
       this.transactionService.deleteTransaction(tx.id);
     }
   }

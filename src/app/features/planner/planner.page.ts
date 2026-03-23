@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PlannerService, QuoteService, PortfolioService, SettingsService, LanguageService, ThemeService, DraftsService } from '../../core/services';
 import { TransactionService } from '../../core/services/transaction.service';
+import { DialogService } from '../../shared/components/dialog/dialog.service';
 import { MonthlyPlan, PlanItem, AdvisorStrategy, AllocationSuggestion } from '../../core/models/plan.model';
 import { StockViewModel } from '../../core/models';
 import { AllocationSuggestionsComponent } from './components';
@@ -27,20 +28,32 @@ export class PlannerPageComponent implements OnInit {
   private draftsService = inject(DraftsService);
   readonly lang = inject(LanguageService);
   readonly themeService = inject(ThemeService);
+  private readonly dialog = inject(DialogService);
 
   readonly draftCount = this.draftsService.draftCount;
   readonly canSaveDraft = this.draftsService.canCreate;
 
   // UI State
   selectedMonth = signal(this.plannerService.currentMonth);
+  selectedPlanId = signal<string | null>(null);
   budget = signal(50000);
   isLoading = signal(false);
   selectedAllocationStrategy = signal<AdvisorStrategy>('equal');
   showStrategySection = signal(true);
 
-  currentPlan = computed(() => 
-    this.plannerService.getPlanForMonth(this.selectedMonth())
+  /** All plans for the selected month */
+  plansForMonth = computed(() =>
+    this.plannerService.getPlansForMonth(this.selectedMonth())
   );
+
+  currentPlan = computed(() => {
+    const planId = this.selectedPlanId();
+    const plans = this.plansForMonth();
+    if (planId) {
+      return plans.find(p => p.id === planId) || plans[0] || undefined;
+    }
+    return plans[0] || undefined;
+  });
 
   isPlanLocked = computed(() =>
     this.currentPlan()?.status === 'FINAL'
@@ -105,10 +118,23 @@ export class PlannerPageComponent implements OnInit {
 
   onMonthChange(month: string): void {
     this.selectedMonth.set(month);
+    this.selectedPlanId.set(null); // reset to first plan
   }
 
-  onCreatePlan(): void {
-    this.plannerService.getOrCreatePlan(this.selectedMonth());
+  onSelectPlan(planId: string): void {
+    this.selectedPlanId.set(planId);
+  }
+
+  async onCreatePlan(): Promise<void> {
+    const existingPlans = this.plansForMonth();
+    let name: string | undefined;
+    if (existingPlans.length > 0) {
+      const input = await this.dialog.prompt('Name for this new plan:', `Plan ${existingPlans.length + 1}`, 'New Plan');
+      if (input === null) return;
+      name = input.trim() || `Plan ${existingPlans.length + 1}`;
+    }
+    const plan = this.plannerService.getOrCreatePlan(this.selectedMonth(), name);
+    this.selectedPlanId.set(plan.id);
   }
 
   onAddItem(vm: StockViewModel): void {
@@ -189,34 +215,36 @@ export class PlannerPageComponent implements OnInit {
     this.showStrategySection.set(false); // Collapse the strategy panel after applying
   }
 
-  onFinalizePlan(): void {
+  async onFinalizePlan(): Promise<void> {
     const plan = this.currentPlan();
     if (!plan) return;
 
-    if (confirm('Finalize this plan? It cannot be edited after finalization.')) {
+    const ok = await this.dialog.confirm('Finalize this plan? It cannot be edited after finalization.', 'Finalize Plan');
+    if (ok) {
       this.plannerService.finalizePlan(plan.id);
     }
   }
 
-  onDeletePlan(): void {
+  async onDeletePlan(): Promise<void> {
     const plan = this.currentPlan();
     if (!plan) return;
 
-    if (confirm('Delete this plan?')) {
+    const ok = await this.dialog.danger(`Delete plan "${plan.name || plan.month}"?`, 'Delete Plan');
+    if (ok) {
       this.plannerService.deletePlan(plan.id);
+      this.selectedPlanId.set(null);
     }
   }
 
-  onClearBudget(): void {
+  async onClearBudget(): Promise<void> {
     const plan = this.currentPlan();
     if (!plan || plan.status === 'FINAL') return;
 
-    if (confirm('Clear budget and remove all items from this plan?')) {
-      // Remove all items
+    const ok = await this.dialog.danger('Clear budget and remove all items from this plan?', 'Clear Budget');
+    if (ok) {
       plan.items.forEach(item => {
         this.plannerService.removeItem(plan.id, item.stockId);
       });
-      // Reset budget to 0
       this.budget.set(0);
       this.plannerService.updatePlan(plan.id, { budget: 0 });
     }
@@ -260,21 +288,24 @@ export class PlannerPageComponent implements OnInit {
   /**
    * Execute plan — create BUY transactions for all pending (non-executed) items
    */
-  onExecutePlan(): void {
+  async onExecutePlan(): Promise<void> {
     const plan = this.currentPlan();
     if (!plan || plan.items.length === 0) return;
 
     const pending = plan.items.filter(i => !i.isExecuted && i.targetQty && i.targetQty > 0);
     if (pending.length === 0) {
-      alert('All items already executed.');
+      await this.dialog.alert('All items already executed.', 'Nothing to Execute');
       return;
     }
 
     const today = new Date().toISOString().split('T')[0];
-    const confirmed = confirm(
-      `Create ${pending.length} buy transaction(s) from plan ${plan.month}?\n` +
-      pending.map(i => `• ${i.symbol}: ${i.targetQty} qty @ ₹${i.plannedPrice}`).join('\n')
-    );
+    const confirmed = await this.dialog.open({
+      type: 'confirm',
+      title: 'Execute Plan',
+      message: `Create ${pending.length} buy transaction(s) from plan ${plan.month}?`,
+      details: pending.map(i => `${i.symbol}: ${i.targetQty} qty @ ₹${i.plannedPrice}`),
+      confirmText: 'Execute'
+    });
     if (!confirmed) return;
 
     const executedStockIds: string[] = [];
@@ -293,27 +324,27 @@ export class PlannerPageComponent implements OnInit {
     }
 
     this.plannerService.markItemsExecuted(plan.id, executedStockIds);
-    alert(`${executedStockIds.length} transaction(s) created. View them in Transactions page.`);
+    await this.dialog.alert(`${executedStockIds.length} transaction(s) created. View them in Transactions page.`, 'Success');
   }
 
   /**
    * Save current plan as a named draft
    */
-  onSaveAsDraft(): void {
+  async onSaveAsDraft(): Promise<void> {
     const plan = this.currentPlan();
     if (!plan || plan.items.length === 0) return;
 
     if (!this.canSaveDraft()) {
-      alert('Maximum 5 drafts reached. Delete a draft first.');
+      await this.dialog.alert('Maximum 5 drafts reached. Delete a draft first.', 'Limit Reached');
       return;
     }
 
-    const name = prompt(`Name this draft (plan: ${plan.month}):`, `Plan ${plan.month}`);
-    if (name === null) return; // cancelled
+    const name = await this.dialog.prompt(`Name this draft (plan: ${plan.month}):`, `Plan ${plan.month}`, 'Save as Draft');
+    if (name === null) return;
 
     const draft = this.draftsService.createFromPlan(plan, name);
     if (draft) {
-      alert(`Draft "${draft.name}" saved! View it in the Drafts page.`);
+      await this.dialog.alert(`Draft "${draft.name}" saved! View it in the Drafts page.`, 'Draft Saved');
     }
   }
 

@@ -32,21 +32,21 @@ interface ChartDataItem {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="relative">
-      <!-- Chart Container -->
-      <div class="h-56">
+    <div>
+      <!-- Chart Container (relative so overlay stays inside the donut) -->
+      <div class="relative h-56">
         <canvas #pieCanvas></canvas>
-      </div>
-      
-      <!-- Center Overlay -->
-      <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div class="text-center">
-          <p class="text-xs uppercase tracking-wide"
-             [class.text-slate-400]="isDark()"
-             [class.text-gray-500]="!isDark()">Total Value</p>
-          <p class="text-lg font-bold"
-             [class.text-white]="isDark()"
-             [class.text-gray-900]="!isDark()">{{ formatCurrency(totalValue()) }}</p>
+        <!-- Center Overlay — scoped to chart area only -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="text-center px-2">
+            <p class="text-[10px] uppercase tracking-wide"
+               [class.text-slate-400]="isDark()"
+               [class.text-gray-500]="!isDark()">Total Value</p>
+            <p class="font-bold leading-tight"
+               [class.text-white]="isDark()"
+               [class.text-gray-900]="!isDark()"
+               [style.fontSize]="centerFontSize()">{{ formatCurrency(totalValue()) }}</p>
+          </div>
         </div>
       </div>
 
@@ -125,6 +125,16 @@ export class HoldingsPieChartComponent implements AfterViewInit {
   totalValue = computed(() => {
     const data = this.chartData();
     return data.reduce((sum, item) => sum + item.value, 0);
+  });
+
+  /** Scale font size down for larger numbers so text fits inside the donut hole */
+  centerFontSize = computed(() => {
+    const formatted = this.formatCurrency(this.totalValue());
+    const len = formatted.length;
+    if (len > 14) return 'clamp(0.65rem, 1.8vw, 0.85rem)';
+    if (len > 11) return 'clamp(0.7rem, 2vw, 0.95rem)';
+    if (len > 8) return 'clamp(0.8rem, 2.2vw, 1.05rem)';
+    return 'clamp(0.85rem, 2.5vw, 1.125rem)';
   });
 
   constructor() {

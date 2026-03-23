@@ -39,6 +39,7 @@ export interface PlanItem {
 export interface MonthlyPlan {
   id: string;
   month: string;  // Format: YYYY-MM
+  name?: string;   // Optional plan name for multiple plans per month
   status: PlanStatus;
   budget: number;
   strategy: AllocationStrategy;

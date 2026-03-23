@@ -66,6 +66,47 @@
   } @else {
     <!-- ── Plan Exists ── -->
 
+    <!-- Plan Tabs (shown when multiple plans exist for this month) -->
+    @if (plansForMonth().length > 0) {
+      <div class="flex items-center gap-2 flex-wrap">
+        @for (plan of plansForMonth(); track plan.id) {
+          <button
+            (click)="onSelectPlan(plan.id)"
+            class="rounded-lg px-3 py-1.5 text-sm font-medium border transition"
+            [class.bg-emerald-600]="currentPlan()!.id === plan.id"
+            [class.text-white]="currentPlan()!.id === plan.id"
+            [class.border-emerald-600]="currentPlan()!.id === plan.id"
+            [class.border-slate-700]="currentPlan()!.id !== plan.id && themeService.isDark()"
+            [class.bg-slate-800]="currentPlan()!.id !== plan.id && themeService.isDark()"
+            [class.text-slate-300]="currentPlan()!.id !== plan.id && themeService.isDark()"
+            [class.hover:bg-slate-700]="currentPlan()!.id !== plan.id && themeService.isDark()"
+            [class.border-gray-300]="currentPlan()!.id !== plan.id && themeService.isLight()"
+            [class.bg-white]="currentPlan()!.id !== plan.id && themeService.isLight()"
+            [class.text-gray-700]="currentPlan()!.id !== plan.id && themeService.isLight()"
+            [class.hover:bg-gray-100]="currentPlan()!.id !== plan.id && themeService.isLight()">
+            {{ plan.name || 'Plan 1' }}
+            @if (plan.status === 'FINAL') {
+              <span class="ml-1 text-xs opacity-70">✓</span>
+            }
+          </button>
+        }
+        <!-- Add New Plan button -->
+        <button
+          (click)="onCreatePlan()"
+          class="rounded-lg px-3 py-1.5 text-sm font-medium border border-dashed transition"
+          [class.border-slate-600]="themeService.isDark()"
+          [class.text-slate-400]="themeService.isDark()"
+          [class.hover:border-emerald-500]="themeService.isDark()"
+          [class.hover:text-emerald-400]="themeService.isDark()"
+          [class.border-gray-400]="themeService.isLight()"
+          [class.text-gray-500]="themeService.isLight()"
+          [class.hover:border-emerald-500]="themeService.isLight()"
+          [class.hover:text-emerald-600]="themeService.isLight()">
+          + New Plan
+        </button>
+      </div>
+    }
+
     <!-- Budget Bar -->
     <div class="rounded-xl border p-4"
          [class.border-slate-700/40]="themeService.isDark()"

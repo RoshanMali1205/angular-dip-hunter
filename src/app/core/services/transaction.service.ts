@@ -16,6 +16,7 @@ import { StorageService } from './storage.service';
 })
 export class TransactionService {
   private readonly _transactions = signal<Transaction[]>([]);
+  private _idCounter = 0;
 
   readonly transactions = this._transactions.asReadonly();
 
@@ -57,7 +58,7 @@ export class TransactionService {
     
     const newTxn: BuyTransaction = {
       ...txn,
-      id: `buy_${Date.now()}`,
+      id: `buy_${Date.now()}_${++this._idCounter}`,
       type: 'BUY',
       totalAmount,
       createdAt: now,
@@ -79,7 +80,7 @@ export class TransactionService {
     
     const newTxn: DividendTransaction = {
       ...txn,
-      id: `div_${Date.now()}`,
+      id: `div_${Date.now()}_${++this._idCounter}`,
       type: 'DIVIDEND',
       createdAt: now,
       updatedAt: now

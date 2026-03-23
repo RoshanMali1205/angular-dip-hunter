@@ -48,10 +48,24 @@ export class PlannerService {
   }
 
   /**
-   * Get plan for a specific month
+   * Get all plans for a specific month
+   */
+  getPlansForMonth(month: string): MonthlyPlan[] {
+    return this._plans().filter(p => p.month === month);
+  }
+
+  /**
+   * Get plan for a specific month (returns first match, or by ID)
    */
   getPlanForMonth(month: string): MonthlyPlan | undefined {
     return this._plans().find(p => p.month === month);
+  }
+
+  /**
+   * Get plan by ID
+   */
+  getPlanById(planId: string): MonthlyPlan | undefined {
+    return this._plans().find(p => p.id === planId);
   }
 
   /**
@@ -64,24 +78,24 @@ export class PlannerService {
   /**
    * Get or create plan for a month
    */
-  getOrCreatePlan(month: string): MonthlyPlan {
-    let plan = this.getPlanForMonth(month);
-    
-    if (!plan) {
-      plan = this.createPlan(month);
+  getOrCreatePlan(month: string, name?: string): MonthlyPlan {
+    const plans = this.getPlansForMonth(month);
+    if (plans.length > 0 && !name) {
+      return plans[0];
     }
-    
-    return plan;
+    return this.createPlan(month, 0, 'EQUAL_WEIGHT', name);
   }
 
   /**
    * Create a new plan
    */
-  createPlan(month: string, budget = 0, strategy: AllocationStrategy = 'EQUAL_WEIGHT'): MonthlyPlan {
+  createPlan(month: string, budget = 0, strategy: AllocationStrategy = 'EQUAL_WEIGHT', name?: string): MonthlyPlan {
     const now = new Date().toISOString();
+    const planCount = this.getPlansForMonth(month).length;
     const newPlan: MonthlyPlan = {
-      id: `plan_${Date.now()}`,
+      id: `plan_${Date.now()}_${planCount}`,
       month,
+      name: name || (planCount > 0 ? `Plan ${planCount + 1}` : undefined),
       status: 'DRAFT',
       budget,
       strategy,

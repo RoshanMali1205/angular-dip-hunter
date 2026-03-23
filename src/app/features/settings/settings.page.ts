@@ -8,6 +8,7 @@ import { LanguageService, Language } from '../../core/services/language.service'
 import { UserService } from '../../core/services/user.service';
 import { TourService } from '../../core/services/tour.service';
 import { QuoteService } from '../../core/services/quote.service';
+import { DialogService } from '../../shared/components/dialog/dialog.service';
 import { DASHBOARD_TOUR_STEPS } from '../../core/tour/tour.config';
 import { RedRuleType, QuoteDataSource } from '../../core/models/settings.model';
 
@@ -19,6 +20,7 @@ import { RedRuleType, QuoteDataSource } from '../../core/models/settings.model';
 })
 export class SettingsPageComponent implements OnInit {
   private readonly tourService = inject(TourService);
+  private readonly dialog = inject(DialogService);
   
   // Current settings from service (use getter to avoid initialization issues)
   get settings() { return this.settingsService.settings; }
@@ -123,10 +125,9 @@ export class SettingsPageComponent implements OnInit {
   }
   
   // Clear quote cache
-  onClearQuoteCache(): void {
+  async onClearQuoteCache(): Promise<void> {
     this.quoteService.clearCache();
-    // Show feedback by briefly changing button or alert
-    alert('Quote cache cleared! Refresh the dashboard to fetch new prices.');
+    await this.dialog.alert('Quote cache cleared! Refresh the dashboard to fetch new prices.', 'Cache Cleared');
   }
   
   // Export data
@@ -193,12 +194,13 @@ export class SettingsPageComponent implements OnInit {
   }
   
   // Reset data
-  onResetData(): void {
-    if (confirm('Are you sure you want to reset ALL data? This cannot be undone.')) {
-      if (confirm('This will delete all folders, stocks, transactions, plans, and settings. Are you absolutely sure?')) {
-        localStorage.clear();
-        window.location.reload();
-      }
+  async onResetData(): Promise<void> {
+    const first = await this.dialog.danger('Are you sure you want to reset ALL data? This cannot be undone.', 'Reset All Data');
+    if (!first) return;
+    const second = await this.dialog.danger('This will delete all folders, stocks, transactions, plans, and settings. Are you absolutely sure?', 'Final Warning');
+    if (second) {
+      localStorage.clear();
+      window.location.reload();
     }
   }
   

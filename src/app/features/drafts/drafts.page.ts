@@ -8,10 +8,12 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DraftsService, MAX_DRAFTS } from '../../core/services/drafts.service';
 import { PlannerService } from '../../core/services/planner.service';
+import { TransactionService } from '../../core/services/transaction.service';
 import { PortfolioService } from '../../core/services/portfolio.service';
 import { QuoteService } from '../../core/services/quote.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
+import { DialogService } from '../../shared/components/dialog/dialog.service';
 import { PlanDraft, PlanDraftItem } from '../../core/models/plan.model';
 
 interface EditState {
@@ -30,10 +32,12 @@ interface EditState {
 export class DraftsPageComponent {
   readonly draftsService = inject(DraftsService);
   readonly plannerService = inject(PlannerService);
+  readonly transactionService = inject(TransactionService);
   readonly portfolioService = inject(PortfolioService);
   readonly quoteService = inject(QuoteService);
   readonly themeService = inject(ThemeService);
   readonly lang = inject(LanguageService);
+  private readonly dialog = inject(DialogService);
   private readonly router = inject(Router);
 
   readonly MAX_DRAFTS = MAX_DRAFTS;
@@ -96,8 +100,9 @@ export class DraftsPageComponent {
     this.editState.set(null);
   }
 
-  onDeleteDraft(draft: PlanDraft): void {
-    if (!confirm(`Delete draft "${draft.name}"?`)) return;
+  async onDeleteDraft(draft: PlanDraft): Promise<void> {
+    const ok = await this.dialog.danger(`Delete draft "${draft.name}"?`, 'Delete Draft');
+    if (!ok) return;
     this.draftsService.deleteDraft(draft.id);
     if (this.expandedDraftId() === draft.id) this.expandedDraftId.set(null);
   }
@@ -106,9 +111,9 @@ export class DraftsPageComponent {
     this.expandedDraftId.update(id => id === draftId ? null : draftId);
   }
 
-  onApplyEqualWeight(draft: PlanDraft): void {
+  async onApplyEqualWeight(draft: PlanDraft): Promise<void> {
     if (draft.budget <= 0) {
-      alert('Set a budget first.');
+      await this.dialog.alert('Set a budget first.', 'Budget Required');
       return;
     }
     this.draftsService.applyEqualWeight(draft.id);
@@ -133,11 +138,11 @@ export class DraftsPageComponent {
   }
 
   /** Load draft into Planner page for the current month */
-  onLoadToPlanner(draft: PlanDraft): void {
+  async onLoadToPlanner(draft: PlanDraft): Promise<void> {
     const month = this.plannerService.currentMonth;
-    const confirmed = confirm(
-      `Load draft "${draft.name}" into Planner for ${month}?\n` +
-      `This will ADD the draft's stocks to the current plan (existing items are kept).`
+    const confirmed = await this.dialog.confirm(
+      `Load draft "${draft.name}" into Planner for ${month}?\nThis will ADD the draft's stocks to the current plan (existing items are kept).`,
+      'Load to Planner'
     );
     if (!confirmed) return;
 
@@ -156,6 +161,42 @@ export class DraftsPageComponent {
     }
 
     this.router.navigate(['/planner']);
+  }
+
+  /** Execute draft directly — create BUY transactions for all items with quantity */
+  async onExecuteDraft(draft: PlanDraft): Promise<void> {
+    const itemsWithQty = draft.items.filter(i => i.targetQty && i.targetQty > 0);
+    if (itemsWithQty.length === 0) {
+      await this.dialog.alert('No items with quantity to execute. Apply Equal Weight or set quantities first.', 'No Items');
+      return;
+    }
+
+    const confirmed = await this.dialog.open({
+      type: 'confirm',
+      title: 'Execute Draft',
+      message: `Execute draft "${draft.name}"?\nThis will create ${itemsWithQty.length} buy transaction(s):`,
+      details: itemsWithQty.map(i => `${i.symbol}: ${i.targetQty} qty @ ₹${i.plannedPrice}`),
+      confirmText: 'Execute'
+    });
+    if (!confirmed) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    let count = 0;
+    for (const item of itemsWithQty) {
+      const price = this.quoteService.getQuote(item.symbol)?.price ?? item.plannedPrice;
+      this.transactionService.addBuy({
+        symbol: item.symbol,
+        stockId: item.stockId,
+        qty: item.targetQty!,
+        price,
+        charges: 0,
+        date: today
+      });
+      count++;
+    }
+
+    await this.dialog.alert(`${count} transaction(s) created from draft "${draft.name}". View them in Transactions page.`, 'Success');
+    this.router.navigate(['/transactions']);
   }
 
   /** Get stocks not yet in this draft */

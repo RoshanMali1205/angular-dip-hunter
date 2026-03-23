@@ -10,12 +10,14 @@ import { UserService } from './core/services/user.service';
 import { AuthService } from './core/services/auth.service';
 import { TourService } from './core/services/tour.service';
 import { TourOverlayComponent } from './shared/components/tour-overlay/tour-overlay.component';
+import { DialogComponent } from './shared/components/dialog/dialog.component';
+import { DialogService } from './shared/components/dialog/dialog.service';
 import { DASHBOARD_TOUR_STEPS } from './core/tour/tour.config';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent, DialogComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -31,6 +33,7 @@ export class App implements OnInit {
   readonly tourService = inject(TourService);
   private readonly swUpdate = inject(SwUpdate);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(DialogService);
 
   // Close menus when clicking outside
   @HostListener('document:click', ['$event'])
@@ -83,8 +86,9 @@ export class App implements OnInit {
       this.swUpdate.versionUpdates.pipe(
         filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'),
         takeUntilDestroyed(this.destroyRef)
-      ).subscribe(() => {
-        if (confirm('A new version of Dip Hunter is available. Load it now?')) {
+      ).subscribe(async () => {
+        const ok = await this.dialog.confirm('A new version of Dip Hunter is available. Load it now?', 'Update Available');
+        if (ok) {
           window.location.reload();
         }
       });

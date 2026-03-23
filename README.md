@@ -83,12 +83,22 @@ The application manages a **split-portfolio structure**:
 
 ### 📅 Monthly Planner
 - Create monthly buying plans from red stock candidates
+- **Multiple plans per month** with custom naming
 - Budget allocation with remaining balance tracking
 - **AI Allocation Advisor** with three smart strategies:
   - Equal Weight distribution
   - Risk-Adjusted allocation
   - Defensive allocation
 - Plan finalization and execution tracking
+- Save plans as drafts for later use
+
+### 📝 Drafts
+- Save, edit, and reuse planning scenarios
+- Up to 5 drafts stored simultaneously
+- Load drafts back into the planner
+- Execute drafts directly with transaction recording
+- Apply equal weight allocation to draft items
+- Full i18n support (English, Hindi, Marathi)
 
 ### 💰 Transactions
 - Record buy transactions with price, quantity, and charges
@@ -148,6 +158,15 @@ The application manages a **split-portfolio structure**:
 - i18n-aware (title/description via translation keys)
 - Progress tracking and skip/complete support
 - Tour completion state persisted to LocalStorage
+
+### 💬 Custom Dialog System
+- In-app themed dialog replacing native browser `confirm()`, `alert()`, and `prompt()`
+- Four dialog types: **Confirm**, **Danger**, **Alert**, **Prompt**
+- Dark/Light theme-aware styling with backdrop blur
+- Animated entry/exit with scale and fade transitions
+- Keyboard support (ESC to close, Enter to confirm)
+- Scrollable detail lists for execution confirmations
+- Promise-based API for async/await usage
 
 ### 📱 Progressive Web App (PWA)
 - Installable on desktop and mobile
@@ -285,6 +304,7 @@ angular-dip-hunter/
 │   │   │   ├── 📁 services/               # Application services
 │   │   │   │   ├── allocation-advisor.service.ts  # AI allocation strategies
 │   │   │   │   ├── auth.service.ts
+│   │   │   │   ├── drafts.service.ts              # Plan drafts management
 │   │   │   │   ├── holdings.service.ts
 │   │   │   │   ├── language.service.ts
 │   │   │   │   ├── performance.service.ts
@@ -307,11 +327,14 @@ angular-dip-hunter/
 │   │   │   ├── 📁 auth/
 │   │   │   │   ├── auth-layout.component.ts
 │   │   │   │   ├── 📁 login/
-│   │   │   │   └── 📁 register/
+│   │   │   │   ├── 📁 register/
+│   │   │   │   ├── 📁 forgot-password/
+│   │   │   │   └── 📁 reset-password/
 │   │   │   ├── 📁 dashboard/
 │   │   │   │   └── 📁 components/
 │   │   │   │       ├── holdings-pie-chart.component.ts
 │   │   │   │       └── portfolio-insights-card.component.ts
+│   │   │   ├── 📁 drafts/                 # Plan drafts management
 │   │   │   ├── 📁 folders/
 │   │   │   ├── 📁 performance/
 │   │   │   │   └── 📁 components/
@@ -321,6 +344,7 @@ angular-dip-hunter/
 │   │   │   └── 📁 transactions/
 │   │   ├── 📁 shared/
 │   │   │   └── 📁 components/
+│   │   │       ├── 📁 dialog/             # Custom themed dialog system
 │   │   │       ├── 📁 radial-progress/    # Radial progress indicator
 │   │   │       ├── 📁 skeleton/           # Skeleton loaders
 │   │   │       └── 📁 tour-overlay/       # Tour overlay component
@@ -360,8 +384,8 @@ angular-dip-hunter/
 │                        AppComponent                              │
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │                    Header / Navigation                   │    │
-│  │  [Dashboard] [Folders] [Planner] [Transactions]          │    │
-│  │  [Analytics] [Performance] [Settings]                    │    │
+│  │  [Dashboard] [Planner] [Drafts] [Transactions]           │    │
+│  │  [Folders] [Performance] [Analytics] [Settings]          │    │
 │  └─────────────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │                    <router-outlet>                       │    │
@@ -424,9 +448,13 @@ angular-dip-hunter/
 │  │   Service   │  │   Service   │  │   Service   │             │
 │  └─────────────┘  └─────────────┘  └─────────────┘             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │   Theme     │  │  Language   │  │    Tour     │             │
+│  │   Drafts    │  │   Dialog    │  │    Tour     │             │
 │  │   Service   │  │   Service   │  │   Service   │             │
 │  └─────────────┘  └─────────────┘  └─────────────┘             │
+│  ┌─────────────┐  ┌─────────────┐                               │
+│  │   Theme     │  │  Language   │                               │
+│  │   Service   │  │   Service   │                               │
+│  └─────────────┘  └─────────────┘                               │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -440,12 +468,15 @@ angular-dip-hunter/
 |------|-------|-------------|-------|
 | Login | `/auth/login` | User authentication | Guest only |
 | Register | `/auth/register` | New user registration | Guest only |
+| Forgot Password | `/auth/forgot-password` | Password reset request | Guest only |
+| Reset Password | `/auth/reset-password` | Set new password | Guest only |
 | Dashboard | `/` | Stock overview & quick actions | Auth required |
-| Folders | `/folders` | Manage stock folders | Auth required |
 | Planner | `/planner` | Monthly buying plan with AI advisor | Auth required |
+| Drafts | `/drafts` | Saved plan drafts management | Auth required |
 | Transactions | `/transactions` | Buy/Dividend records | Auth required |
-| Analytics | `/analytics` | Portfolio analysis and insights | Auth required |
+| Folders | `/folders` | Manage stock folders | Auth required |
 | Performance | `/performance` | Historical charts and comparison | Auth required |
+| Analytics | `/analytics` | Portfolio analysis and insights | Auth required |
 | Settings | `/settings` | App configuration | Auth required |
 
 ### Performance Page Components
@@ -475,6 +506,7 @@ angular-dip-hunter/
 | `SkeletonChartComponent` | Chart placeholder skeleton |
 | `RadialProgressComponent` | Radial/circular progress indicator |
 | `TourOverlayComponent` | First-time user tour overlay and spotlight |
+| `DialogComponent` | Custom themed dialog (confirm/danger/alert/prompt) |
 
 ---
 
@@ -573,7 +605,31 @@ Provides detailed AI insights for individual stocks.
 // Drop types: technical | sector-wide | news-based | correction | unknown
 ```
 
-### `TourService` _(New)_
+### `DraftsService`
+Manages plan draft CRUD operations with localStorage persistence.
+
+```typescript
+drafts: Signal<Draft[]>
+addDraft(draft: Draft): void
+updateDraft(draft: Draft): void
+deleteDraft(id: string): void
+getDraft(id: string): Draft | undefined
+executeDraft(draft: Draft): void
+MAX_DRAFTS: number  // 5
+```
+
+### `DialogService`
+Promise-based custom dialog system replacing native browser dialogs.
+
+```typescript
+confirm(message: string, title?: string): Promise<boolean>
+danger(message: string, title?: string): Promise<boolean>
+alert(message: string, title?: string): Promise<boolean>
+prompt(message: string, defaultValue?: string, title?: string): Promise<string | null>
+open(config: DialogConfig): Promise<any>
+```
+
+### `TourService`
 Manages the first-time user guided tour.
 
 ```typescript
@@ -726,6 +782,7 @@ interface PerformanceSummary {
 interface MonthlyPlan {
   id: string;
   month: string;          // "2026-03"
+  name?: string;          // Custom plan name (supports multiple plans/month)
   budget: number;
   status: 'draft' | 'finalized';
   items: PlanItem[];
@@ -839,16 +896,18 @@ Response:
 ```json
 {
   "en": {
-    "nav": { "dashboard": "Dashboard", ... },
+    "nav": { "dashboard": "Dashboard", "drafts": "Drafts", ... },
     "dashboard": { ... },
     "folders": { ... },
     "planner": { ... },
+    "drafts": { ... },
     "transactions": { ... },
     "analytics": { ... },
     "performance": { ... },
     "settings": { ... },
     "auth": { ... },
     "tour": { ... },
+    "dialog": { ... },
     "common": { ... }
   },
   "hi": { ... },
@@ -911,6 +970,7 @@ module.exports = {
 | `dh_quote_cache` | Cached stock quotes | `QuoteCache` |
 | `dh_registered_users` | Registered users list | `RegisteredUser[]` |
 | `dh_history_*` | Performance history cache | `CachedHistory` |
+| `dh_drafts` | Saved plan drafts | `Draft[]` |
 | `dip_hunter_tour_completed` | Tour completion flag | `boolean` |
 | `dip_hunter_tour_step` | Saved tour step index | `number` |
 
@@ -989,18 +1049,22 @@ The Service Worker is enabled only in production builds and registered with `reg
 - [x] Dashboard with stock overview
 - [x] Folder management (G20, D10)
 - [x] Monthly planner with AI Allocation Advisor
+- [x] Multiple plans per month with custom naming
+- [x] Plan drafts — save, edit, reuse, execute planning scenarios
 - [x] Buy & Dividend transactions
 - [x] Holdings view with P/L
 - [x] Analytics with charts and Portfolio Insights
 - [x] Performance page with time ranges and comparison
+- [x] Custom themed dialog system (replaces native browser dialogs)
 - [x] Dark/Light themes
-- [x] i18n (EN, HI, MR)
-- [x] Authentication (local)
+- [x] i18n (EN, HI, MR) — including drafts and dialog translations
+- [x] Authentication (local) with forgot/reset password
 - [x] Data backup/restore
 - [x] First-time user guided tour
 - [x] Progressive Web App (PWA)
 - [x] Skeleton loaders
 - [x] AI-powered Stock Analysis service
+- [x] Workflow-optimized navigation order
 
 ### Version 1.1.0 (Planned)
 - [ ] Real API integration
