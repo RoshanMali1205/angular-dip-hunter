@@ -9,6 +9,8 @@ import { LanguageService } from '../../core/services/language.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { PlannerService } from '../../core/services/planner.service';
 import { DialogService } from '../../shared/components/dialog/dialog.service';
+import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
+import { CurrencyService } from '../../core/services/currency.service';
 import { CsvImportDialogComponent } from '../../shared/components/csv-import-dialog/csv-import-dialog.component';
 import { BuyTransaction, DividendTransaction, TransactionFilters } from '../../core/models/transaction.model';
 import { Holding } from '../../core/models/holding.model';
@@ -36,13 +38,15 @@ interface DividendFormData {
 @Component({
   selector: 'app-transactions-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, CsvImportDialogComponent],
+  imports: [CommonModule, FormsModule, CsvImportDialogComponent, CurrencyDisplayPipe],
   templateUrl: './transactions.page.html'
 })
 export class TransactionsPageComponent implements OnInit {
   readonly lang = inject(LanguageService);
   readonly themeService = inject(ThemeService);
   private readonly dialog = inject(DialogService);
+  private readonly currencyService = inject(CurrencyService);
+  readonly currencySymbol = this.currencyService.currencySymbol;
   
   // State
   activeTab = signal<'buy' | 'dividend' | 'holdings'>('buy');
@@ -315,14 +319,6 @@ export class TransactionsPageComponent implements OnInit {
   }
   
   // Formatting
-  formatCurrency(value: number | undefined): string {
-    if (value === undefined) return '—';
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR'
-    }).format(value);
-  }
-  
   formatPercent(value: number | undefined): string {
     if (value === undefined) return '—';
     return (value >= 0 ? '+' : '') + value.toFixed(2) + '%';

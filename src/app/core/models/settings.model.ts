@@ -2,6 +2,8 @@
  * Settings Model - Application configuration
  */
 
+import { CurrencyCode } from './currency.model';
+
 export type RedRuleType = 'CHANGE_PERCENT_NEGATIVE' | 'CHANGE_PERCENT_THRESHOLD' | 'BELOW_SMA';
 export type QuoteDataSource = 'mock' | 'yahoo';
 
@@ -29,6 +31,9 @@ export interface AppSettings {
   showHoldingsInDashboard: boolean;
   compactMode: boolean;
 
+  // Display currency
+  displayCurrency: CurrencyCode;
+
   // Planner defaults
   defaultAllocationStrategy: 'EQUAL_WEIGHT' | 'CUSTOM_WEIGHT';
 
@@ -51,6 +56,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   defaultFolderId: 'GROWTH_20',
   showHoldingsInDashboard: true,
   compactMode: false,
+  displayCurrency: 'INR',
   defaultAllocationStrategy: 'EQUAL_WEIGHT',
   priceAlerts: {},
   updatedAt: new Date().toISOString()

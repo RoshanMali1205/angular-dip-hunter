@@ -11,14 +11,15 @@ function makeState(url: string): RouterStateSnapshot {
 
 describe('authGuard', () => {
   let authService: { isAuthenticated: ReturnType<typeof vi.fn>; setRedirectUrl: ReturnType<typeof vi.fn> };
-  let router: { navigate: ReturnType<typeof vi.fn> };
+  let router: { navigate: ReturnType<typeof vi.fn>; createUrlTree: ReturnType<typeof vi.fn> };
+  const fakeUrlTree = {} as any;
 
   beforeEach(() => {
     authService = {
       isAuthenticated: vi.fn(),
       setRedirectUrl: vi.fn(),
     };
-    router = { navigate: vi.fn() };
+    router = { navigate: vi.fn(), createUrlTree: vi.fn().mockReturnValue(fakeUrlTree) };
 
     TestBed.configureTestingModule({
       providers: [
@@ -46,8 +47,8 @@ describe('authGuard', () => {
       authGuard(mockRoute, makeState('/dashboard'))
     );
 
-    expect(result).toBe(false);
-    expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
+    expect(result).toBe(fakeUrlTree);
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/auth/login']);
   });
 
   it('stores the attempted URL before redirecting', () => {
@@ -63,11 +64,12 @@ describe('authGuard', () => {
 
 describe('guestGuard', () => {
   let authService: { isAuthenticated: ReturnType<typeof vi.fn> };
-  let router: { navigate: ReturnType<typeof vi.fn> };
+  let router: { navigate: ReturnType<typeof vi.fn>; createUrlTree: ReturnType<typeof vi.fn> };
+  const fakeUrlTree = {} as any;
 
   beforeEach(() => {
     authService = { isAuthenticated: vi.fn() };
-    router = { navigate: vi.fn() };
+    router = { navigate: vi.fn(), createUrlTree: vi.fn().mockReturnValue(fakeUrlTree) };
 
     TestBed.configureTestingModule({
       providers: [
@@ -95,7 +97,7 @@ describe('guestGuard', () => {
       guestGuard(mockRoute, makeState('/auth/login'))
     );
 
-    expect(result).toBe(false);
-    expect(router.navigate).toHaveBeenCalledWith(['/']);
+    expect(result).toBe(fakeUrlTree);
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/']);
   });
 });

@@ -10,11 +10,14 @@ import {
   computed, 
   effect, 
   input,
+  inject,
   AfterViewInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { Holding } from '../../../core/models';
+import { CurrencyService } from '../../../core/services/currency.service';
+import { CurrencyDisplayPipe } from '../../../shared/pipes/currency-display.pipe';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -30,7 +33,7 @@ interface ChartDataItem {
 @Component({
   selector: 'app-holdings-pie-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CurrencyDisplayPipe],
   template: `
     <div>
       <!-- Chart Container (relative so overlay stays inside the donut) -->
@@ -45,7 +48,7 @@ interface ChartDataItem {
             <p class="font-bold leading-tight"
                [class.text-white]="isDark()"
                [class.text-gray-900]="!isDark()"
-               [style.fontSize]="centerFontSize()">{{ formatCurrency(totalValue()) }}</p>
+               [style.fontSize]="centerFontSize()">{{ totalValue() | currencyDisplay }}</p>
           </div>
         </div>
       </div>
@@ -69,6 +72,8 @@ interface ChartDataItem {
 })
 export class HoldingsPieChartComponent implements AfterViewInit {
   @ViewChild('pieCanvas') pieCanvas!: ElementRef<HTMLCanvasElement>;
+
+  private readonly currencyService = inject(CurrencyService);
 
   // Inputs
   holdings = input.required<Holding[]>();
@@ -129,7 +134,7 @@ export class HoldingsPieChartComponent implements AfterViewInit {
 
   /** Scale font size down for larger numbers so text fits inside the donut hole */
   centerFontSize = computed(() => {
-    const formatted = this.formatCurrency(this.totalValue());
+    const formatted = this.currencyService.formatDisplay(this.totalValue());
     const len = formatted.length;
     if (len > 14) return 'clamp(0.65rem, 1.8vw, 0.85rem)';
     if (len > 11) return 'clamp(0.7rem, 2vw, 0.95rem)';
@@ -198,7 +203,7 @@ export class HoldingsPieChartComponent implements AfterViewInit {
                 const value = context.parsed;
                 const total = this.totalValue();
                 const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
-                return ` ${this.formatCurrency(value)} (${percent}%)`;
+                return ` ${this.currencyService.formatDisplay(value)} (${percent}%)`;
               }
             }
           }
@@ -207,15 +212,6 @@ export class HoldingsPieChartComponent implements AfterViewInit {
     };
 
     this.chart = new Chart(this.pieCanvas.nativeElement, config);
-  }
-
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
   }
 
   getPercent(value: number): string {

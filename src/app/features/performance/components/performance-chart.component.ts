@@ -11,12 +11,14 @@ import {
   ViewChild, 
   ElementRef, 
   OnDestroy,
-  computed 
+  computed,
+  inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { HistoricalPoint, StockComparison } from '../../../core/models/performance.model';
 import { ThemeService } from '../../../core/services/theme.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -77,6 +79,7 @@ Chart.register(...registerables);
 })
 export class PerformanceChartComponent implements OnDestroy {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
+  private currencyService = inject(CurrencyService);
   
   // Inputs
   data = input<HistoricalPoint[]>([]);
@@ -217,7 +220,7 @@ export class PerformanceChartComponent implements OnDestroy {
                 if (this.normalized()) {
                   return `${context.dataset.label}: ${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
                 }
-                return `${context.dataset.label}: ₹${value.toFixed(2)}`;
+                return `${context.dataset.label}: ${this.currencyService.formatDisplay(value)}`;
               }
             }
           }
@@ -247,7 +250,7 @@ export class PerformanceChartComponent implements OnDestroy {
                 if (this.normalized()) {
                   return `${Number(value) >= 0 ? '+' : ''}${value}%`;
                 }
-                return `₹${value}`;
+                return this.currencyService.formatDisplay(Number(value));
               }
             }
           }

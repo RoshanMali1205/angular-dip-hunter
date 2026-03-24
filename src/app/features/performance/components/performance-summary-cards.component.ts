@@ -8,11 +8,12 @@ import { CommonModule } from '@angular/common';
 import { PerformanceSummary } from '../../../core/models/performance.model';
 import { ThemeService } from '../../../core/services/theme.service';
 import { LanguageService } from '../../../core/services/language.service';
+import { CurrencyDisplayPipe } from '../../../shared/pipes/currency-display.pipe';
 
 @Component({
   selector: 'app-performance-summary-cards',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CurrencyDisplayPipe],
   template: `
     <!-- Loading Skeleton -->
     @if (isLoading()) {
@@ -47,7 +48,7 @@ import { LanguageService } from '../../../core/services/language.service';
           <p class="text-base font-bold"
              [class.text-white]="themeService.isDark()"
              [class.text-gray-900]="themeService.isLight()">
-            ₹{{ formatNumber(summary()!.startPrice) }}
+            {{ summary()!.startPrice | currencyDisplay }}
           </p>
         </div>
         
@@ -66,7 +67,7 @@ import { LanguageService } from '../../../core/services/language.service';
           <p class="text-base font-bold"
              [class.text-white]="themeService.isDark()"
              [class.text-gray-900]="themeService.isLight()">
-            ₹{{ formatNumber(summary()!.endPrice) }}
+            {{ summary()!.endPrice | currencyDisplay }}
           </p>
         </div>
         
@@ -94,7 +95,7 @@ import { LanguageService } from '../../../core/services/language.service';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
             }
-            {{ summary()!.absoluteChange >= 0 ? '+' : '' }}₹{{ formatNumber(summary()!.absoluteChange) }}
+            {{ summary()!.absoluteChange >= 0 ? '+' : '' }}{{ summary()!.absoluteChange | currencyDisplay }}
           </p>
         </div>
         

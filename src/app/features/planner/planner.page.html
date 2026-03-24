@@ -123,7 +123,7 @@
           <div class="relative">
             <span class="absolute inset-y-0 left-3 flex items-center text-sm"
                   [class.text-slate-400]="themeService.isDark()"
-                  [class.text-gray-400]="themeService.isLight()">₹</span>
+                  [class.text-gray-400]="themeService.isLight()">{{ currencySymbol() }}</span>
             <input
               type="number"
               [ngModel]="budget()"
@@ -146,7 +146,7 @@
             <div class="flex items-center justify-between text-xs mb-1"
                  [class.text-slate-400]="themeService.isDark()"
                  [class.text-gray-500]="themeService.isLight()">
-              <span>{{ lang.t('planner.allocated') || 'Allocated' }}: {{ formatCurrency(budgetUsed()) }}</span>
+              <span>{{ lang.t('planner.allocated') || 'Allocated' }}: {{ budgetUsed() | currencyDisplay }}</span>
               <span [class.text-emerald-400]="budgetUsedPercent() <= 100"
                     [class.text-red-400]="budgetUsedPercent() > 100">
                 {{ budgetUsedPercent() }}%
@@ -297,7 +297,7 @@
               <div class="text-right">
                 <p class="text-sm font-medium"
                    [class.text-slate-200]="themeService.isDark()"
-                   [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(vm.price) }}</p>
+                   [class.text-gray-700]="themeService.isLight()">{{ vm.price | currencyDisplay }}</p>
                 @if (!isPlanLocked()) {
                   <button
                     (click)="onAddItem(vm)"
@@ -440,12 +440,12 @@
                     <td class="px-4 py-3 text-right text-sm"
                         [class.text-slate-400]="themeService.isDark()"
                         [class.text-gray-500]="themeService.isLight()">
-                      {{ formatCurrency(item.plannedPrice) }}
+                      {{ item.plannedPrice | currencyDisplay }}
                     </td>
                     <td class="px-4 py-3 text-right font-semibold"
                         [class.text-white]="themeService.isDark()"
                         [class.text-gray-900]="themeService.isLight()">
-                      {{ item.targetAmount ? formatCurrency(item.targetAmount) : '—' }}
+                      {{ item.targetAmount ? (item.targetAmount | currencyDisplay) : '—' }}
                     </td>
                     <td class="px-4 py-3 text-right"
                         [class.text-slate-300]="themeService.isDark()"
@@ -516,7 +516,7 @@
                     <td class="px-4 py-2 text-right font-bold"
                         [class.text-white]="themeService.isDark()"
                         [class.text-gray-900]="themeService.isLight()">
-                      {{ formatCurrency(reconciliation()?.plannedTotal) }}
+                      {{ reconciliation()?.plannedTotal | currencyDisplay }}
                     </td>
                     <td colspan="3"></td>
                   </tr>
@@ -526,7 +526,7 @@
                         [class.bg-gray-50]="themeService.isLight()">
                       <td class="px-4 py-2 font-semibold text-emerald-400" colspan="2">Actual Spend</td>
                       <td class="px-4 py-2 text-right font-bold text-emerald-400">
-                        {{ formatCurrency(reconciliation()!.actualTotal) }}
+                        {{ reconciliation()!.actualTotal | currencyDisplay }}
                       </td>
                       <td colspan="3"></td>
                     </tr>
@@ -538,7 +538,7 @@
                       <td class="px-4 py-2 text-right font-bold"
                           [class.text-emerald-400]="reconciliation()!.variance <= 0"
                           [class.text-red-400]="reconciliation()!.variance > 0">
-                        {{ reconciliation()!.variance >= 0 ? '+' : '' }}{{ formatCurrency(reconciliation()!.variance) }}
+                        {{ reconciliation()!.variance >= 0 ? '+' : '' }}{{ reconciliation()!.variance | currencyDisplay }}
                         <span class="text-xs font-normal ml-1">
                           ({{ reconciliation()!.variancePercent >= 0 ? '+' : '' }}{{ reconciliation()!.variancePercent.toFixed(1) }}%)
                         </span>
@@ -587,13 +587,13 @@
                    [class.text-gray-500]="themeService.isLight()">Planned</p>
                 <p class="text-sm font-bold"
                    [class.text-white]="themeService.isDark()"
-                   [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(reconciliation()!.plannedTotal) }}</p>
+                   [class.text-gray-900]="themeService.isLight()">{{ reconciliation()!.plannedTotal | currencyDisplay }}</p>
               </div>
               <div class="rounded-lg p-3 text-center"
                    [class.bg-slate-800/60]="themeService.isDark()"
                    [class.bg-gray-50]="themeService.isLight()">
                 <p class="text-xs mb-1 text-emerald-400">Actual Spent</p>
-                <p class="text-sm font-bold text-emerald-400">{{ formatCurrency(reconciliation()!.actualTotal) }}</p>
+                <p class="text-sm font-bold text-emerald-400">{{ reconciliation()!.actualTotal | currencyDisplay }}</p>
               </div>
               <div class="rounded-lg p-3 text-center"
                    [class.bg-slate-800/60]="themeService.isDark()"
@@ -604,7 +604,7 @@
                 <p class="text-sm font-bold"
                    [class.text-emerald-400]="reconciliation()!.variance <= 0"
                    [class.text-red-400]="reconciliation()!.variance > 0">
-                  {{ reconciliation()!.variance >= 0 ? '+' : '' }}{{ formatCurrency(reconciliation()!.variance) }}
+                  {{ reconciliation()!.variance >= 0 ? '+' : '' }}{{ reconciliation()!.variance | currencyDisplay }}
                 </p>
                 <p class="text-xs"
                    [class.text-emerald-400]="reconciliation()!.variance <= 0"
@@ -626,8 +626,8 @@
                       <div class="flex items-center justify-between text-xs mb-1"
                            [class.text-slate-400]="themeService.isDark()"
                            [class.text-gray-500]="themeService.isLight()">
-                        <span>Planned {{ formatCurrency(row.planned) }}</span>
-                        <span class="text-emerald-400">Actual {{ formatCurrency(row.actual) }}</span>
+                        <span>Planned {{ row.planned | currencyDisplay }}</span>
+                        <span class="text-emerald-400">Actual {{ row.actual | currencyDisplay }}</span>
                       </div>
                       <div class="relative h-1.5 w-full rounded-full overflow-hidden"
                            [class.bg-slate-700]="themeService.isDark()"
@@ -645,7 +645,7 @@
                     <span class="text-xs shrink-0 w-16 text-right"
                           [class.text-emerald-400]="row.variance <= 0"
                           [class.text-red-400]="row.variance > 0">
-                      {{ row.variance >= 0 ? '+' : '' }}{{ formatCurrency(row.variance) }}
+                      {{ row.variance >= 0 ? '+' : '' }}{{ row.variance | currencyDisplay }}
                     </span>
                   </div>
                 }

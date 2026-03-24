@@ -4,6 +4,7 @@
 
 import { Injectable, signal, computed } from '@angular/core';
 import { AppSettings, DEFAULT_SETTINGS, RedRule } from '../models/settings.model';
+import { CurrencyCode } from '../models/currency.model';
 import { Quote } from '../models/quote.model';
 import { StorageService } from './storage.service';
 
@@ -18,6 +19,7 @@ export class SettingsService {
   readonly redRule = computed(() => this._settings().redRule);
   readonly autoRefresh = computed(() => this._settings().autoRefresh);
   readonly refreshInterval = computed(() => this._settings().refreshIntervalSeconds);
+  readonly displayCurrency = computed(() => this._settings().displayCurrency ?? 'INR');
 
   constructor(private storage: StorageService) {
     this.loadFromStorage();
@@ -58,6 +60,13 @@ export class SettingsService {
     };
     this._settings.set(updated);
     this.storage.set('dh_settings', updated);
+  }
+
+  /**
+   * Update display currency
+   */
+  updateCurrency(code: CurrencyCode): void {
+    this.updateSettings({ displayCurrency: code });
   }
 
   /**

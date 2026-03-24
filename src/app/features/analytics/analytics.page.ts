@@ -11,6 +11,8 @@ import { FolderId } from '../../core/models/folder.model';
 import { HoldingsSummary, Holding } from '../../core/models/holding.model';
 import { BuyTransaction, DividendTransaction } from '../../core/models/transaction.model';
 import { SkeletonCardComponent } from '../../shared/components';
+import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
+import { CurrencyService } from '../../core/services/currency.service';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -40,7 +42,7 @@ interface SectorAllocationData {
 @Component({
   selector: 'app-analytics-page',
   standalone: true,
-  imports: [CommonModule, SkeletonCardComponent],
+  imports: [CommonModule, SkeletonCardComponent, CurrencyDisplayPipe],
   templateUrl: './analytics.page.html'
 })
 export class AnalyticsPageComponent implements OnInit, AfterViewInit {
@@ -48,6 +50,7 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
   @ViewChild('monthlyLineChart') monthlyLineChartRef!: ElementRef<HTMLCanvasElement>;
   
   readonly lang = inject(LanguageService);
+  private readonly currencyService = inject(CurrencyService);
   
   private allocationChart: Chart | null = null;
   private monthlyChart: Chart | null = null;
@@ -288,7 +291,7 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
                 const value = context.raw as number;
                 const total = data.reduce((a, b) => a + b, 0);
                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
-                return `${context.label}: ₹${value.toFixed(2)} (${percentage}%)`;
+                return `${context.label}: ${this.currencyService.formatDisplay(value)} (${percentage}%)`;
               }
             }
           }
@@ -349,7 +352,7 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
             ticks: {
               color: textColor,
               font: { size: 12 },
-              callback: (value) => '₹' + value
+              callback: (value) => this.currencyService.formatDisplay(Number(value))
             },
             grid: { color: gridColor }
           }
@@ -365,7 +368,7 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
             borderColor: isDark ? '#334155' : '#e2e8f0',
             borderWidth: 1,
             callbacks: {
-              label: (context) => `${context.dataset.label}: ₹${(context.raw as number).toFixed(2)}`
+              label: (context) => `${context.dataset.label}: ${this.currencyService.formatDisplay(context.raw as number)}`
             }
           }
         }
@@ -462,16 +465,6 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
       '#0ea5e9', '#d946ef', '#4ade80', '#facc15', '#fb7185'
     ];
     return colors[index % colors.length];
-  }
-  
-  // Formatting
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
   }
   
   formatPercent(value: number): string {

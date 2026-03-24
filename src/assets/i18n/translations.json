@@ -204,7 +204,10 @@
       "resetDescription": "Permanently delete all folders, stocks, transactions, plans, and settings",
       "resetEverything": "Reset Everything",
       "appVersion": "Dip Hunter v1.0.0",
-      "appDescription": "Stock Portfolio Dashboard for Buying the Dip"
+      "appDescription": "Stock Portfolio Dashboard for Buying the Dip",
+      "displayCurrencyTitle": "💱 Display Currency",
+      "currencyDescription": "Choose your preferred currency for displaying monetary values",
+      "currencyNote": "All monetary values will be converted for display. Original data remains in INR."
     },
     "auth": {
       "welcomeBack": "Welcome back",
@@ -285,7 +288,7 @@
       "normalizeView": "Normalize %",
       "startPrice": "Start Price",
       "endPrice": "End Price",
-      "absoluteChange": "Change (₹)",
+      "absoluteChange": "Change",
       "percentageChange": "Change (%)",
       "noData": "No performance data available",
       "lastWeek": "Last 7 days",
@@ -548,7 +551,10 @@
       "resetDescription": "सभी फोल्डर, स्टॉक्स, लेनदेन, प्लान और सेटिंग्स को स्थायी रूप से हटाएं",
       "resetEverything": "सब कुछ रीसेट करें",
       "appVersion": "डिप हंटर v1.0.0",
-      "appDescription": "डिप खरीदने के लिए स्टॉक पोर्टफोलियो डैशबोर्ड"
+      "appDescription": "डिप खरीदने के लिए स्टॉक पोर्टफोलियो डैशबोर्ड",
+      "displayCurrencyTitle": "💱 प्रदर्शन मुद्रा",
+      "currencyDescription": "मौद्रिक मूल्यों को प्रदर्शित करने के लिए अपनी पसंदीदा मुद्रा चुनें",
+      "currencyNote": "सभी मौद्रिक मूल्य प्रदर्शन के लिए परिवर्तित होंगे। मूल डेटा INR में रहेगा।"
     },
     "auth": {
       "welcomeBack": "वापसी पर स्वागत है",
@@ -629,7 +635,7 @@
       "normalizeView": "नॉर्मलाइज़ %",
       "startPrice": "प्रारंभ मूल्य",
       "endPrice": "अंतिम मूल्य",
-      "absoluteChange": "बदलाव (₹)",
+      "absoluteChange": "बदलाव",
       "percentageChange": "बदलाव (%)",
       "noData": "कोई प्रदर्शन डेटा उपलब्ध नहीं",
       "lastWeek": "पिछले 7 दिन",
@@ -892,7 +898,10 @@
       "resetDescription": "सर्व फोल्डर्स, स्टॉक्स, व्यवहार, प्लॅन आणि सेटिंग्ज कायमचे हटवा",
       "resetEverything": "सर्वकाही रीसेट करा",
       "appVersion": "डिप हंटर v1.0.0",
-      "appDescription": "डिप खरेदीसाठी स्टॉक पोर्टफोलिओ डॅशबोर्ड"
+      "appDescription": "डिप खरेदीसाठी स्टॉक पोर्टफोलिओ डॅशबोर्ड",
+      "displayCurrencyTitle": "💱 प्रदर्शन चलन",
+      "currencyDescription": "आर्थिक मूल्ये प्रदर्शित करण्यासाठी तुमचे पसंतीचे चलन निवडा",
+      "currencyNote": "सर्व आर्थिक मूल्ये प्रदर्शनासाठी रूपांतरित होतील. मूळ डेटा INR मध्ये राहील."
     },
     "auth": {
       "welcomeBack": "परत स्वागत आहे",
@@ -973,7 +982,7 @@
       "normalizeView": "नॉर्मलाइझ %",
       "startPrice": "प्रारंभ किंमत",
       "endPrice": "अंतिम किंमत",
-      "absoluteChange": "बदल (₹)",
+      "absoluteChange": "बदल",
       "percentageChange": "बदल (%)",
       "noData": "कामगिरी डेटा उपलब्ध नाही",
       "lastWeek": "मागील 7 दिवस",

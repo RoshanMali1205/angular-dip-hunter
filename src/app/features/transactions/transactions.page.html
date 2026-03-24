@@ -266,10 +266,10 @@
                       [class.text-gray-700]="themeService.isLight()">{{ tx.qty }}</td>
                   <td class="px-3 py-3 text-right"
                       [class.text-slate-300]="themeService.isDark()"
-                      [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(tx.price) }}</td>
+                      [class.text-gray-700]="themeService.isLight()">{{ tx.price | currencyDisplay }}</td>
                   <td class="px-3 py-3 text-right"
                       [class.text-white]="themeService.isDark()"
-                      [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(tx.totalAmount) }}</td>
+                      [class.text-gray-900]="themeService.isLight()">{{ tx.totalAmount | currencyDisplay }}</td>
                   <td class="px-3 py-3">
                     @if (getPlanLabel(tx.planId); as label) {
                       <span class="rounded-full bg-purple-500/20 px-2 py-0.5 text-xs font-medium text-purple-400 whitespace-nowrap">
@@ -361,7 +361,7 @@
             <div>
               <label class="mb-1 block text-sm"
                      [class.text-slate-400]="themeService.isDark()"
-                     [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.amount') }} (₹)</label>
+                     [class.text-gray-600]="themeService.isLight()">{{ lang.t('transactions.amount') }} ({{ currencySymbol() }})</label>
               <input
                 type="number"
                 [ngModel]="dividendForm().amount"
@@ -487,7 +487,7 @@
                   <td class="px-4 py-3 font-medium"
                       [class.text-white]="themeService.isDark()"
                       [class.text-gray-900]="themeService.isLight()">{{ tx.symbol }}</td>
-                  <td class="px-4 py-3 text-right text-emerald-400">{{ formatCurrency(tx.amount) }}</td>
+                  <td class="px-4 py-3 text-right text-emerald-400">{{ tx.amount | currencyDisplay }}</td>
                   <td class="px-4 py-3 text-right">
                     <button
                       (click)="onDeleteDividend(tx)"
@@ -526,17 +526,17 @@
                   [class.text-gray-500]="themeService.isLight()">{{ lang.t('transactions.totalValue') }}: 
               <span class="font-semibold"
                     [class.text-white]="themeService.isDark()"
-                    [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(summary.totalCurrentValue) }}</span>
+                    [class.text-gray-900]="themeService.isLight()">{{ summary.totalCurrentValue | currencyDisplay }}</span>
             </span>
             <span [class.text-slate-400]="themeService.isDark()"
                   [class.text-gray-500]="themeService.isLight()">{{ lang.t('transactions.pl') }}: 
               <span [class]="summary.totalUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-red-400'" class="font-semibold">
-                {{ formatCurrency(summary.totalUnrealizedPL) }} ({{ formatPercent(summary.totalUnrealizedPLPercent) }})
+                {{ summary.totalUnrealizedPL | currencyDisplay }} ({{ formatPercent(summary.totalUnrealizedPLPercent) }})
               </span>
             </span>
             <span [class.text-slate-400]="themeService.isDark()"
                   [class.text-gray-500]="themeService.isLight()">{{ lang.t('transactions.dividendsReceived') }}: 
-              <span class="text-emerald-400 font-semibold">{{ formatCurrency(summary.totalDividends) }}</span>
+              <span class="text-emerald-400 font-semibold">{{ summary.totalDividends | currencyDisplay }}</span>
             </span>
           </div>
         }
@@ -605,15 +605,15 @@
                     [class.text-gray-700]="themeService.isLight()">{{ h.totalQty }}</td>
                 <td class="px-3 py-3 text-right"
                     [class.text-slate-300]="themeService.isDark()"
-                    [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(h.avgPrice) }}</td>
+                    [class.text-gray-700]="themeService.isLight()">{{ h.avgPrice | currencyDisplay }}</td>
                 <td class="px-3 py-3 text-right"
                     [class.text-slate-300]="themeService.isDark()"
-                    [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(h.currentPrice) }}</td>
+                    [class.text-gray-700]="themeService.isLight()">{{ h.currentPrice | currencyDisplay }}</td>
                 <td class="hidden sm:table-cell px-3 py-3 text-right"
                     [class.text-white]="themeService.isDark()"
-                    [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(h.currentValue) }}</td>
+                    [class.text-gray-900]="themeService.isLight()">{{ h.currentValue | currencyDisplay }}</td>
                 <td class="px-3 py-3 text-right" [class]="(h.unrealizedPL || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'">
-                  {{ formatCurrency(h.unrealizedPL) }}
+                  {{ h.unrealizedPL | currencyDisplay }}
                 </td>
               </tr>
             } @empty {

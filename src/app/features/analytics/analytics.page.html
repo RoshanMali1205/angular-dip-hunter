@@ -47,8 +47,8 @@
            [class.from-blue-50]="themeService.isLight()"
            [class.to-white]="themeService.isLight()">
         <p class="text-sm" [class.text-slate-400]="themeService.isDark()" [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.totalPortfolioValue') }}</p>
-        <p class="mt-1 text-2xl font-bold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(summary.totalValue) }}</p>
-        <p class="mt-1 text-sm" [class.text-slate-500]="themeService.isDark()" [class.text-gray-400]="themeService.isLight()">{{ lang.t('analytics.costBasis') }}: {{ formatCurrency(summary.totalCost) }}</p>
+        <p class="mt-1 text-2xl font-bold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">{{ summary.totalValue | currencyDisplay }}</p>
+        <p class="mt-1 text-sm" [class.text-slate-500]="themeService.isDark()" [class.text-gray-400]="themeService.isLight()">{{ lang.t('analytics.costBasis') }}: {{ summary.totalCost | currencyDisplay }}</p>
       </div>
       <div class="rounded-xl border p-4 relative overflow-hidden"
            [class.border-emerald-500/20]="themeService.isDark()"
@@ -60,7 +60,7 @@
            [class.to-white]="themeService.isLight()">
         <p class="text-sm" [class.text-slate-400]="themeService.isDark()" [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.unrealizedPL') }}</p>
         <p class="mt-1 text-2xl font-bold" [class]="summary.totalUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-red-400'">
-          {{ formatCurrency(summary.totalUnrealizedPL) }}
+          {{ summary.totalUnrealizedPL | currencyDisplay }}
         </p>
         <p class="mt-1 text-sm" [class]="summary.totalUnrealizedPLPercent >= 0 ? 'text-emerald-400' : 'text-red-400'">
           {{ formatPercent(summary.totalUnrealizedPLPercent) }}
@@ -75,7 +75,7 @@
            [class.from-purple-50]="themeService.isLight()"
            [class.to-white]="themeService.isLight()">
         <p class="text-sm" [class.text-slate-400]="themeService.isDark()" [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.totalDividends') }}</p>
-        <p class="mt-1 text-2xl font-bold text-emerald-400">{{ formatCurrency(summary.totalDividends) }}</p>
+        <p class="mt-1 text-2xl font-bold text-emerald-400">{{ summary.totalDividends | currencyDisplay }}</p>
         <p class="mt-1 text-sm" [class.text-slate-500]="themeService.isDark()" [class.text-gray-400]="themeService.isLight()">{{ lang.t('analytics.allTime') }}</p>
       </div>
       <div class="rounded-xl border p-4 relative overflow-hidden"
@@ -87,8 +87,8 @@
            [class.from-cyan-50]="themeService.isLight()"
            [class.to-white]="themeService.isLight()">
         <p class="text-sm" [class.text-slate-400]="themeService.isDark()" [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.ytdInvestment') }}</p>
-        <p class="mt-1 text-2xl font-bold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(ytdTotals().buyAmount) }}</p>
-        <p class="mt-1 text-sm" [class.text-slate-500]="themeService.isDark()" [class.text-gray-400]="themeService.isLight()">{{ lang.t('analytics.net') }}: {{ formatCurrency(ytdTotals().netInvested) }}</p>
+        <p class="mt-1 text-2xl font-bold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">{{ ytdTotals().buyAmount | currencyDisplay }}</p>
+        <p class="mt-1 text-sm" [class.text-slate-500]="themeService.isDark()" [class.text-gray-400]="themeService.isLight()">{{ lang.t('analytics.net') }}: {{ ytdTotals().netInvested | currencyDisplay }}</p>
       </div>
     </div>
   }
@@ -175,7 +175,7 @@
         <p class="mb-4 text-sm"
            [class.text-slate-400]="themeService.isDark()"
            [class.text-gray-500]="themeService.isLight()">
-          {{ lang.t('analytics.total') }}: {{ formatCurrency(summary.totalCurrentValue) }} · 
+          {{ lang.t('analytics.total') }}: {{ summary.totalCurrentValue | currencyDisplay }} · 
           {{ lang.t('transactions.pl') }}: <span [class]="summary.totalUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-red-400'">
             {{ formatPercent(summary.totalUnrealizedPLPercent) }}
           </span>
@@ -202,7 +202,7 @@
             </div>
             <span class="text-sm"
                   [class.text-slate-300]="themeService.isDark()"
-                  [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(item.value) }}</span>
+                  [class.text-gray-700]="themeService.isLight()">{{ item.value | currencyDisplay }}</span>
           </div>
         } @empty {
           <p class="py-8 text-center"
@@ -225,11 +225,11 @@
         <p class="mb-4 text-sm"
            [class.text-slate-400]="themeService.isDark()"
            [class.text-gray-500]="themeService.isLight()">
-          {{ lang.t('analytics.total') }}: {{ formatCurrency(summary.totalCurrentValue) }} · 
+          {{ lang.t('analytics.total') }}: {{ summary.totalCurrentValue | currencyDisplay }} · 
           {{ lang.t('transactions.pl') }}: <span [class]="summary.totalUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-red-400'">
             {{ formatPercent(summary.totalUnrealizedPLPercent) }}
           </span>
-          · {{ lang.t('analytics.divs') }}: <span class="text-emerald-400">{{ formatCurrency(summary.totalDividends) }}</span>
+          · {{ lang.t('analytics.divs') }}: <span class="text-emerald-400">{{ summary.totalDividends | currencyDisplay }}</span>
         </p>
       }
       <div class="space-y-2 max-h-80 overflow-y-auto">
@@ -253,7 +253,7 @@
             </div>
             <span class="text-sm"
                   [class.text-slate-300]="themeService.isDark()"
-                  [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(item.value) }}</span>
+                  [class.text-gray-700]="themeService.isLight()">{{ item.value | currencyDisplay }}</span>
           </div>
         } @empty {
           <p class="py-8 text-center"
@@ -310,7 +310,7 @@
             <div class="flex items-center justify-between text-xs"
                  [class.text-slate-400]="themeService.isDark()"
                  [class.text-gray-500]="themeService.isLight()">
-              <span>{{ formatCurrency(item.value) }}</span>
+              <span>{{ item.value | currencyDisplay }}</span>
               <span>{{ item.stockCount }} stock{{ item.stockCount !== 1 ? 's' : '' }}</span>
             </div>
           </div>
@@ -363,7 +363,7 @@
            [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.ytdPurchases') }}</p>
         <p class="text-lg font-semibold"
            [class.text-white]="themeService.isDark()"
-           [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(ytdTotals().buyAmount) }}</p>
+           [class.text-gray-900]="themeService.isLight()">{{ ytdTotals().buyAmount | currencyDisplay }}</p>
       </div>
       <div class="rounded-lg p-3"
            [class.bg-slate-800]="themeService.isDark()"
@@ -371,7 +371,7 @@
         <p class="text-xs"
            [class.text-slate-400]="themeService.isDark()"
            [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.ytdDividends') }}</p>
-        <p class="text-lg font-semibold text-emerald-400">{{ formatCurrency(ytdTotals().dividendAmount) }}</p>
+        <p class="text-lg font-semibold text-emerald-400">{{ ytdTotals().dividendAmount | currencyDisplay }}</p>
       </div>
       <div class="rounded-lg p-3"
            [class.bg-slate-800]="themeService.isDark()"
@@ -381,7 +381,7 @@
            [class.text-gray-500]="themeService.isLight()">{{ lang.t('analytics.ytdNetInvested') }}</p>
         <p class="text-lg font-semibold"
            [class.text-white]="themeService.isDark()"
-           [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(ytdTotals().netInvested) }}</p>
+           [class.text-gray-900]="themeService.isLight()">{{ ytdTotals().netInvested | currencyDisplay }}</p>
       </div>
     </div>
 
@@ -416,11 +416,11 @@
                   [class.text-gray-900]="themeService.isLight()">{{ formatMonth(row.month) }}</td>
               <td class="px-4 py-3 text-right"
                   [class.text-slate-300]="themeService.isDark()"
-                  [class.text-gray-700]="themeService.isLight()">{{ formatCurrency(row.buyAmount) }}</td>
-              <td class="px-4 py-3 text-right text-emerald-400">{{ formatCurrency(row.dividendAmount) }}</td>
+                  [class.text-gray-700]="themeService.isLight()">{{ row.buyAmount | currencyDisplay }}</td>
+              <td class="px-4 py-3 text-right text-emerald-400">{{ row.dividendAmount | currencyDisplay }}</td>
               <td class="px-4 py-3 text-right"
                   [class.text-white]="themeService.isDark()"
-                  [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(row.netInvested) }}</td>
+                  [class.text-gray-900]="themeService.isLight()">{{ row.netInvested | currencyDisplay }}</td>
             </tr>
           } @empty {
             <tr>

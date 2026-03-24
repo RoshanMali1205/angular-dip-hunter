@@ -9,6 +9,7 @@ import { HoldingsService } from './holdings.service';
 import { PortfolioService } from './portfolio.service';
 import { Holding } from '../models';
 import { FolderId } from '../models/folder.model';
+import { CurrencyService } from './currency.service';
 
 export interface PortfolioInsight {
   category: 'concentration' | 'sector' | 'diversification' | 'performance' | 'opportunity';
@@ -26,6 +27,7 @@ export interface PortfolioInsight {
 export class PortfolioInsightsService {
   private holdingsService = inject(HoldingsService);
   private portfolioService = inject(PortfolioService);
+  private currencyService = inject(CurrencyService);
 
   /**
    * Generate insights for a specific folder
@@ -227,7 +229,7 @@ export class PortfolioInsightsService {
         category: 'performance',
         severity: 'warning',
         title: '⚠️ Negative Returns',
-        message: `Portfolio is down ${Math.abs(totalPLPercent).toFixed(1)}%. Total loss: ₹${Math.abs(totalPL).toFixed(0)}`,
+        message: `Portfolio is down ${Math.abs(totalPLPercent).toFixed(1)}%. Total loss: ${this.currencyService.formatDisplay(Math.abs(totalPL))}`,
         recommendation: 'Review underperforming stocks. Stop-loss or rebalance towards better performers.',
         metric: totalPLPercent,
         metricLabel: '% Return'
@@ -237,7 +239,7 @@ export class PortfolioInsightsService {
         category: 'performance',
         severity: 'info',
         title: '🚀 Strong Gains',
-        message: `Portfolio up ${totalPLPercent.toFixed(1)}% with ₹${totalPL.toFixed(0)} unrealized gains.`,
+        message: `Portfolio up ${totalPLPercent.toFixed(1)}% with ${this.currencyService.formatDisplay(totalPL)} unrealized gains.`,
         recommendation: 'Great momentum! Consider taking partial profits on winners (20-30%) to lock in gains.',
         metric: totalPLPercent,
         metricLabel: '% Return'
@@ -247,7 +249,7 @@ export class PortfolioInsightsService {
         category: 'performance',
         severity: 'info',
         title: '📈 Positive Returns',
-        message: `Portfolio up ${totalPLPercent.toFixed(1)}%. ₹${totalPL.toFixed(0)} unrealized gains.`,
+        message: `Portfolio up ${totalPLPercent.toFixed(1)}%. ${this.currencyService.formatDisplay(totalPL)} unrealized gains.`,
         recommendation: 'Good progress! Continue your investment strategy.',
         metric: totalPLPercent,
         metricLabel: '% Return'

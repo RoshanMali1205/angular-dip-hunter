@@ -8,11 +8,14 @@ import { CommonModule } from '@angular/common';
 import { StockComparison } from '../../../core/models/performance.model';
 import { ThemeService } from '../../../core/services/theme.service';
 import { LanguageService } from '../../../core/services/language.service';
+import { CurrencyDisplayPipe } from '../../../shared/pipes/currency-display.pipe';
+import { CurrencyService } from '../../../core/services/currency.service';
+import { getLocaleForCurrency } from '../../../shared/utils/currency.utils';
 
 @Component({
   selector: 'app-performance-table-snapshot',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CurrencyDisplayPipe],
   template: `
     @if (stocks().length > 0) {
       <div class="rounded-lg border overflow-hidden"
@@ -56,7 +59,7 @@ import { LanguageService } from '../../../core/services/language.service';
                 <th class="px-3 py-2 text-right font-medium"
                     [class.text-slate-400]="themeService.isDark()"
                     [class.text-gray-500]="themeService.isLight()">
-                  Δ₹
+                  Δ{{ currencySymbol() }}
                 </th>
                 <th class="px-3 py-2 text-right font-medium"
                     [class.text-slate-400]="themeService.isDark()"
@@ -87,19 +90,19 @@ import { LanguageService } from '../../../core/services/language.service';
                   <td class="px-3 py-2 text-right"
                       [class.text-slate-300]="themeService.isDark()"
                       [class.text-gray-700]="themeService.isLight()">
-                    ₹{{ formatNumber(stock.summary?.startPrice || 0) }}
+                    {{ (stock.summary?.startPrice || 0) | currencyDisplay }}
                   </td>
                   <!-- End Price -->
                   <td class="px-3 py-2 text-right"
                       [class.text-slate-300]="themeService.isDark()"
                       [class.text-gray-700]="themeService.isLight()">
-                    ₹{{ formatNumber(stock.summary?.endPrice || 0) }}
+                    {{ (stock.summary?.endPrice || 0) | currencyDisplay }}
                   </td>
                   <!-- Absolute Change -->
                   <td class="px-3 py-2 text-right"
                       [class.text-emerald-400]="(stock.summary?.absoluteChange || 0) >= 0"
                       [class.text-red-400]="(stock.summary?.absoluteChange || 0) < 0">
-                    {{ (stock.summary?.absoluteChange || 0) >= 0 ? '+' : '' }}₹{{ formatNumber(stock.summary?.absoluteChange || 0) }}
+                    {{ (stock.summary?.absoluteChange || 0) >= 0 ? '+' : '' }}{{ (stock.summary?.absoluteChange || 0) | currencyDisplay }}
                   </td>
                   <!-- Percentage Change -->
                   <td class="px-3 py-2 text-right font-semibold"
@@ -119,6 +122,8 @@ import { LanguageService } from '../../../core/services/language.service';
 export class PerformanceTableSnapshotComponent {
   readonly lang = inject(LanguageService);
   readonly themeService = inject(ThemeService);
+  private readonly currencyService = inject(CurrencyService);
+  readonly currencySymbol = this.currencyService.currencySymbol;
   
   // Inputs
   stocks = input<StockComparison[]>([]);
@@ -136,7 +141,8 @@ export class PerformanceTableSnapshotComponent {
   };
   
   formatNumber(value: number): string {
-    return Math.abs(value).toLocaleString('en-IN', {
+    const locale = getLocaleForCurrency(this.currencyService.displayCurrency());
+    return Math.abs(value).toLocaleString(locale, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });

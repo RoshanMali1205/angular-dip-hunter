@@ -9,18 +9,22 @@ import { UserService } from '../../core/services/user.service';
 import { TourService } from '../../core/services/tour.service';
 import { QuoteService } from '../../core/services/quote.service';
 import { DialogService } from '../../shared/components/dialog/dialog.service';
+import { CurrencySelectorComponent } from '../../shared/components/currency-selector/currency-selector.component';
+import { CurrencyService } from '../../core/services/currency.service';
+import { CurrencyCode } from '../../core/models/currency.model';
 import { DASHBOARD_TOUR_STEPS } from '../../core/tour/tour.config';
 import { RedRuleType, QuoteDataSource } from '../../core/models/settings.model';
 
 @Component({
   selector: 'app-settings-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CurrencySelectorComponent],
   templateUrl: './settings.page.html'
 })
 export class SettingsPageComponent implements OnInit {
   private readonly tourService = inject(TourService);
   private readonly dialog = inject(DialogService);
+  private readonly currencyService = inject(CurrencyService);
   
   // Current settings from service (use getter to avoid initialization issues)
   get settings() { return this.settingsService.settings; }
@@ -34,6 +38,10 @@ export class SettingsPageComponent implements OnInit {
   refreshSeconds = signal(300);
   selectedRuleType = signal<RedRuleType>('CHANGE_PERCENT_NEGATIVE');
   selectedDataSource = signal<QuoteDataSource>('yahoo');
+  
+  // Display currency
+  displayCurrency = computed(() => this.settingsService.displayCurrency());
+  currencyLoading = computed(() => this.currencyService.isLoading());
   
   // User profile
   userName = signal('');
@@ -89,6 +97,14 @@ export class SettingsPageComponent implements OnInit {
   // Language
   onLanguageChange(lang: Language): void {
     this.lang.setLanguage(lang);
+  }
+  
+  // Currency
+  onCurrencyChange(code: CurrencyCode): void {
+    this.settingsService.updateCurrency(code);
+    if (code !== 'INR') {
+      this.currencyService.fetchRates();
+    }
   }
   
   // Red Rule settings

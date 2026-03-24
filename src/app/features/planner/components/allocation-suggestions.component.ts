@@ -6,6 +6,7 @@
 import { Component, input, output, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AllocationAdvisorService } from '../../../core/services';
+import { CurrencyDisplayPipe } from '../../../shared/pipes/currency-display.pipe';
 import { AdvisorStrategy, AllocationSuggestion } from '../../../core/models/plan.model';
 import { StockViewModel } from '../../../core/models';
 import { ThemeService } from '../../../core/services';
@@ -13,7 +14,7 @@ import { ThemeService } from '../../../core/services';
 @Component({
   selector: 'app-allocation-suggestions',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CurrencyDisplayPipe],
   template: `
     <div class="rounded-xl border overflow-hidden"
          [class.border-slate-700/50]="isDark()"
@@ -35,7 +36,7 @@ import { ThemeService } from '../../../core/services';
             <p class="text-xs"
                [class.text-slate-400]="isDark()"
                [class.text-gray-500]="!isDark()">
-              3 strategies · ₹{{ formatCurrency(budget()) }} · {{ stocks().length }} red stocks
+              3 strategies · {{ budget() | currencyDisplay }} · {{ stocks().length }} red stocks
             </p>
           </div>
         </div>
@@ -170,7 +171,7 @@ import { ThemeService } from '../../../core/services';
                 </div>
                 <!-- Amount + % -->
                 <div class="text-right shrink-0 w-20">
-                  <p class="text-xs font-semibold text-emerald-400">₹{{ formatCurrency(alloc.allocation) }}</p>
+                  <p class="text-xs font-semibold text-emerald-400">{{ alloc.allocation | currencyDisplay }}</p>
                   <p class="text-xs"
                      [class.text-slate-500]="isDark()"
                      [class.text-gray-400]="!isDark()">{{ alloc.percentage.toFixed(1) }}%</p>
@@ -223,9 +224,5 @@ export class AllocationSuggestionsComponent {
 
   getStrategyShortLabel(strategy: AdvisorStrategy): string {
     return { equal: 'Equal Weight', 'risk-adjusted': 'Risk-Adjusted', defensive: 'Defensive' }[strategy] ?? strategy;
-  }
-
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
   }
 }

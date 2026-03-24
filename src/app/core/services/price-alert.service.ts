@@ -4,16 +4,18 @@
  * a stock's changePercent crosses the user-configured threshold.
  */
 
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { QuoteService } from './quote.service';
 import { SettingsService } from './settings.service';
 import { Quote } from '../models/quote.model';
+import { CurrencyService } from './currency.service';
 
 /** Cooldown between repeat notifications per symbol (4 hours) */
 const COOLDOWN_MS = 4 * 60 * 60 * 1000;
 
 @Injectable({ providedIn: 'root' })
 export class PriceAlertService {
+  private readonly currencyService = inject(CurrencyService);
   /** Current browser notification permission */
   readonly permissionStatus = signal<NotificationPermission>(
     typeof Notification !== 'undefined' ? Notification.permission : 'denied'
@@ -78,7 +80,7 @@ export class PriceAlertService {
       new Notification(`🔔 Dip Alert: ${symbol}`, {
         body: `${symbol} is down ${Math.abs(quote.changePercent).toFixed(2)}% today`
           + ` (alert set at ${Math.abs(threshold)}% dip)`
-          + ` · Current: ₹${quote.price.toFixed(2)}`,
+          + ` · Current: ${this.currencyService.formatDisplay(quote.price)}`,
         icon: '/icons/icon-192x192.png',
         tag: `dip-alert-${symbol}`,   // Replaces any existing notification for this symbol
         renotify: true

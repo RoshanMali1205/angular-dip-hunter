@@ -14,6 +14,8 @@ import { QuoteService } from '../../core/services/quote.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
 import { DialogService } from '../../shared/components/dialog/dialog.service';
+import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
+import { CurrencyService } from '../../core/services/currency.service';
 import { PlanDraft, PlanDraftItem } from '../../core/models/plan.model';
 
 interface EditState {
@@ -26,7 +28,7 @@ interface EditState {
 @Component({
   selector: 'app-drafts-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CurrencyDisplayPipe],
   templateUrl: './drafts.page.html'
 })
 export class DraftsPageComponent {
@@ -38,6 +40,8 @@ export class DraftsPageComponent {
   readonly themeService = inject(ThemeService);
   readonly lang = inject(LanguageService);
   private readonly dialog = inject(DialogService);
+  private readonly currencyService = inject(CurrencyService);
+  readonly currencySymbol = this.currencyService.currencySymbol;
   private readonly router = inject(Router);
 
   readonly MAX_DRAFTS = MAX_DRAFTS;
@@ -175,7 +179,7 @@ export class DraftsPageComponent {
       type: 'confirm',
       title: 'Execute Draft',
       message: `Execute draft "${draft.name}"?\nThis will create ${itemsWithQty.length} buy transaction(s):`,
-      details: itemsWithQty.map(i => `${i.symbol}: ${i.targetQty} qty @ ₹${i.plannedPrice}`),
+      details: itemsWithQty.map(i => `${i.symbol}: ${i.targetQty} qty @ ${this.currencyService.formatDisplay(i.plannedPrice ?? 0)}`),
       confirmText: 'Execute'
     });
     if (!confirmed) return;
@@ -203,16 +207,6 @@ export class DraftsPageComponent {
   getAvailableStocks(draft: PlanDraft): typeof this.allStocks extends () => infer T ? T : never {
     const inDraft = new Set(draft.items.map(i => i.stockId));
     return this.allStocks().filter(s => !inDraft.has(s.id)) as any;
-  }
-
-  formatCurrency(value: number | undefined): string {
-    if (value === undefined || value === 0) return '₹0';
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
   }
 
   formatDate(iso: string): string {

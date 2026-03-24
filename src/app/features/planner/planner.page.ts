@@ -12,12 +12,14 @@ import { DialogService } from '../../shared/components/dialog/dialog.service';
 import { MonthlyPlan, PlanItem, AdvisorStrategy, AllocationSuggestion } from '../../core/models/plan.model';
 import { StockViewModel } from '../../core/models';
 import { AllocationSuggestionsComponent } from './components';
+import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
+import { CurrencyService } from '../../core/services/currency.service';
 import { MAX_DRAFTS } from '../../core/services/drafts.service';
 
 @Component({
   selector: 'app-planner-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, AllocationSuggestionsComponent],
+  imports: [CommonModule, FormsModule, AllocationSuggestionsComponent, CurrencyDisplayPipe],
   templateUrl: './planner.page.html'
 })
 export class PlannerPageComponent implements OnInit {
@@ -30,6 +32,8 @@ export class PlannerPageComponent implements OnInit {
   readonly lang = inject(LanguageService);
   readonly themeService = inject(ThemeService);
   private readonly dialog = inject(DialogService);
+  private readonly currencyService = inject(CurrencyService);
+  readonly currencySymbol = this.currencyService.currencySymbol;
 
   readonly draftCount = this.draftsService.draftCount;
   readonly canSaveDraft = this.draftsService.canCreate;
@@ -342,7 +346,7 @@ export class PlannerPageComponent implements OnInit {
       type: 'confirm',
       title: 'Execute Plan',
       message: `Create ${pending.length} buy transaction(s) from plan ${plan.month}?`,
-      details: pending.map(i => `${i.symbol}: ${i.targetQty} qty @ ₹${i.plannedPrice}`),
+      details: pending.map(i => `${i.symbol}: ${i.targetQty} qty @ ${this.currencyService.formatDisplay(i.plannedPrice ?? 0)}`),
       confirmText: 'Execute'
     });
     if (!confirmed) return;
@@ -385,16 +389,6 @@ export class PlannerPageComponent implements OnInit {
     if (draft) {
       await this.dialog.alert(`Draft "${draft.name}" saved! View it in the Drafts page.`, 'Draft Saved');
     }
-  }
-
-  formatCurrency(value: number | undefined): string {
-    if (value === undefined) return '—';
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
   }
 
   formatPercent(value: number | undefined): string {

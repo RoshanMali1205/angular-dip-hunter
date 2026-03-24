@@ -18,3 +18,4 @@ export * from './allocation-advisor.service';
 export * from './drafts.service';
 export * from './price-alert.service';
 export * from './csv-import.service';
+export * from './currency.service';

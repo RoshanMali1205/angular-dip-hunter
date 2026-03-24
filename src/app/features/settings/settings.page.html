@@ -145,6 +145,55 @@
     </div>
   </div>
 
+  <!-- Display Currency -->
+  <div class="rounded-xl border p-6 relative overflow-hidden"
+       [class.border-amber-500/20]="themeService.isDark()"
+       [class.bg-gradient-to-br]="true"
+       [class.from-amber-950/20]="themeService.isDark()"
+       [class.via-slate-900/95]="themeService.isDark()"
+       [class.to-slate-900]="themeService.isDark()"
+       [class.border-amber-200]="themeService.isLight()"
+       [class.from-amber-50/30]="themeService.isLight()"
+       [class.via-white]="themeService.isLight()"
+       [class.to-white]="themeService.isLight()">
+    <h3 class="mb-4 text-lg font-semibold"
+        [class.text-white]="themeService.isDark()"
+        [class.text-gray-900]="themeService.isLight()">{{ lang.t('settings.displayCurrencyTitle') }}</h3>
+    <p class="mb-4 text-sm"
+       [class.text-slate-400]="themeService.isDark()"
+       [class.text-gray-500]="themeService.isLight()">
+      {{ lang.t('settings.currencyDescription') }}
+    </p>
+
+    <app-currency-selector
+      [selected]="displayCurrency()"
+      (currencyChange)="onCurrencyChange($event)" />
+
+    @if (currencyLoading()) {
+      <div class="mt-3 flex items-center gap-2">
+        <div class="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent"></div>
+        <span class="text-xs"
+              [class.text-slate-400]="themeService.isDark()"
+              [class.text-gray-500]="themeService.isLight()">
+          {{ lang.t('common.loading') }}
+        </span>
+      </div>
+    }
+
+    <div class="mt-4 rounded-lg p-3"
+         [class.bg-slate-800]="themeService.isDark()"
+         [class.bg-gray-100]="themeService.isLight()">
+      <div class="flex items-start gap-2">
+        <span class="text-amber-400">ℹ️</span>
+        <p class="text-xs"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">
+          {{ lang.t('settings.currencyNote') }}
+        </p>
+      </div>
+    </div>
+  </div>
+
   <div class="grid gap-6 lg:grid-cols-2">
     <!-- Red Rule Settings -->
     <div class="rounded-xl border p-6"

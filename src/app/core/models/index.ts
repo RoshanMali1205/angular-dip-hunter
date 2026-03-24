@@ -9,6 +9,7 @@ export * from './plan.model';
 export * from './transaction.model';
 export * from './holding.model';
 export * from './settings.model';
+export * from './currency.model';
 export * from './user.model';
 export * from './performance.model';
 

@@ -12,6 +12,7 @@ export type StorageKey =
   | 'dh_drafts'
   | 'dh_settings'
   | 'dh_quote_cache'
+  | 'dh_exchange_rates'
   | 'dh_user';
 
 @Injectable({
@@ -68,6 +69,7 @@ export class StorageService {
       'dh_drafts',
       'dh_settings',
       'dh_quote_cache',
+      'dh_exchange_rates',
       'dh_user'
     ];
     keys.forEach(key => this.remove(key));

@@ -25,6 +25,7 @@ import {
   RadialProgressComponent
 } from '../../shared/components';
 import { buildPageNumbers } from '../../shared/utils/pagination.utils';
+import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
 import { HoldingsPieChartComponent, PieGroupBy, PortfolioInsightsCardComponent } from './components';
 
 export interface ProgressMetric {
@@ -44,7 +45,8 @@ export interface ProgressMetric {
     SkeletonCardComponent, 
     SkeletonStockRowComponent,
     RadialProgressComponent,
-    HoldingsPieChartComponent
+    HoldingsPieChartComponent,
+    CurrencyDisplayPipe
   ],
   templateUrl: './dashboard.page.html'
 })
@@ -357,18 +359,7 @@ export class DashboardPageComponent implements OnInit {
     return this.settingsService.hasAlert(symbol);
   }
 
-  /**
-   * Format currency
-   */
-  formatCurrency(value: number | undefined): string {
-    if (value === undefined) return '—';
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  }
+
 
   /**
    * Format percent
