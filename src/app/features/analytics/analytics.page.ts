@@ -29,6 +29,14 @@ interface AllocationData {
   color: string;
 }
 
+interface SectorAllocationData {
+  sector: string;
+  value: number;
+  percentage: number;
+  stockCount: number;
+  color: string;
+}
+
 @Component({
   selector: 'app-analytics-page',
   standalone: true,
@@ -160,6 +168,34 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
     })).sort((a, b) => b.value - a.value);
   });
   
+  // Sector allocation — groups all holdings by sector
+  sectorAllocation = computed<SectorAllocationData[]>(() => {
+    const allHoldings = [...this.growthHoldings(), ...this.dividendHoldings()];
+    const stocks = this.portfolioService.activeStocks();
+    const sectorMap = new Map<string, { value: number; count: number }>();
+
+    for (const holding of allHoldings) {
+      const stock = stocks.find(s => s.id === holding.stockId);
+      const sector = stock?.sector ?? 'Other';
+      const value = holding.currentValue ?? holding.investedAmount;
+      const existing = sectorMap.get(sector) ?? { value: 0, count: 0 };
+      sectorMap.set(sector, { value: existing.value + value, count: existing.count + 1 });
+    }
+
+    const totalValue = Array.from(sectorMap.values()).reduce((sum, s) => sum + s.value, 0);
+    const result = Array.from(sectorMap.entries())
+      .map(([sector, data], i) => ({
+        sector,
+        value: data.value,
+        stockCount: data.count,
+        percentage: totalValue > 0 ? (data.value / totalValue) * 100 : 0,
+        color: this.getColor(i)
+      }))
+      .sort((a, b) => b.value - a.value);
+
+    return result;
+  });
+
   // YTD totals
   ytdTotals = computed(() => {
     const currentYear = new Date().getFullYear().toString();
@@ -437,5 +473,9 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
   
   trackByAllocation(index: number, item: AllocationData): string {
     return item.symbol;
+  }
+
+  trackBySector(index: number, item: SectorAllocationData): string {
+    return item.sector;
   }
 }

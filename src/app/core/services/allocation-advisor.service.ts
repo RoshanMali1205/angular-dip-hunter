@@ -50,7 +50,7 @@ export class AllocationAdvisorService {
 
     return {
       strategy: 'equal',
-      name: '⚖️ Equal Weight',
+      name: 'Equal Weight',
       description: 'Divide budget equally across all red candidates',
       rationale: 'Simple, diversified approach. Good for beginners or balanced investors.',
       allocations,
@@ -92,7 +92,7 @@ export class AllocationAdvisorService {
 
     return {
       strategy: 'risk-adjusted',
-      name: '📊 Risk-Adjusted',
+      name: 'Risk-Adjusted',
       description: 'Higher allocation to more stable stocks',
       rationale: 'Allocate more to stocks with smaller drops. Better for risk-averse investors.',
       allocations,
@@ -160,7 +160,7 @@ export class AllocationAdvisorService {
 
     return {
       strategy: 'defensive',
-      name: '🛡️ Defensive Mode',
+      name: 'Defensive Mode',
       description: '70% defensive sectors, 30% growth stocks',
       rationale: 'Focus on stable dividend stocks and defensive sectors. Best during market downturns.',
       allocations,

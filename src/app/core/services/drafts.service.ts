@@ -6,7 +6,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { PlanDraft, PlanDraftItem, MonthlyPlan } from '../models/plan.model';
 import { StorageService } from './storage.service';
 
-export const MAX_DRAFTS = 5;
+export const MAX_DRAFTS = 10;
 
 @Injectable({ providedIn: 'root' })
 export class DraftsService {

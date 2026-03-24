@@ -12,6 +12,7 @@ import { DialogService } from '../../shared/components/dialog/dialog.service';
 import { MonthlyPlan, PlanItem, AdvisorStrategy, AllocationSuggestion } from '../../core/models/plan.model';
 import { StockViewModel } from '../../core/models';
 import { AllocationSuggestionsComponent } from './components';
+import { MAX_DRAFTS } from '../../core/services/drafts.service';
 
 @Component({
   selector: 'app-planner-page',
@@ -32,6 +33,7 @@ export class PlannerPageComponent implements OnInit {
 
   readonly draftCount = this.draftsService.draftCount;
   readonly canSaveDraft = this.draftsService.canCreate;
+  readonly MAX_DRAFTS = MAX_DRAFTS;
 
   // UI State
   selectedMonth = signal(this.plannerService.currentMonth);
@@ -69,6 +71,43 @@ export class PlannerPageComponent implements OnInit {
   budgetUsedPercent = computed(() => {
     const b = this.budget();
     return b > 0 ? Math.min(100, Math.round((this.budgetUsed() / b) * 100)) : 0;
+  });
+
+  // Reconciliation: planned vs actual spend for this plan
+  reconciliation = computed(() => {
+    const plan = this.currentPlan();
+    if (!plan || plan.items.length === 0) return null;
+
+    const planTxs = this.transactionService.buyTransactions().filter(tx => tx.planId === plan.id);
+
+    const plannedTotal = plan.items.reduce((s, i) => s + (i.targetAmount || 0), 0);
+    const actualTotal = planTxs.reduce((s, tx) => s + tx.totalAmount, 0);
+    const executedCount = plan.items.filter(i => i.isExecuted).length;
+    const pendingCount = plan.items.filter(i => !i.isExecuted).length;
+
+    const itemDetails = plan.items.map(item => {
+      const tx = planTxs.find(t => t.stockId === item.stockId);
+      return {
+        symbol: item.symbol,
+        planned: item.targetAmount || 0,
+        actual: tx ? tx.totalAmount : 0,
+        actualPrice: tx?.price,
+        actualQty: tx?.qty,
+        variance: tx ? tx.totalAmount - (item.targetAmount || 0) : 0,
+        isExecuted: item.isExecuted
+      };
+    });
+
+    return {
+      plannedTotal,
+      actualTotal,
+      variance: actualTotal - plannedTotal,
+      variancePercent: plannedTotal > 0 ? ((actualTotal - plannedTotal) / plannedTotal) * 100 : 0,
+      executedCount,
+      pendingCount,
+      hasExecuted: executedCount > 0,
+      itemDetails
+    };
   });
 
   // Red stocks available for planning
@@ -335,7 +374,7 @@ export class PlannerPageComponent implements OnInit {
     if (!plan || plan.items.length === 0) return;
 
     if (!this.canSaveDraft()) {
-      await this.dialog.alert('Maximum 5 drafts reached. Delete a draft first.', 'Limit Reached');
+      await this.dialog.alert(`Maximum ${MAX_DRAFTS} drafts reached. Delete a draft first.`, 'Limit Reached');
       return;
     }
 

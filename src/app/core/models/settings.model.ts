@@ -14,24 +14,27 @@ export interface RedRule {
 export interface AppSettings {
   // Red condition rule
   redRule: RedRule;
-  
+
   // Quote data source
   quoteDataSource: QuoteDataSource;
   yahooProxyUrl: string;  // CORS proxy URL for Yahoo Finance
-  
+
   // Quote refresh settings
   autoRefresh: boolean;
   refreshIntervalSeconds: number;
   cacheTTLSeconds: number;
-  
+
   // Display preferences
   defaultFolderId: 'GROWTH_20' | 'DIVIDEND_10';
   showHoldingsInDashboard: boolean;
   compactMode: boolean;
-  
+
   // Planner defaults
   defaultAllocationStrategy: 'EQUAL_WEIGHT' | 'CUSTOM_WEIGHT';
-  
+
+  // Price alerts: symbol → threshold changePercent (e.g. -3 means alert when drop >= 3%)
+  priceAlerts: Record<string, number>;
+
   // Timestamps
   updatedAt: string;
 }
@@ -49,5 +52,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showHoldingsInDashboard: true,
   compactMode: false,
   defaultAllocationStrategy: 'EQUAL_WEIGHT',
+  priceAlerts: {},
   updatedAt: new Date().toISOString()
 };

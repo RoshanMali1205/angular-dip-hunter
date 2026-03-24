@@ -92,6 +92,29 @@ export class SettingsService {
     }
   }
 
+  /** Set a price alert for a symbol (threshold is negative %, e.g. -3 = alert when drop >= 3%) */
+  setAlert(symbol: string, threshold: number): void {
+    const alerts = { ...(this._settings().priceAlerts ?? {}), [symbol]: threshold };
+    this.updateSettings({ priceAlerts: alerts });
+  }
+
+  /** Remove a price alert for a symbol */
+  removeAlert(symbol: string): void {
+    const alerts = { ...(this._settings().priceAlerts ?? {}) };
+    delete alerts[symbol];
+    this.updateSettings({ priceAlerts: alerts });
+  }
+
+  /** Get the alert threshold for a symbol, or undefined if not set */
+  getAlert(symbol: string): number | undefined {
+    return this._settings().priceAlerts?.[symbol];
+  }
+
+  /** Whether a price alert is set for a symbol */
+  hasAlert(symbol: string): boolean {
+    return symbol in (this._settings().priceAlerts ?? {});
+  }
+
   /**
    * Reset settings to defaults
    */

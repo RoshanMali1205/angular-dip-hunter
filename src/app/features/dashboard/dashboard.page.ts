@@ -16,6 +16,7 @@ import {
   LanguageService
 } from '../../core/services';
 import { TourService } from '../../core/services/tour.service';
+import { PriceAlertService } from '../../core/services/price-alert.service';
 import { FolderId } from '../../core/models/folder.model';
 import { StockViewModel, DashboardKPIs, Holding } from '../../core/models';
 import {
@@ -53,6 +54,7 @@ export class DashboardPageComponent implements OnInit {
   private settingsService = inject(SettingsService);
   private plannerService = inject(PlannerService);
   private tourService = inject(TourService);
+  readonly alertService = inject(PriceAlertService);
   public holdingsService = inject(HoldingsService);
 
   public themeService = inject(ThemeService);
@@ -72,6 +74,7 @@ export class DashboardPageComponent implements OnInit {
   selectedFolderId = signal<FolderId>('GROWTH_20');
   searchText = signal('');
   showRedOnly = signal(false);
+  selectedSector = signal<string>('ALL');
   isLoading = signal(false);
   pieGroupBy = signal<PieGroupBy>('stock');
   showDataSourceModal = signal(false);
@@ -84,6 +87,13 @@ export class DashboardPageComponent implements OnInit {
   // Folder tabs
   folders = this.portfolioService.folders;
 
+  // Unique sectors for current folder
+  availableSectors = computed<string[]>(() => {
+    const stocks = this.portfolioService.getStocksByFolder(this.selectedFolderId());
+    const sectors = stocks.map(s => s.sector).filter((s): s is string => !!s);
+    return ['ALL', ...Array.from(new Set(sectors)).sort()];
+  });
+
   // Computed stock view models
   stockViewModels = computed<StockViewModel[]>(() => {
     const stocks = this.portfolioService.getStocksByFolder(this.selectedFolderId());
@@ -91,6 +101,7 @@ export class DashboardPageComponent implements OnInit {
     const holdings = this.holdingsService.holdingsMap();
     const search = this.searchText().toLowerCase();
     const redOnly = this.showRedOnly();
+    const sector = this.selectedSector();
 
     let vms = stocks.map(stock => {
       const quote = quotes[stock.symbol];
@@ -122,11 +133,17 @@ export class DashboardPageComponent implements OnInit {
       return vm;
     });
 
+    // Filter by sector
+    if (sector !== 'ALL') {
+      vms = vms.filter(v => v.sector === sector);
+    }
+
     // Filter by search
     if (search) {
-      vms = vms.filter(v => 
+      vms = vms.filter(v =>
         v.symbol.toLowerCase().includes(search) ||
-        v.displayName.toLowerCase().includes(search)
+        v.displayName.toLowerCase().includes(search) ||
+        (v.sector ?? '').toLowerCase().includes(search)
       );
     }
 
@@ -274,6 +291,7 @@ export class DashboardPageComponent implements OnInit {
    */
   onFolderChange(folderId: FolderId): void {
     this.selectedFolderId.set(folderId);
+    this.selectedSector.set('ALL');
     this.currentPage.set(1);
     this.loadQuotes();
   }
@@ -309,6 +327,34 @@ export class DashboardPageComponent implements OnInit {
     const plan = this.plannerService.getOrCreatePlan(this.plannerService.currentMonth);
     const quote = this.quoteService.getQuote(vm.symbol);
     this.plannerService.addItem(plan.id, vm.stockId, vm.symbol, quote);
+  }
+
+  /**
+   * Toggle price alert for a stock.
+   * If no alert is set, uses the current changePercent as the threshold (rounded down to nearest integer).
+   * If an alert is already set, removes it.
+   */
+  async onToggleAlert(vm: StockViewModel): Promise<void> {
+    if (this.settingsService.hasAlert(vm.symbol)) {
+      this.settingsService.removeAlert(vm.symbol);
+      return;
+    }
+
+    // Request notification permission if needed
+    if (this.alertService.permissionStatus() !== 'granted') {
+      const perm = await this.alertService.requestPermission();
+      if (perm !== 'granted') return;
+    }
+
+    // Default threshold: -5% minimum dip to trigger alert
+    const defaultThreshold = -5;
+
+    this.settingsService.setAlert(vm.symbol, defaultThreshold);
+  }
+
+  /** Whether an alert is set for a stock */
+  hasAlert(symbol: string): boolean {
+    return this.settingsService.hasAlert(symbol);
   }
 
   /**

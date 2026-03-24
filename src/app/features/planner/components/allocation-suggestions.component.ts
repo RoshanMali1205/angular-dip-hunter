@@ -28,7 +28,6 @@ import { ThemeService } from '../../../core/services';
            [class.border-gray-100]="!isDark()"
            [class.bg-gray-50]="!isDark()">
         <div class="flex items-center gap-2">
-          <span class="text-base">💡</span>
           <div>
             <h3 class="text-sm font-semibold"
                 [class.text-white]="isDark()"
@@ -52,11 +51,13 @@ import { ThemeService } from '../../../core/services';
 
       <!-- Strategy Comparison Cards (3 side-by-side) -->
       <div class="p-4">
-        <div class="grid grid-cols-3 gap-2 mb-4">
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-2 snap-x snap-mandatory
+                    sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0">
           @for (s of suggestions(); track s.strategy) {
             <button
               (click)="selectedStrategy.set(s.strategy)"
-              class="relative rounded-xl border p-3 text-left transition-all"
+              class="relative rounded-xl border p-3 text-left transition-all min-w-[130px] shrink-0 snap-start
+                     sm:min-w-0 sm:shrink"
               [class.border-emerald-500]="selectedStrategy() === s.strategy && isDark()"
               [class.bg-emerald-500/10]="selectedStrategy() === s.strategy && isDark()"
               [class.shadow-emerald-500/10]="selectedStrategy() === s.strategy && isDark()"

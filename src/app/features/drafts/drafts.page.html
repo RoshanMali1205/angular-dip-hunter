@@ -3,24 +3,43 @@
 
   <!-- Header -->
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <div>
+    <div class="flex-1 min-w-0">
       <h1 class="text-2xl font-bold"
           [class.text-white]="themeService.isDark()"
           [class.text-gray-900]="themeService.isLight()">Plan Drafts</h1>
-      <p class="text-sm"
+      <p class="text-sm mt-0.5"
          [class.text-slate-400]="themeService.isDark()"
          [class.text-gray-500]="themeService.isLight()">
-        Save, edit and reuse your planning scenarios · {{ draftCount() }}/{{ MAX_DRAFTS }} used
+        Save, edit and reuse your planning scenarios
       </p>
+      <!-- Draft count progress bar -->
+      <div class="mt-2 flex items-center gap-2">
+        <div class="flex-1 max-w-[160px] h-1.5 rounded-full overflow-hidden"
+             [class.bg-slate-700]="themeService.isDark()"
+             [class.bg-gray-200]="themeService.isLight()">
+          <div class="h-full rounded-full transition-all duration-300"
+               [style.width.%]="(draftCount() / MAX_DRAFTS) * 100"
+               [class.bg-emerald-500]="draftCount() < MAX_DRAFTS * 0.8"
+               [class.bg-amber-500]="draftCount() >= MAX_DRAFTS * 0.8 && draftCount() < MAX_DRAFTS"
+               [class.bg-red-500]="draftCount() >= MAX_DRAFTS"></div>
+        </div>
+        <span class="text-xs font-medium"
+              [class.text-slate-400]="themeService.isDark() && draftCount() < MAX_DRAFTS * 0.8"
+              [class.text-amber-400]="draftCount() >= MAX_DRAFTS * 0.8 && draftCount() < MAX_DRAFTS"
+              [class.text-red-400]="draftCount() >= MAX_DRAFTS"
+              [class.text-gray-500]="themeService.isLight() && draftCount() < MAX_DRAFTS * 0.8">
+          {{ draftCount() }}/{{ MAX_DRAFTS }} slots used
+        </span>
+      </div>
     </div>
     <button
       (click)="onToggleNewForm()"
       [disabled]="!canCreate()"
-      class="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed">
+      class="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed shrink-0">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
-      @if (canCreate()) { New Draft } @else { Max 5 Reached }
+      @if (canCreate()) { New Draft } @else { Limit Reached }
     </button>
   </div>
 
@@ -43,7 +62,7 @@
             type="text"
             [ngModel]="newDraftName()"
             (ngModelChange)="newDraftName.set($event)"
-            placeholder="e.g. Dip Buy March Strategy"
+            placeholder="e.g. Mar-2026 Dip Strategy"
             class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             [class.border-slate-700]="themeService.isDark()"
             [class.bg-slate-800]="themeService.isDark()"
@@ -51,6 +70,9 @@
             [class.border-gray-300]="themeService.isLight()"
             [class.bg-white]="themeService.isLight()"
             [class.text-gray-900]="themeService.isLight()">
+          <p class="mt-1 text-xs"
+             [class.text-slate-500]="themeService.isDark()"
+             [class.text-gray-400]="themeService.isLight()">Tip: use format like "Mar-2026 Dip Buy"</p>
         </div>
         <div class="w-36">
           <label class="mb-1 block text-xs"
@@ -133,9 +155,9 @@
          [class.bg-white]="themeService.isLight()">
 
       <!-- Card Header -->
-      <div class="flex items-center gap-3 px-4 py-3">
+      <div class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3">
         <!-- Draft icon -->
-        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-500/20">
+        <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-purple-500/20">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
@@ -190,7 +212,7 @@
                 {{ draft.items.length }} stocks
               </span>
             </div>
-            <div class="flex gap-3 text-xs mt-0.5"
+            <div class="flex flex-wrap gap-x-2 sm:gap-x-3 gap-y-0.5 text-[11px] sm:text-xs mt-0.5"
                  [class.text-slate-400]="themeService.isDark()"
                  [class.text-gray-500]="themeService.isLight()">
               <span>Budget: {{ formatCurrency(draft.budget) }}</span>
@@ -202,11 +224,11 @@
 
         <!-- Action buttons -->
         @if (editState()?.draftId !== draft.id) {
-          <div class="flex shrink-0 items-center gap-1">
+          <div class="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <!-- Expand/Collapse -->
             <button
               (click)="onToggleExpand(draft.id)"
-              class="rounded-lg p-2 transition"
+              class="rounded-lg p-1.5 sm:p-2 transition"
               [class.hover:bg-slate-800]="themeService.isDark()"
               [class.hover:bg-gray-100]="themeService.isLight()"
               [title]="expandedDraftId() === draft.id ? 'Collapse' : 'Expand'">
@@ -221,7 +243,7 @@
             <!-- Load to Planner -->
             <button
               (click)="onLoadToPlanner(draft)"
-              class="rounded-lg p-2 text-emerald-400 transition hover:text-emerald-300"
+              class="rounded-lg p-1.5 sm:p-2 text-emerald-400 transition hover:text-emerald-300"
               [class.hover:bg-slate-800]="themeService.isDark()"
               [class.hover:bg-gray-100]="themeService.isLight()"
               title="Load to Planner">
@@ -233,7 +255,7 @@
             <button
               (click)="onExecuteDraft(draft)"
               [disabled]="draft.items.length === 0"
-              class="rounded-lg p-2 text-amber-400 transition hover:text-amber-300 disabled:opacity-40"
+              class="rounded-lg p-1.5 sm:p-2 text-amber-400 transition hover:text-amber-300 disabled:opacity-40"
               [class.hover:bg-slate-800]="themeService.isDark()"
               [class.hover:bg-gray-100]="themeService.isLight()"
               title="Execute Draft (create buy transactions)">
@@ -244,7 +266,7 @@
             <!-- Edit -->
             <button
               (click)="onStartEdit(draft)"
-              class="rounded-lg p-2 transition"
+              class="rounded-lg p-1.5 sm:p-2 transition"
               [class.text-slate-400]="themeService.isDark()"
               [class.hover:bg-slate-800]="themeService.isDark()"
               [class.hover:text-white]="themeService.isDark()"
@@ -258,7 +280,7 @@
             <!-- Delete -->
             <button
               (click)="onDeleteDraft(draft)"
-              class="rounded-lg p-2 text-red-400 transition hover:text-red-300"
+              class="rounded-lg p-1.5 sm:p-2 text-red-400 transition hover:text-red-300"
               [class.hover:bg-slate-800]="themeService.isDark()"
               [class.hover:bg-gray-100]="themeService.isLight()"
               title="Delete draft">

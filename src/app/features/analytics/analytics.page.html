@@ -264,6 +264,61 @@
     </div>
   </div>
 
+  <!-- Sector Diversification -->
+  <div class="rounded-xl border p-4"
+       [class.border-slate-800]="themeService.isDark()"
+       [class.bg-slate-900]="themeService.isDark()"
+       [class.border-gray-200]="themeService.isLight()"
+       [class.bg-white]="themeService.isLight()">
+    <div class="mb-4">
+      <h3 class="font-semibold" [class.text-white]="themeService.isDark()" [class.text-gray-900]="themeService.isLight()">
+        Sector Diversification
+      </h3>
+      <p class="mt-0.5 text-sm" [class.text-slate-400]="themeService.isDark()" [class.text-gray-500]="themeService.isLight()">
+        Portfolio value distributed across sectors (holdings only)
+      </p>
+    </div>
+
+    @if (sectorAllocation().length === 0) {
+      <p class="py-8 text-center text-sm"
+         [class.text-slate-500]="themeService.isDark()"
+         [class.text-gray-400]="themeService.isLight()">No holdings yet — add buy transactions to see sector breakdown.</p>
+    } @else {
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        @for (item of sectorAllocation(); track trackBySector($index, item)) {
+          <div class="rounded-lg p-3"
+               [class.bg-slate-800/50]="themeService.isDark()"
+               [class.bg-gray-50]="themeService.isLight()">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="h-3 w-3 shrink-0 rounded-full" [style.background-color]="item.color"></div>
+                <span class="text-sm font-medium truncate"
+                      [class.text-white]="themeService.isDark()"
+                      [class.text-gray-900]="themeService.isLight()">{{ item.sector }}</span>
+              </div>
+              <span class="text-sm font-bold ml-2 shrink-0"
+                    [class.text-white]="themeService.isDark()"
+                    [class.text-gray-800]="themeService.isLight()">{{ item.percentage.toFixed(1) }}%</span>
+            </div>
+            <div class="h-1.5 w-full overflow-hidden rounded-full mb-2"
+                 [class.bg-slate-700]="themeService.isDark()"
+                 [class.bg-gray-200]="themeService.isLight()">
+              <div class="h-full rounded-full transition-all duration-500"
+                   [style.width.%]="item.percentage"
+                   [style.background-color]="item.color"></div>
+            </div>
+            <div class="flex items-center justify-between text-xs"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-500]="themeService.isLight()">
+              <span>{{ formatCurrency(item.value) }}</span>
+              <span>{{ item.stockCount }} stock{{ item.stockCount !== 1 ? 's' : '' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
   <!-- Monthly Totals -->
   <div class="rounded-xl border p-4"
        [class.border-slate-800]="themeService.isDark()"

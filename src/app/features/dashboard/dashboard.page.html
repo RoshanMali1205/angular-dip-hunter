@@ -353,7 +353,7 @@
           </div>
         </div>
 
-        <!-- Filters -->
+        <!-- Search + Red Filter -->
         <div class="flex flex-wrap items-center gap-2">
           <div class="relative flex-1 min-w-[140px]">
             <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none"
@@ -366,7 +366,7 @@
               type="text"
               [placeholder]="lang.t('dashboard.searchPlaceholder')"
               [ngModel]="searchText()"
-              (ngModelChange)="searchText.set($event)"
+              (ngModelChange)="searchText.set($event); currentPage.set(1)"
               class="w-full rounded-lg border pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               [class.bg-slate-700/60]="themeService.isDark()"
               [class.border-slate-600/50]="themeService.isDark()"
@@ -387,6 +387,34 @@
             {{ lang.t('dashboard.redOnly') }}
           </label>
         </div>
+
+        <!-- Sector Filter Chips -->
+        @if (availableSectors().length > 1) {
+          <div class="overflow-x-auto -mx-1 px-1">
+            <div class="flex gap-1.5 w-max">
+              @for (sector of availableSectors(); track sector) {
+                <button
+                  (click)="selectedSector.set(sector); currentPage.set(1)"
+                  class="rounded-full border px-3 py-1 text-xs font-medium transition whitespace-nowrap"
+                  [class.bg-blue-600]="selectedSector() === sector && themeService.isDark()"
+                  [class.border-blue-500]="selectedSector() === sector && themeService.isDark()"
+                  [class.text-white]="selectedSector() === sector"
+                  [class.bg-blue-500]="selectedSector() === sector && themeService.isLight()"
+                  [class.border-blue-400]="selectedSector() === sector && themeService.isLight()"
+                  [class.bg-slate-700/50]="selectedSector() !== sector && themeService.isDark()"
+                  [class.border-slate-600/50]="selectedSector() !== sector && themeService.isDark()"
+                  [class.text-slate-300]="selectedSector() !== sector && themeService.isDark()"
+                  [class.hover:bg-slate-700]="selectedSector() !== sector && themeService.isDark()"
+                  [class.bg-white]="selectedSector() !== sector && themeService.isLight()"
+                  [class.border-gray-300]="selectedSector() !== sector && themeService.isLight()"
+                  [class.text-gray-600]="selectedSector() !== sector && themeService.isLight()"
+                  [class.hover:bg-gray-50]="selectedSector() !== sector && themeService.isLight()">
+                  {{ sector }}
+                </button>
+              }
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Stock Table -->
@@ -444,6 +472,16 @@
                         <p class="text-xs leading-tight mt-0.5"
                            [class.text-slate-400]="themeService.isDark()"
                            [class.text-gray-400]="themeService.isLight()">{{ vm.displayName }}</p>
+                        @if (vm.sector) {
+                          <span class="inline-block mt-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium leading-tight cursor-pointer"
+                                [class.bg-blue-500/15]="themeService.isDark()"
+                                [class.text-blue-400]="themeService.isDark()"
+                                [class.bg-blue-100]="themeService.isLight()"
+                                [class.text-blue-600]="themeService.isLight()"
+                                (click)="selectedSector.set(vm.sector!); currentPage.set(1)">
+                            {{ vm.sector }}
+                          </span>
+                        }
                       </div>
                     </div>
                   </td>
@@ -486,6 +524,33 @@
                     }
                   </td>
                   <td class="hidden md:table-cell px-3 py-2 text-right">
+                    <div class="flex items-center justify-end gap-1.5">
+                      <!-- Bell alert toggle -->
+                      <button
+                        (click)="onToggleAlert(vm)"
+                        [title]="hasAlert(vm.symbol) ? 'Remove dip alert for ' + vm.symbol : 'Set dip alert for ' + vm.symbol"
+                        class="rounded p-1 transition"
+                        [class.text-amber-400]="hasAlert(vm.symbol)"
+                        [class.hover:text-amber-300]="hasAlert(vm.symbol)"
+                        [class.text-slate-500]="!hasAlert(vm.symbol) && themeService.isDark()"
+                        [class.hover:text-slate-300]="!hasAlert(vm.symbol) && themeService.isDark()"
+                        [class.text-gray-400]="!hasAlert(vm.symbol) && themeService.isLight()"
+                        [class.hover:text-gray-600]="!hasAlert(vm.symbol) && themeService.isLight()"
+                        [class.hover:bg-slate-700/50]="themeService.isDark()"
+                        [class.hover:bg-gray-100]="themeService.isLight()">
+                        @if (hasAlert(vm.symbol)) {
+                          <!-- Bell filled -->
+                          <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                          </svg>
+                        } @else {
+                          <!-- Bell outline -->
+                          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                          </svg>
+                        }
+                      </button>
+
                     @if (vm.isRed && !vm.isInCurrentPlan) {
                       <button
                         (click)="onAddToPlan(vm)"
@@ -500,6 +565,7 @@
                         {{ lang.t('dashboard.inPlan') }}
                       </span>
                     }
+                    </div>
                   </td>
                 </tr>
               } @empty {

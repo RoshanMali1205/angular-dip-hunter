@@ -203,7 +203,7 @@
           <button
             (click)="onSaveAsDraft()"
             [disabled]="currentPlan()!.items.length === 0 || !canSaveDraft()"
-            [title]="canSaveDraft() ? 'Save Draft (' + draftCount() + '/5)' : 'Max 5 drafts'"
+            [title]="canSaveDraft() ? 'Save Draft (' + draftCount() + '/' + MAX_DRAFTS + ')' : 'Max ' + MAX_DRAFTS + ' drafts'"
             class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition disabled:opacity-40"
             [class.bg-purple-500/15]="themeService.isDark()"
             [class.text-purple-300]="themeService.isDark()"
@@ -212,7 +212,7 @@
             [class.text-purple-700]="themeService.isLight()"
             [class.hover:bg-purple-100]="themeService.isLight()">
             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-            Draft ({{ draftCount() }}/5)
+            Draft ({{ draftCount() }}/{{ MAX_DRAFTS }})
           </button>
 
           <!-- Execute -->
@@ -334,12 +334,12 @@
               [class.border-gray-200]="themeService.isLight()"
               [class.bg-gray-50]="themeService.isLight()"
               [class.hover:bg-gray-100]="themeService.isLight()">
-              <span class="flex items-center gap-2">
+              <span class="flex items-center gap-2 flex-wrap">
                 <span class="text-base">💡</span>
                 <span class="text-sm font-semibold"
                       [class.text-white]="themeService.isDark()"
                       [class.text-gray-900]="themeService.isLight()">Smart Allocation Strategies</span>
-                <span class="rounded-full px-2 py-0.5 text-xs"
+                <span class="rounded-full px-2 py-0.5 text-[11px] sm:text-xs whitespace-nowrap"
                       [class.bg-slate-700]="themeService.isDark()"
                       [class.text-slate-300]="themeService.isDark()"
                       [class.bg-gray-200]="themeService.isLight()"
@@ -507,21 +507,152 @@
                        [class.text-slate-300]="themeService.isDark()"
                        [class.border-gray-200]="themeService.isLight()"
                        [class.text-gray-700]="themeService.isLight()">
+                  <!-- Planned total -->
                   <tr [class.bg-slate-800/30]="themeService.isDark()"
                       [class.bg-gray-50]="themeService.isLight()">
-                    <td class="px-4 py-3 font-semibold" colspan="2">Total</td>
-                    <td class="px-4 py-3 text-right font-bold"
+                    <td class="px-4 py-2 font-semibold" colspan="2"
+                        [class.text-slate-400]="themeService.isDark()"
+                        [class.text-gray-500]="themeService.isLight()">Planned</td>
+                    <td class="px-4 py-2 text-right font-bold"
                         [class.text-white]="themeService.isDark()"
                         [class.text-gray-900]="themeService.isLight()">
-                      {{ formatCurrency(currentPlan()!.totalPlannedAmount) }}
+                      {{ formatCurrency(reconciliation()?.plannedTotal) }}
                     </td>
                     <td colspan="3"></td>
                   </tr>
+                  <!-- Actual total (only if any item executed) -->
+                  @if (reconciliation()?.hasExecuted) {
+                    <tr [class.bg-slate-800/30]="themeService.isDark()"
+                        [class.bg-gray-50]="themeService.isLight()">
+                      <td class="px-4 py-2 font-semibold text-emerald-400" colspan="2">Actual Spend</td>
+                      <td class="px-4 py-2 text-right font-bold text-emerald-400">
+                        {{ formatCurrency(reconciliation()!.actualTotal) }}
+                      </td>
+                      <td colspan="3"></td>
+                    </tr>
+                    <tr [class.bg-slate-800/30]="themeService.isDark()"
+                        [class.bg-gray-50]="themeService.isLight()">
+                      <td class="px-4 py-2 font-semibold" colspan="2"
+                          [class.text-slate-400]="themeService.isDark()"
+                          [class.text-gray-500]="themeService.isLight()">Variance</td>
+                      <td class="px-4 py-2 text-right font-bold"
+                          [class.text-emerald-400]="reconciliation()!.variance <= 0"
+                          [class.text-red-400]="reconciliation()!.variance > 0">
+                        {{ reconciliation()!.variance >= 0 ? '+' : '' }}{{ formatCurrency(reconciliation()!.variance) }}
+                        <span class="text-xs font-normal ml-1">
+                          ({{ reconciliation()!.variancePercent >= 0 ? '+' : '' }}{{ reconciliation()!.variancePercent.toFixed(1) }}%)
+                        </span>
+                      </td>
+                      <td colspan="3"></td>
+                    </tr>
+                  }
                 </tfoot>
               }
             </table>
           </div>
         </div>
+
+        <!-- Reconciliation card (shown only when ≥1 item is executed) -->
+        @if (reconciliation()?.hasExecuted) {
+          <div class="rounded-xl border p-4"
+               [class.border-slate-700/40]="themeService.isDark()"
+               [class.bg-slate-900]="themeService.isDark()"
+               [class.border-gray-200]="themeService.isLight()"
+               [class.bg-white]="themeService.isLight()">
+
+            <!-- Header -->
+            <div class="mb-3 flex items-center gap-2">
+              <svg class="h-4 w-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+              <h4 class="text-sm font-semibold"
+                  [class.text-white]="themeService.isDark()"
+                  [class.text-gray-900]="themeService.isLight()">Budget Reconciliation</h4>
+              <span class="text-xs px-2 py-0.5 rounded-full"
+                    [class.bg-slate-700]="themeService.isDark()"
+                    [class.text-slate-400]="themeService.isDark()"
+                    [class.bg-gray-100]="themeService.isLight()"
+                    [class.text-gray-500]="themeService.isLight()">
+                {{ reconciliation()!.executedCount }}/{{ reconciliation()!.executedCount + reconciliation()!.pendingCount }} executed
+              </span>
+            </div>
+
+            <!-- KPI row -->
+            <div class="mb-4 grid grid-cols-3 gap-3">
+              <div class="rounded-lg p-3 text-center"
+                   [class.bg-slate-800/60]="themeService.isDark()"
+                   [class.bg-gray-50]="themeService.isLight()">
+                <p class="text-xs mb-1"
+                   [class.text-slate-400]="themeService.isDark()"
+                   [class.text-gray-500]="themeService.isLight()">Planned</p>
+                <p class="text-sm font-bold"
+                   [class.text-white]="themeService.isDark()"
+                   [class.text-gray-900]="themeService.isLight()">{{ formatCurrency(reconciliation()!.plannedTotal) }}</p>
+              </div>
+              <div class="rounded-lg p-3 text-center"
+                   [class.bg-slate-800/60]="themeService.isDark()"
+                   [class.bg-gray-50]="themeService.isLight()">
+                <p class="text-xs mb-1 text-emerald-400">Actual Spent</p>
+                <p class="text-sm font-bold text-emerald-400">{{ formatCurrency(reconciliation()!.actualTotal) }}</p>
+              </div>
+              <div class="rounded-lg p-3 text-center"
+                   [class.bg-slate-800/60]="themeService.isDark()"
+                   [class.bg-gray-50]="themeService.isLight()">
+                <p class="text-xs mb-1"
+                   [class.text-slate-400]="themeService.isDark()"
+                   [class.text-gray-500]="themeService.isLight()">Variance</p>
+                <p class="text-sm font-bold"
+                   [class.text-emerald-400]="reconciliation()!.variance <= 0"
+                   [class.text-red-400]="reconciliation()!.variance > 0">
+                  {{ reconciliation()!.variance >= 0 ? '+' : '' }}{{ formatCurrency(reconciliation()!.variance) }}
+                </p>
+                <p class="text-xs"
+                   [class.text-emerald-400]="reconciliation()!.variance <= 0"
+                   [class.text-red-400]="reconciliation()!.variance > 0">
+                  {{ reconciliation()!.variancePercent >= 0 ? '+' : '' }}{{ reconciliation()!.variancePercent.toFixed(1) }}%
+                </p>
+              </div>
+            </div>
+
+            <!-- Per-stock breakdown (executed items only) -->
+            <div class="space-y-2">
+              @for (row of reconciliation()!.itemDetails; track row.symbol) {
+                @if (row.isExecuted) {
+                  <div class="flex items-center gap-3 text-sm">
+                    <span class="w-24 shrink-0 font-medium"
+                          [class.text-white]="themeService.isDark()"
+                          [class.text-gray-900]="themeService.isLight()">{{ row.symbol }}</span>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center justify-between text-xs mb-1"
+                           [class.text-slate-400]="themeService.isDark()"
+                           [class.text-gray-500]="themeService.isLight()">
+                        <span>Planned {{ formatCurrency(row.planned) }}</span>
+                        <span class="text-emerald-400">Actual {{ formatCurrency(row.actual) }}</span>
+                      </div>
+                      <div class="relative h-1.5 w-full rounded-full overflow-hidden"
+                           [class.bg-slate-700]="themeService.isDark()"
+                           [class.bg-gray-200]="themeService.isLight()">
+                        <!-- Planned bar -->
+                        <div class="absolute inset-y-0 left-0 rounded-full"
+                             [class.bg-slate-500]="themeService.isDark()"
+                             [class.bg-gray-300]="themeService.isLight()"
+                             [style.width.%]="reconciliation()!.plannedTotal > 0 ? (row.planned / reconciliation()!.plannedTotal) * 100 : 0"></div>
+                        <!-- Actual bar -->
+                        <div class="absolute inset-y-0 left-0 rounded-full bg-emerald-500 opacity-80"
+                             [style.width.%]="reconciliation()!.plannedTotal > 0 ? (row.actual / reconciliation()!.plannedTotal) * 100 : 0"></div>
+                      </div>
+                    </div>
+                    <span class="text-xs shrink-0 w-16 text-right"
+                          [class.text-emerald-400]="row.variance <= 0"
+                          [class.text-red-400]="row.variance > 0">
+                      {{ row.variance >= 0 ? '+' : '' }}{{ formatCurrency(row.variance) }}
+                    </span>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
 
         <!-- Danger zone -->
         @if (!isPlanLocked()) {
