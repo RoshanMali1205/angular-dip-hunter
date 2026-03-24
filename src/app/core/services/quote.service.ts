@@ -175,7 +175,7 @@ export class QuoteService {
     const yahooSymbols = symbols.map(s => `${s}.NS`).join(',');
     // Use /.netlify/functions/quotes directly to avoid SPA catch-all redirect swallowing the request
     const functionPath = baseUrl ? `${baseUrl}/api/quotes` : '/.netlify/functions/quotes';
-    const url = `${functionPath}?symbols=${yahooSymbols}`;
+    const url = `${functionPath}?symbols=${encodeURIComponent(yahooSymbols)}`;
 
     return this.http.get<BatchQuotesResponse>(url).pipe(
       map(response => {

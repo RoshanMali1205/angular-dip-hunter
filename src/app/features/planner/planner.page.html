@@ -244,7 +244,7 @@
     <div class="grid gap-4 lg:grid-cols-3 lg:items-start">
 
       <!-- Col 1: Available Red Stocks -->
-      <div class="rounded-xl border"
+      <div class="rounded-xl border min-w-0"
            [class.border-slate-700/40]="themeService.isDark()"
            [class.bg-slate-900]="themeService.isDark()"
            [class.border-gray-200]="themeService.isLight()"
@@ -319,7 +319,7 @@
       </div>
 
       <!-- Col 2+3: Strategy + Plan Items -->
-      <div class="lg:col-span-2 space-y-4">
+      <div class="lg:col-span-2 space-y-4 min-w-0">
 
         <!-- AI Strategy Selector (collapsible) -->
         @if (availableRedStocks().length > 0 || currentPlan()!.items.length === 0) {
@@ -368,7 +368,7 @@
         }
 
         <!-- Plan Items Table -->
-        <div class="rounded-xl border overflow-hidden"
+        <div class="rounded-xl border"
              [class.border-slate-700/40]="themeService.isDark()"
              [class.bg-slate-900]="themeService.isDark()"
              [class.border-gray-200]="themeService.isLight()"
@@ -401,7 +401,7 @@
             }
           </div>
 
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto rounded-b-xl">
             <table class="w-full min-w-[500px] text-left text-sm">
               <thead class="border-b text-xs uppercase tracking-wider"
                      [class.border-slate-700/40]="themeService.isDark()"
