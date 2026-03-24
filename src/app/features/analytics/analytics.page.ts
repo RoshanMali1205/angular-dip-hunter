@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, computed, signal, ViewChild, ElementRef, AfterViewInit, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { TransactionService } from '../../core/services/transaction.service';
@@ -214,7 +214,15 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
     private portfolioService: PortfolioService,
     private quoteService: QuoteService,
     public themeService: ThemeService
-  ) {}
+  ) {
+    effect(() => {
+      this.themeService.isDark();
+      // Rebuild charts when theme changes (skip if charts not yet initialized)
+      if (this.allocationChart || this.monthlyChart) {
+        setTimeout(() => this.initCharts(), 50);
+      }
+    });
+  }
   
   ngOnInit(): void {
     this.loadData();
@@ -270,6 +278,11 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
             }
           },
           tooltip: {
+            backgroundColor: isDark ? '#1e293b' : '#ffffff',
+            titleColor: isDark ? '#f1f5f9' : '#1e293b',
+            bodyColor: isDark ? '#cbd5e1' : '#475569',
+            borderColor: isDark ? '#334155' : '#e2e8f0',
+            borderWidth: 1,
             callbacks: {
               label: (context) => {
                 const value = context.raw as number;
@@ -309,7 +322,7 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
             label: 'Investments',
             data: buyData,
             borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            backgroundColor: isDark ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.08)',
             fill: true,
             tension: 0.3
           },
@@ -317,7 +330,7 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
             label: 'Dividends',
             data: dividendData,
             borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            backgroundColor: isDark ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.08)',
             fill: true,
             tension: 0.3
           }
@@ -346,6 +359,11 @@ export class AnalyticsPageComponent implements OnInit, AfterViewInit {
             labels: { color: textColor, font: { size: 12 } }
           },
           tooltip: {
+            backgroundColor: isDark ? '#1e293b' : '#ffffff',
+            titleColor: isDark ? '#f1f5f9' : '#1e293b',
+            bodyColor: isDark ? '#cbd5e1' : '#475569',
+            borderColor: isDark ? '#334155' : '#e2e8f0',
+            borderWidth: 1,
             callbacks: {
               label: (context) => `${context.dataset.label}: ₹${(context.raw as number).toFixed(2)}`
             }
