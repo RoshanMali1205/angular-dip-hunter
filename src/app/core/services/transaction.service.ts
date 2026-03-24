@@ -16,7 +16,6 @@ import { StorageService } from './storage.service';
 })
 export class TransactionService {
   private readonly _transactions = signal<Transaction[]>([]);
-  private _idCounter = 0;
 
   readonly transactions = this._transactions.asReadonly();
 
@@ -30,6 +29,10 @@ export class TransactionService {
 
   constructor(private storage: StorageService) {
     this.loadFromStorage();
+  }
+
+  private generateId(prefix: string): string {
+    return `${prefix}_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
   }
 
   /**
@@ -58,7 +61,7 @@ export class TransactionService {
     
     const newTxn: BuyTransaction = {
       ...txn,
-      id: `buy_${Date.now()}_${++this._idCounter}`,
+      id: this.generateId('buy'),
       type: 'BUY',
       totalAmount,
       createdAt: now,
@@ -80,7 +83,7 @@ export class TransactionService {
     
     const newTxn: DividendTransaction = {
       ...txn,
-      id: `div_${Date.now()}_${++this._idCounter}`,
+      id: this.generateId('div'),
       type: 'DIVIDEND',
       createdAt: now,
       updatedAt: now
@@ -91,6 +94,51 @@ export class TransactionService {
     this.saveToStorage();
 
     return newTxn;
+  }
+
+  /**
+   * Bulk import transactions from CSV import rows
+   */
+  bulkImport(rows: { date: string; symbol: string; stockId: string; qty: number; price: number; charges: number; type: 'BUY' | 'DIVIDEND' }[]): number {
+    const now = new Date().toISOString();
+    const newTxns: (BuyTransaction | DividendTransaction)[] = [];
+
+    for (const row of rows) {
+      if (row.type === 'DIVIDEND') {
+        const divTxn: DividendTransaction = {
+          id: this.generateId('div'),
+          type: 'DIVIDEND',
+          date: row.date,
+          symbol: row.symbol,
+          stockId: row.stockId,
+          amount: row.qty * row.price,
+          createdAt: now,
+          updatedAt: now
+        };
+        newTxns.push(divTxn);
+      } else {
+        const totalAmount = (row.qty * row.price) + row.charges;
+        const buyTxn: BuyTransaction = {
+          id: this.generateId('buy'),
+          type: 'BUY',
+          date: row.date,
+          symbol: row.symbol,
+          stockId: row.stockId,
+          qty: row.qty,
+          price: row.price,
+          charges: row.charges,
+          totalAmount,
+          createdAt: now,
+          updatedAt: now
+        };
+        newTxns.push(buyTxn);
+      }
+    }
+
+    const updated = [...this._transactions(), ...newTxns];
+    this._transactions.set(updated);
+    this.saveToStorage();
+    return newTxns.length;
   }
 
   /**
@@ -117,8 +165,8 @@ export class TransactionService {
       }
     }
 
-    // Sort by date descending
-    return txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Sort by date descending (spread to avoid mutating the signal array)
+    return [...txns].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }
 
   /**

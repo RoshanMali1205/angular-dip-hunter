@@ -1,0 +1,227 @@
+<!-- CSV Import Dialog Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" (click)="close()">
+  <div class="mx-4 w-full max-w-2xl rounded-2xl border shadow-2xl"
+       [class.border-slate-700]="themeService.isDark()"
+       [class.bg-slate-900]="themeService.isDark()"
+       [class.border-gray-200]="themeService.isLight()"
+       [class.bg-white]="themeService.isLight()"
+       (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b px-6 py-4"
+         [class.border-slate-700]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()">
+      <h2 class="text-lg font-semibold"
+          [class.text-white]="themeService.isDark()"
+          [class.text-gray-900]="themeService.isLight()">Import Transactions from CSV</h2>
+      <button (click)="close()" class="rounded-lg p-1 transition hover:bg-slate-700/50"
+              [class.text-slate-400]="themeService.isDark()"
+              [class.text-gray-500]="themeService.isLight()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="px-6 py-5">
+      <!-- Step 1: Upload -->
+      @if (step() === 'upload') {
+        <div class="space-y-4">
+          <p class="text-sm"
+             [class.text-slate-400]="themeService.isDark()"
+             [class.text-gray-600]="themeService.isLight()">
+            Upload a trade book CSV file from your broker. Supported brokers: Zerodha, Groww, Angel One, or any generic CSV with date, symbol, qty, price columns.
+          </p>
+
+          <!-- Drop Zone -->
+          <div class="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 transition"
+               [class.border-emerald-500]="isDragOver()"
+               [class.bg-emerald-500/10]="isDragOver()"
+               [class.border-slate-600]="!isDragOver() && themeService.isDark()"
+               [class.hover:border-slate-500]="!isDragOver() && themeService.isDark()"
+               [class.border-gray-300]="!isDragOver() && themeService.isLight()"
+               [class.hover:border-gray-400]="!isDragOver() && themeService.isLight()"
+               (dragover)="onDragOver($event)"
+               (dragleave)="onDragLeave($event)"
+               (drop)="onDrop($event)"
+               (click)="fileInput.click()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mb-3 h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                 [class.text-emerald-400]="isDragOver()"
+                 [class.text-slate-500]="!isDragOver() && themeService.isDark()"
+                 [class.text-gray-400]="!isDragOver() && themeService.isLight()">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <p class="text-sm font-medium"
+               [class.text-slate-300]="themeService.isDark()"
+               [class.text-gray-700]="themeService.isLight()">
+              Drop your CSV file here or click to browse
+            </p>
+            <p class="mt-1 text-xs"
+               [class.text-slate-500]="themeService.isDark()"
+               [class.text-gray-400]="themeService.isLight()">
+              Supports .csv files only
+            </p>
+          </div>
+          <input #fileInput type="file" accept=".csv" class="hidden" (change)="onFileSelected($event)" />
+
+          @if (errorMessage()) {
+            <p class="text-sm text-red-400">{{ errorMessage() }}</p>
+          }
+        </div>
+      }
+
+      <!-- Step 2: Preview -->
+      @if (step() === 'preview') {
+        @if (parseResult(); as result) {
+          <div class="space-y-4">
+            <!-- Broker & Stats -->
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-medium text-emerald-400">
+                {{ result.brokerLabel }} format detected
+              </span>
+              <span class="text-sm"
+                    [class.text-slate-400]="themeService.isDark()"
+                    [class.text-gray-500]="themeService.isLight()">
+                {{ result.totalRows }} rows &middot; 
+                <span class="text-emerald-400">{{ result.validRows }} valid</span>
+                @if (result.invalidRows > 0) {
+                  &middot; <span class="text-red-400">{{ result.invalidRows }} invalid</span>
+                }
+              </span>
+            </div>
+
+            <!-- Unmapped Symbols Warning -->
+            @if (result.unmappedSymbols.length > 0) {
+              <div class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+                <p class="text-sm font-medium text-amber-400">Symbols not found in portfolio:</p>
+                <p class="mt-1 text-xs text-amber-300/80">{{ result.unmappedSymbols.join(', ') }}</p>
+                <p class="mt-1 text-xs"
+                   [class.text-slate-500]="themeService.isDark()"
+                   [class.text-gray-500]="themeService.isLight()">
+                  Add these stocks to your folders first to import their transactions.
+                </p>
+              </div>
+            }
+
+            <!-- Preview Table -->
+            <div class="max-h-64 overflow-auto rounded-lg border"
+                 [class.border-slate-700]="themeService.isDark()"
+                 [class.border-gray-200]="themeService.isLight()">
+              <table class="w-full text-left text-xs">
+                <thead class="sticky top-0 border-b text-xs uppercase"
+                       [class.border-slate-700]="themeService.isDark()"
+                       [class.bg-slate-800]="themeService.isDark()"
+                       [class.text-slate-400]="themeService.isDark()"
+                       [class.border-gray-200]="themeService.isLight()"
+                       [class.bg-gray-50]="themeService.isLight()"
+                       [class.text-gray-600]="themeService.isLight()">
+                  <tr>
+                    <th class="px-3 py-2">Status</th>
+                    <th class="px-3 py-2">Date</th>
+                    <th class="px-3 py-2">Symbol</th>
+                    <th class="px-3 py-2">Type</th>
+                    <th class="px-3 py-2 text-right">Qty</th>
+                    <th class="px-3 py-2 text-right">Price</th>
+                    <th class="px-3 py-2">Errors</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y"
+                       [class.divide-slate-800]="themeService.isDark()"
+                       [class.divide-gray-100]="themeService.isLight()">
+                  @for (row of result.rows; track row.rowIndex) {
+                    <tr [class.bg-red-500/5]="!row.valid">
+                      <td class="px-3 py-2">
+                        @if (row.valid) {
+                          <span class="text-emerald-400">&#10003;</span>
+                        } @else {
+                          <span class="text-red-400">&#10007;</span>
+                        }
+                      </td>
+                      <td class="px-3 py-2 whitespace-nowrap"
+                          [class.text-slate-300]="themeService.isDark()"
+                          [class.text-gray-700]="themeService.isLight()">{{ row.date || '—' }}</td>
+                      <td class="px-3 py-2 font-medium"
+                          [class.text-white]="themeService.isDark()"
+                          [class.text-gray-900]="themeService.isLight()">{{ row.symbol || row.rawSymbol || '—' }}</td>
+                      <td class="px-3 py-2"
+                          [class.text-slate-400]="themeService.isDark()"
+                          [class.text-gray-500]="themeService.isLight()">{{ row.type }}</td>
+                      <td class="px-3 py-2 text-right"
+                          [class.text-slate-300]="themeService.isDark()"
+                          [class.text-gray-700]="themeService.isLight()">{{ row.qty }}</td>
+                      <td class="px-3 py-2 text-right"
+                          [class.text-slate-300]="themeService.isDark()"
+                          [class.text-gray-700]="themeService.isLight()">{{ row.price }}</td>
+                      <td class="px-3 py-2 text-xs text-red-400">
+                        @for (err of row.errors; track err) {
+                          <div>{{ err }}</div>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Step 3: Done -->
+      @if (step() === 'done') {
+        <div class="flex flex-col items-center py-6 text-center">
+          <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold"
+              [class.text-white]="themeService.isDark()"
+              [class.text-gray-900]="themeService.isLight()">Import Complete!</h3>
+          <p class="mt-2 text-sm"
+             [class.text-slate-400]="themeService.isDark()"
+             [class.text-gray-600]="themeService.isLight()">
+            Successfully imported {{ importedCount() }} transactions.
+          </p>
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center justify-end gap-3 border-t px-6 py-4"
+         [class.border-slate-700]="themeService.isDark()"
+         [class.border-gray-200]="themeService.isLight()">
+      @if (step() === 'preview') {
+        <button (click)="reset()"
+                class="rounded-lg px-4 py-2 text-sm transition"
+                [class.text-slate-400]="themeService.isDark()"
+                [class.hover:text-white]="themeService.isDark()"
+                [class.text-gray-500]="themeService.isLight()"
+                [class.hover:text-gray-700]="themeService.isLight()">
+          Back
+        </button>
+        <button (click)="confirmImport()"
+                [disabled]="parseResult()?.validRows === 0"
+                class="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed">
+          Import {{ parseResult()?.validRows }} Transactions
+        </button>
+      }
+      @if (step() === 'done') {
+        <button (click)="close()"
+                class="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-emerald-500">
+          Done
+        </button>
+      }
+      @if (step() === 'upload') {
+        <button (click)="close()"
+                class="rounded-lg px-4 py-2 text-sm transition"
+                [class.text-slate-400]="themeService.isDark()"
+                [class.hover:text-white]="themeService.isDark()"
+                [class.text-gray-500]="themeService.isLight()"
+                [class.hover:text-gray-700]="themeService.isLight()">
+          Cancel
+        </button>
+      }
+    </div>
+  </div>
+</div>

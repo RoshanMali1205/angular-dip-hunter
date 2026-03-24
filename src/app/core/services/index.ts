@@ -16,3 +16,5 @@ export * from './portfolio-insights.service';
 export * from './stock-analysis.service';
 export * from './allocation-advisor.service';
 export * from './drafts.service';
+export * from './price-alert.service';
+export * from './csv-import.service';

@@ -103,6 +103,12 @@ The application manages a **split-portfolio structure**:
 ### 💰 Transactions
 - Record buy transactions with price, quantity, and charges
 - Track dividend income
+- **CSV Import** — Bulk import transactions from broker trade-book CSV files
+  - Auto-detects broker format (Zerodha, Groww, Angel One, Generic)
+  - Drag-and-drop file upload with validation
+  - Preview table with per-row error highlighting
+  - Unmapped symbol warnings with resolution guidance
+  - 3-step flow: Upload → Preview → Import
 - View consolidated holdings
 - Real-time P/L calculation
 
@@ -555,8 +561,19 @@ buyTransactions: Signal<BuyTransaction[]>
 dividendTransactions: Signal<DividendTransaction[]>
 addBuyTransaction(tx: BuyTransaction): void
 addDividendTransaction(tx: DividendTransaction): void
+bulkImport(rows: ImportRow[]): number
 getBuysByStock(stockId: string): BuyTransaction[]
 getTotalDividends(stockId: string): number
+```
+
+### `CsvImportService`
+Parses broker CSV files and converts them to structured import rows.
+
+```typescript
+parse(text: string, stocks: Stock[]): ParseResult
+// Supports: Zerodha, Groww, Angel One, Generic formats
+// Auto-detects broker from CSV headers
+// Validates rows and resolves symbols to portfolio stocks
 ```
 
 ### `HoldingsService`
@@ -1052,6 +1069,7 @@ The Service Worker is enabled only in production builds and registered with `reg
 - [x] Multiple plans per month with custom naming
 - [x] Plan drafts — save, edit, reuse, execute planning scenarios
 - [x] Buy & Dividend transactions
+- [x] CSV Import — Bulk import from Zerodha, Groww, Angel One broker CSVs
 - [x] Holdings view with P/L
 - [x] Analytics with charts and Portfolio Insights
 - [x] Performance page with time ranges and comparison

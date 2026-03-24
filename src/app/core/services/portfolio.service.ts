@@ -160,6 +160,13 @@ export class PortfolioService {
   }
 
   /**
+   * Get all stocks (active and inactive)
+   */
+  getAllStocks(): Stock[] {
+    return this._stocks();
+  }
+
+  /**
    * Add a new stock
    */
   addStock(stock: Omit<Stock, 'id' | 'createdAt' | 'updatedAt'>): Stock {

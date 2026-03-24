@@ -9,6 +9,7 @@ import { LanguageService } from '../../core/services/language.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { PlannerService } from '../../core/services/planner.service';
 import { DialogService } from '../../shared/components/dialog/dialog.service';
+import { CsvImportDialogComponent } from '../../shared/components/csv-import-dialog/csv-import-dialog.component';
 import { BuyTransaction, DividendTransaction, TransactionFilters } from '../../core/models/transaction.model';
 import { Holding } from '../../core/models/holding.model';
 import { Stock } from '../../core/models/stock.model';
@@ -35,7 +36,7 @@ interface DividendFormData {
 @Component({
   selector: 'app-transactions-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CsvImportDialogComponent],
   templateUrl: './transactions.page.html'
 })
 export class TransactionsPageComponent implements OnInit {
@@ -46,6 +47,7 @@ export class TransactionsPageComponent implements OnInit {
   // State
   activeTab = signal<'buy' | 'dividend' | 'holdings'>('buy');
   isLoading = signal(false);
+  showCsvImport = signal(false);
   selectedFolderId = signal<FolderId>('GROWTH_20');
   
   // Pagination for Buy Transactions
@@ -379,5 +381,13 @@ export class TransactionsPageComponent implements OnInit {
   onHoldingsPageSizeChange(size: number): void {
     this.holdingsPageSize.set(size);
     this.holdingsCurrentPage.set(1);
+  }
+
+  openCsvImport(): void {
+    this.showCsvImport.set(true);
+  }
+
+  closeCsvImport(): void {
+    this.showCsvImport.set(false);
   }
 }
