@@ -1,13 +1,14 @@
 /**
  * Netlify Serverless Function: /api/quotes
  *
- * Fetch strategy (in order):
- *   1. Finnhub API  — if FINNHUB_API_KEY env var is set (recommended)
- *   2. Yahoo Finance — cookie+crumb fallback when no Finnhub key is configured
+ * Fetch strategy (in priority order):
+ *   1. Finnhub        — if FINNHUB_API_KEY env var is set        (recommended, 60 req/min free)
+ *   2. Alpha Vantage  — if ALPHA_VANTAGE_API_KEY env var is set  (fallback, 25 req/day free)
+ *   3. Yahoo Finance  — if neither key is configured             (no key needed, less reliable)
  *
- * To use Finnhub:
- *   Netlify Dashboard → Site → Environment variables → Add FINNHUB_API_KEY
- *   Get a free key (no credit card) at: https://finnhub.io/register
+ * Set env vars in: Netlify Dashboard → Site configuration → Environment variables
+ *   FINNHUB_API_KEY       → free key at finnhub.io/register (no credit card)
+ *   ALPHA_VANTAGE_API_KEY → free key at alphavantage.co/support
  */
 
 const CORS_HEADERS = {
@@ -43,6 +44,55 @@ async function fetchFromFinnhub(symbols, apiKey) {
   return settled
     .filter(r => r.status === 'fulfilled' && r.value !== null)
     .map(r => r.value);
+}
+
+// ─── Alpha Vantage ───────────────────────────────────────────────────────────
+
+/**
+ * Fetch quotes from Alpha Vantage.
+ * Free tier: 25 req/day, 5 req/min — requests are batched in groups of 5
+ * with a 12s delay between batches to respect the rate limit.
+ * Indian stocks use .BSE suffix (BSE is primary Indian exchange on AV).
+ */
+async function fetchFromAlphaVantage(symbols, apiKey) {
+  const results = [];
+  const BATCH_SIZE = 5;
+  const DELAY_MS = 12000; // 12s between batches → stays under 5 req/min
+
+  for (let i = 0; i < symbols.length; i += BATCH_SIZE) {
+    const batch = symbols.slice(i, i + BATCH_SIZE);
+
+    // Delay between batches (skip delay for the first batch)
+    if (i > 0) {
+      await new Promise(resolve => setTimeout(resolve, DELAY_MS));
+    }
+
+    const batchRequests = batch.map(async (yahooSymbol) => {
+      // AV uses .BSE for Indian stocks (strip .NS suffix, add .BSE)
+      const avSymbol = yahooSymbol.replace(/\.NS$/i, '.BSE');
+      try {
+        const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${encodeURIComponent(avSymbol)}&apikey=${apiKey}`;
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const data = await res.json();
+        const q = data?.['Global Quote'];
+        const price = q ? parseFloat(q['05. price']) : 0;
+        if (!q || price <= 0) return null;
+        return { yahooSymbol, q, price };
+      } catch {
+        return null;
+      }
+    });
+
+    const batchResults = await Promise.allSettled(batchRequests);
+    batchResults.forEach(r => {
+      if (r.status === 'fulfilled' && r.value !== null) {
+        results.push(r.value);
+      }
+    });
+  }
+
+  return results;
 }
 
 // ─── Yahoo Finance (fallback) ────────────────────────────────────────────────
@@ -135,6 +185,7 @@ export const handler = async (event) => {
 
   const timestamp = new Date().toISOString();
   const finnhubKey = process.env.FINNHUB_API_KEY;
+  const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
 
   try {
     const quotes = {};
@@ -158,7 +209,7 @@ export const handler = async (event) => {
           changePercent: data.dp ?? 0,
           dayHigh: data.h,
           dayLow: data.l,
-          volume: 0,           // not in Finnhub /quote endpoint
+          volume: 0,
           fiftyTwoWeekHigh: 0,
           fiftyTwoWeekLow: 0,
           currency: 'INR',
@@ -171,10 +222,42 @@ export const handler = async (event) => {
       console.log(`[quotes] Finnhub OK — ${Object.keys(quotes).length}/${symbols.length} symbols`);
     }
 
-    // ── Path 2: Yahoo Finance fallback ─────────────────────────────────────
+    // ── Path 2: Alpha Vantage (when ALPHA_VANTAGE_API_KEY env var is set) ──
+    else if (alphaVantageKey) {
+      source = 'alphavantage';
+      console.log(`[quotes] Using Alpha Vantage for ${symbols.length} symbols (batched, may be slow)`);
+
+      const results = await fetchFromAlphaVantage(symbols, alphaVantageKey);
+
+      for (const { yahooSymbol, q, price } of results) {
+        const baseSymbol = yahooSymbol.replace(/\.(NS|BSE|BO)$/i, '');
+        const changePercent = parseFloat((q['10. change percent'] || '0').replace('%', '').trim());
+        quotes[yahooSymbol] = {
+          symbol: baseSymbol,
+          yahooSymbol,
+          price,
+          previousClose: parseFloat(q['08. previous close']) || 0,
+          change: parseFloat(q['09. change']) || 0,
+          changePercent: isNaN(changePercent) ? 0 : changePercent,
+          dayHigh: parseFloat(q['03. high']) || 0,
+          dayLow: parseFloat(q['04. low']) || 0,
+          volume: parseInt(q['06. volume']) || 0,
+          fiftyTwoWeekHigh: 0,
+          fiftyTwoWeekLow: 0,
+          currency: 'INR',
+          name: baseSymbol,
+          timestamp,
+          source: 'alphavantage',
+        };
+      }
+
+      console.log(`[quotes] Alpha Vantage OK — ${Object.keys(quotes).length}/${symbols.length} symbols`);
+    }
+
+    // ── Path 3: Yahoo Finance fallback ─────────────────────────────────────
     else {
       source = 'yahoo';
-      console.log(`[quotes] No FINNHUB_API_KEY set — falling back to Yahoo Finance`);
+      console.log(`[quotes] No API keys set — falling back to Yahoo Finance`);
 
       const symbolsJoined = symbols.join(',');
       let results;
