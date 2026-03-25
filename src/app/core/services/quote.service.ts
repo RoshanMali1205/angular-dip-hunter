@@ -186,13 +186,20 @@ export class QuoteService {
 
     const settings = this.settingsService.settings();
 
-    // Route to correct data source
+    // Route to correct data source.
+    // finnhub and alphavantage use the same Netlify proxy as yahoo —
+    // the server automatically picks the right API based on which env var is set.
+    // Direct client-side Finnhub/AV calls are only used for self-hosted setups
+    // where a user explicitly provides their own key in Settings.
     const source = settings.quoteDataSource;
+    const hasClientFinnhubKey = !!(settings.finnhubApiKey);
+    const hasClientAVKey = !!(settings.alphaVantageApiKey);
+
     const fetchObservable =
-      source === 'finnhub'      ? this.fetchFromFinnhub(symbols) :
-      source === 'alphavantage' ? this.fetchFromAlphaVantage(symbols) :
-      source === 'yahoo'        ? this.fetchFromYahooFinance(symbols) :
-                                  this.generateMockQuotes(symbols);
+      source === 'finnhub'      && hasClientFinnhubKey ? this.fetchFromFinnhub(symbols) :
+      source === 'alphavantage' && hasClientAVKey       ? this.fetchFromAlphaVantage(symbols) :
+      source === 'mock'                                 ? this.generateMockQuotes(symbols) :
+                                                         this.fetchFromYahooFinance(symbols);
 
     return fetchObservable.pipe(
       tap(quotes => {
@@ -270,10 +277,7 @@ export class QuoteService {
    */
   private fetchFromFinnhub(symbols: string[]): Observable<Record<string, Quote>> {
     const apiKey = this.settingsService.settings().finnhubApiKey ?? '';
-    if (!apiKey) {
-      this._error.set('Finnhub API key not set. Add it in Settings → Data Source.');
-      return this.generateMockQuotes(symbols);
-    }
+    if (!apiKey) return this.generateMockQuotes(symbols);
 
     const requests = symbols.map(symbol =>
       this.http.get<FinnhubQuoteResponse>(
@@ -325,10 +329,7 @@ export class QuoteService {
    */
   private fetchFromAlphaVantage(symbols: string[]): Observable<Record<string, Quote>> {
     const apiKey = this.settingsService.settings().alphaVantageApiKey ?? '';
-    if (!apiKey) {
-      this._error.set('Alpha Vantage API key not set. Add it in Settings → Data Source.');
-      return this.generateMockQuotes(symbols);
-    }
+    if (!apiKey) return this.generateMockQuotes(symbols);
 
     const requests = symbols.map(symbol =>
       this.http.get<AlphaVantageQuoteResponse>(
