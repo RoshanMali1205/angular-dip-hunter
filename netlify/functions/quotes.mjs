@@ -32,8 +32,9 @@ async function fetchFromFinnhub(symbols, apiKey) {
       const res = await fetch(url);
       if (!res.ok) return null;
       const data = await res.json();
-      // c === 0 means market closed or symbol not found — skip
-      if (!data || data.c === 0) return null;
+      // pc === 0 means symbol not found or bad response
+      // c === 0 just means market is closed — pc (previous close) is still valid
+      if (!data || data.pc === 0) return null;
       return { yahooSymbol, data };
     } catch {
       return null;
@@ -200,13 +201,16 @@ export const handler = async (event) => {
 
       for (const { yahooSymbol, data } of results) {
         const baseSymbol = yahooSymbol.replace(/\.(NS|BSE|BO)$/i, '');
+        // When market is closed, c === 0 — use previous close as the displayed price
+        const marketOpen = data.c > 0;
+        const price = marketOpen ? data.c : data.pc;
         quotes[yahooSymbol] = {
           symbol: baseSymbol,
           yahooSymbol,
-          price: data.c,
+          price,
           previousClose: data.pc,
-          change: data.d ?? 0,
-          changePercent: data.dp ?? 0,
+          change: marketOpen ? (data.d ?? 0) : 0,
+          changePercent: marketOpen ? (data.dp ?? 0) : 0,
           dayHigh: data.h,
           dayLow: data.l,
           volume: 0,
