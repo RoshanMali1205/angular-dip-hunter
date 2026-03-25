@@ -325,13 +325,65 @@
     </p>
     
     <div class="space-y-4">
+
+      <!-- 2×2 source selector grid -->
       <div>
         <label class="mb-2 block text-sm"
                [class.text-slate-400]="themeService.isDark()"
                [class.text-gray-600]="themeService.isLight()">{{ lang.t('settings.selectSource') }}</label>
-        <div class="flex gap-4">
+        <div class="grid grid-cols-2 gap-3">
+
+          <!-- Finnhub -->
+          <button (click)="onDataSourceChange('finnhub')"
+                  class="rounded-lg border-2 p-3 text-left transition"
+                  [class.border-emerald-500]="selectedDataSource() === 'finnhub'"
+                  [class.bg-slate-800/50]="selectedDataSource() === 'finnhub' && themeService.isDark()"
+                  [class.bg-emerald-50]="selectedDataSource() === 'finnhub' && themeService.isLight()"
+                  [class.border-slate-700]="selectedDataSource() !== 'finnhub' && themeService.isDark()"
+                  [class.bg-slate-800/30]="selectedDataSource() !== 'finnhub' && themeService.isDark()"
+                  [class.border-gray-300]="selectedDataSource() !== 'finnhub' && themeService.isLight()"
+                  [class.bg-gray-50]="selectedDataSource() !== 'finnhub' && themeService.isLight()">
+            <div class="flex items-center justify-between mb-1">
+              <p class="text-sm font-semibold"
+                 [class.text-white]="themeService.isDark()"
+                 [class.text-gray-900]="themeService.isLight()">Finnhub</p>
+              <span class="text-xs rounded-full px-2 py-0.5 font-medium bg-emerald-500/20 text-emerald-400">Recommended</span>
+            </div>
+            <p class="text-xs"
+               [class.text-slate-400]="themeService.isDark()"
+               [class.text-gray-500]="themeService.isLight()">60 req/min free • NSE stocks</p>
+            <p class="text-xs mt-0.5"
+               [class.text-slate-500]="themeService.isDark()"
+               [class.text-gray-400]="themeService.isLight()">No credit card required</p>
+          </button>
+
+          <!-- Alpha Vantage -->
+          <button (click)="onDataSourceChange('alphavantage')"
+                  class="rounded-lg border-2 p-3 text-left transition"
+                  [class.border-emerald-500]="selectedDataSource() === 'alphavantage'"
+                  [class.bg-slate-800/50]="selectedDataSource() === 'alphavantage' && themeService.isDark()"
+                  [class.bg-emerald-50]="selectedDataSource() === 'alphavantage' && themeService.isLight()"
+                  [class.border-slate-700]="selectedDataSource() !== 'alphavantage' && themeService.isDark()"
+                  [class.bg-slate-800/30]="selectedDataSource() !== 'alphavantage' && themeService.isDark()"
+                  [class.border-gray-300]="selectedDataSource() !== 'alphavantage' && themeService.isLight()"
+                  [class.bg-gray-50]="selectedDataSource() !== 'alphavantage' && themeService.isLight()">
+            <div class="flex items-center justify-between mb-1">
+              <p class="text-sm font-semibold"
+                 [class.text-white]="themeService.isDark()"
+                 [class.text-gray-900]="themeService.isLight()">Alpha Vantage</p>
+              <span class="text-xs rounded-full px-2 py-0.5 font-medium bg-amber-500/20 text-amber-400">Fallback</span>
+            </div>
+            <p class="text-xs"
+               [class.text-slate-400]="themeService.isDark()"
+               [class.text-gray-500]="themeService.isLight()">25 req/day free • BSE stocks</p>
+            <p class="text-xs mt-0.5"
+               [class.text-slate-500]="themeService.isDark()"
+               [class.text-gray-400]="themeService.isLight()">Best for small watchlists</p>
+          </button>
+
+          <!-- Yahoo Finance -->
           <button (click)="onDataSourceChange('yahoo')"
-                  class="flex-1 rounded-lg border-2 p-4 transition"
+                  class="rounded-lg border-2 p-3 text-left transition"
                   [class.border-emerald-500]="selectedDataSource() === 'yahoo'"
                   [class.bg-slate-800/50]="selectedDataSource() === 'yahoo' && themeService.isDark()"
                   [class.bg-emerald-50]="selectedDataSource() === 'yahoo' && themeService.isLight()"
@@ -339,16 +391,20 @@
                   [class.bg-slate-800/30]="selectedDataSource() !== 'yahoo' && themeService.isDark()"
                   [class.border-gray-300]="selectedDataSource() !== 'yahoo' && themeService.isLight()"
                   [class.bg-gray-50]="selectedDataSource() !== 'yahoo' && themeService.isLight()">
-            <div class="mb-2 text-2xl">📈</div>
-            <p class="text-sm font-medium"
+            <p class="text-sm font-semibold mb-1"
                [class.text-white]="themeService.isDark()"
                [class.text-gray-900]="themeService.isLight()">Yahoo Finance</p>
-            <p class="text-xs mt-1"
+            <p class="text-xs"
                [class.text-slate-400]="themeService.isDark()"
-               [class.text-gray-500]="themeService.isLight()">Real-time data (15 min delay)</p>
+               [class.text-gray-500]="themeService.isLight()">15-min delay • No key needed</p>
+            <p class="text-xs mt-0.5"
+               [class.text-slate-500]="themeService.isDark()"
+               [class.text-gray-400]="themeService.isLight()">Requires Netlify proxy</p>
           </button>
+
+          <!-- Mock Data -->
           <button (click)="onDataSourceChange('mock')"
-                  class="flex-1 rounded-lg border-2 p-4 transition"
+                  class="rounded-lg border-2 p-3 text-left transition"
                   [class.border-emerald-500]="selectedDataSource() === 'mock'"
                   [class.bg-slate-800/50]="selectedDataSource() === 'mock' && themeService.isDark()"
                   [class.bg-emerald-50]="selectedDataSource() === 'mock' && themeService.isLight()"
@@ -356,52 +412,84 @@
                   [class.bg-slate-800/30]="selectedDataSource() !== 'mock' && themeService.isDark()"
                   [class.border-gray-300]="selectedDataSource() !== 'mock' && themeService.isLight()"
                   [class.bg-gray-50]="selectedDataSource() !== 'mock' && themeService.isLight()">
-            <div class="mb-2 text-2xl">🧪</div>
-            <p class="text-sm font-medium"
+            <p class="text-sm font-semibold mb-1"
                [class.text-white]="themeService.isDark()"
                [class.text-gray-900]="themeService.isLight()">Mock Data</p>
-            <p class="text-xs mt-1"
+            <p class="text-xs"
                [class.text-slate-400]="themeService.isDark()"
-               [class.text-gray-500]="themeService.isLight()">Demo/Testing purposes</p>
+               [class.text-gray-500]="themeService.isLight()">Random prices • No key needed</p>
+            <p class="text-xs mt-0.5"
+               [class.text-slate-500]="themeService.isDark()"
+               [class.text-gray-400]="themeService.isLight()">Demo / testing only</p>
           </button>
+
         </div>
       </div>
-      
-      <div class="rounded-lg p-3"
-           [class.bg-slate-800]="themeService.isDark()"
-           [class.bg-gray-100]="themeService.isLight()">
-        <div class="flex items-start gap-2">
-          @if (selectedDataSource() === 'yahoo') {
-            <span class="text-emerald-400">✓</span>
-            <div>
+
+      <!-- Info box: how live quotes work -->
+      @if (selectedDataSource() !== 'mock') {
+        <div class="rounded-lg p-3 flex items-start gap-2"
+             [class.bg-slate-800]="themeService.isDark()"
+             [class.bg-gray-100]="themeService.isLight()">
+          <svg class="h-4 w-4 mt-0.5 shrink-0 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div>
+            @if (selectedDataSource() === 'finnhub') {
               <p class="text-sm"
                  [class.text-slate-300]="themeService.isDark()"
                  [class.text-gray-700]="themeService.isLight()">
-                Using <strong>Yahoo Finance API</strong> for real stock prices
+                Quotes are fetched via the server using <strong>Finnhub</strong>.
+                No action needed — the API key is configured by the app admin.
               </p>
               <p class="text-xs mt-1"
                  [class.text-slate-400]="themeService.isDark()"
                  [class.text-gray-500]="themeService.isLight()">
-                NSE stocks with .NS suffix • 15-minute delayed quotes
+                NSE stocks (SYMBOL.NS) • Real-time prices • 60 req/min free tier
               </p>
-            </div>
-          } @else {
-            <span class="text-amber-400">⚠️</span>
-            <div>
+            } @else if (selectedDataSource() === 'alphavantage') {
               <p class="text-sm"
                  [class.text-slate-300]="themeService.isDark()"
                  [class.text-gray-700]="themeService.isLight()">
-                Using <strong>Mock Data</strong> with random price fluctuations
+                Quotes are fetched via the server using <strong>Alpha Vantage</strong>.
+                No action needed — the API key is configured by the app admin.
               </p>
               <p class="text-xs mt-1"
                  [class.text-slate-400]="themeService.isDark()"
                  [class.text-gray-500]="themeService.isLight()">
-                Great for testing • Prices change randomly on refresh
+                BSE stocks (SYMBOL.BSE) • 25 req/day free tier
               </p>
-            </div>
-          }
+            } @else {
+              <p class="text-sm"
+                 [class.text-slate-300]="themeService.isDark()"
+                 [class.text-gray-700]="themeService.isLight()">
+                Using <strong>Yahoo Finance</strong> via the server proxy.
+                No API key required.
+              </p>
+              <p class="text-xs mt-1"
+                 [class.text-slate-400]="themeService.isDark()"
+                 [class.text-gray-500]="themeService.isLight()">
+                NSE stocks (SYMBOL.NS) • 15-minute delayed quotes
+              </p>
+            }
+          </div>
         </div>
-      </div>
+      }
+      @if (selectedDataSource() === 'mock') {
+        <div class="rounded-lg p-3 flex items-start gap-2"
+             [class.bg-slate-800]="themeService.isDark()"
+             [class.bg-gray-100]="themeService.isLight()">
+          <svg class="h-4 w-4 mt-0.5 shrink-0 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+          <p class="text-sm"
+             [class.text-slate-300]="themeService.isDark()"
+             [class.text-gray-700]="themeService.isLight()">
+            Using <strong>Mock Data</strong> — prices are randomised on each refresh.
+            Switch to Finnhub for real NSE quotes.
+          </p>
+        </div>
+      }
       
       <!-- Clear Cache Button -->
       <div class="flex items-center justify-between pt-2 border-t"

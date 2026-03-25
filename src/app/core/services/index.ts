@@ -3,6 +3,7 @@
  */
 
 export * from './storage.service';
+export * from './network-status.service';
 export * from './portfolio.service';
 export * from './quote.service';
 export * from './settings.service';

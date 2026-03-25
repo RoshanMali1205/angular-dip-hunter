@@ -345,6 +345,53 @@
     </div>
   </div>
 
+  <!-- Delete Blocked Modal — stock has transactions -->
+  @if (deleteBlockedStock()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+         (click)="onDismissBlocked()">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+      <div class="relative w-full max-w-sm rounded-2xl border p-6 shadow-2xl"
+           [class.bg-slate-900]="themeService.isDark()"
+           [class.border-slate-700]="themeService.isDark()"
+           [class.bg-white]="themeService.isLight()"
+           [class.border-gray-200]="themeService.isLight()"
+           (click)="$event.stopPropagation()">
+        <!-- Lock icon -->
+        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
+             [class.bg-amber-500/20]="themeService.isDark()"
+             [class.bg-amber-50]="themeService.isLight()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h3 class="mb-1 text-center text-base font-semibold"
+            [class.text-white]="themeService.isDark()"
+            [class.text-gray-900]="themeService.isLight()">Cannot Remove Stock</h3>
+        <p class="mb-2 text-center text-sm"
+           [class.text-slate-400]="themeService.isDark()"
+           [class.text-gray-600]="themeService.isLight()">
+          <span class="font-semibold"
+                [class.text-white]="themeService.isDark()"
+                [class.text-gray-900]="themeService.isLight()">{{ deleteBlockedStock()?.stock?.symbol }}</span>
+          is part of your portfolio with
+          <span class="font-semibold text-amber-500">{{ deleteBlockedStock()?.txnCount }} transaction{{ deleteBlockedStock()!.txnCount > 1 ? 's' : '' }}</span>
+          logged against it.
+        </p>
+        <p class="mb-6 text-center text-xs"
+           [class.text-slate-500]="themeService.isDark()"
+           [class.text-gray-500]="themeService.isLight()">
+          Delete all transactions for this stock first, then you can remove it from the folder.
+        </p>
+        <button
+          type="button"
+          (click)="onDismissBlocked()"
+          class="w-full rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-amber-500">
+          Got it
+        </button>
+      </div>
+    </div>
+  }
+
   <!-- Delete Confirmation Modal -->
   @if (stockToDelete()) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4"

@@ -6,7 +6,7 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PortfolioService, LanguageService, ThemeService } from '../../core/services';
+import { PortfolioService, LanguageService, ThemeService, TransactionService } from '../../core/services';
 import { buildPageNumbers } from '../../shared/utils/pagination.utils';
 import { FolderId } from '../../core/models/folder.model';
 import { Stock } from '../../core/models/stock.model';
@@ -19,6 +19,7 @@ import { Stock } from '../../core/models/stock.model';
 })
 export class FoldersPageComponent {
   private portfolioService = inject(PortfolioService);
+  private transactionService = inject(TransactionService);
   readonly lang = inject(LanguageService);
   readonly themeService = inject(ThemeService);
 
@@ -27,6 +28,7 @@ export class FoldersPageComponent {
   showAddForm = signal(false);
   editingStock = signal<Stock | null>(null);
   stockToDelete = signal<Stock | null>(null);
+  deleteBlockedStock = signal<{ stock: Stock; txnCount: number } | null>(null);
   
   // Pagination state
   currentPage = signal(1);
@@ -142,7 +144,18 @@ export class FoldersPageComponent {
 
   onDeleteClick(stock: Stock, event: Event): void {
     event.stopPropagation();
+    const buys = this.transactionService.getBuysByStock(stock.id);
+    const divs = this.transactionService.getDividendsByStock(stock.id);
+    const txnCount = buys.length + divs.length;
+    if (txnCount > 0) {
+      this.deleteBlockedStock.set({ stock, txnCount });
+      return;
+    }
     this.stockToDelete.set(stock);
+  }
+
+  onDismissBlocked(): void {
+    this.deleteBlockedStock.set(null);
   }
 
   onConfirmDelete(): void {

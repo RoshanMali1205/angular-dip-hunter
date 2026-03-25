@@ -39,6 +39,16 @@
         "maxAge": "7d",
         "strategy": "freshness"
       }
+    },
+    {
+      "name": "quotes-api",
+      "urls": ["/.netlify/functions/quotes*", "/api/quotes*"],
+      "cacheConfig": {
+        "maxSize": 5,
+        "maxAge": "4h",
+        "timeout": "10s",
+        "strategy": "freshness"
+      }
     }
   ]
 }

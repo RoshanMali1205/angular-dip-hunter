@@ -38,6 +38,8 @@ export class SettingsPageComponent implements OnInit {
   refreshSeconds = signal(300);
   selectedRuleType = signal<RedRuleType>('CHANGE_PERCENT_NEGATIVE');
   selectedDataSource = signal<QuoteDataSource>('yahoo');
+  finnhubKeyInput = signal('');
+  alphaVantageKeyInput = signal('');
   
   // Display currency
   displayCurrency = computed(() => this.settingsService.displayCurrency());
@@ -66,6 +68,8 @@ export class SettingsPageComponent implements OnInit {
     this.thresholdValue.set(rule.threshold ?? 0);
     this.refreshSeconds.set(this.refreshIntervalSeconds());
     this.selectedDataSource.set(this.settings().quoteDataSource || 'yahoo');
+    this.finnhubKeyInput.set(this.settings().finnhubApiKey ?? '');
+    this.alphaVantageKeyInput.set(this.settings().alphaVantageApiKey ?? '');
     this.userName.set(this.userService.user().name);
   }
   
@@ -133,10 +137,19 @@ export class SettingsPageComponent implements OnInit {
   // Data Source settings
   onDataSourceChange(source: QuoteDataSource): void {
     this.selectedDataSource.set(source);
-    this.settingsService.updateSettings({
-      quoteDataSource: source
-    });
-    // Clear quote cache to force refresh with new source
+    this.settingsService.updateSettings({ quoteDataSource: source });
+    this.quoteService.clearCache();
+  }
+
+  onSaveFinnhubKey(): void {
+    const key = this.finnhubKeyInput().trim();
+    this.settingsService.updateSettings({ finnhubApiKey: key });
+    this.quoteService.clearCache();
+  }
+
+  onSaveAlphaVantageKey(): void {
+    const key = this.alphaVantageKeyInput().trim();
+    this.settingsService.updateSettings({ alphaVantageApiKey: key });
     this.quoteService.clearCache();
   }
   

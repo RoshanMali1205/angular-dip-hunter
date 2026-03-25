@@ -11,8 +11,9 @@
       </div>
       <button
         (click)="onRefresh()"
-        [disabled]="isLoading()"
-        class="mt-0.5 shrink-0 flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-emerald-900/30 transition hover:bg-emerald-500 active:scale-95 disabled:opacity-50">
+        [disabled]="isLoading() || networkStatus.isOffline()"
+        [title]="networkStatus.isOffline() ? 'Connect to the internet to refresh' : ''"
+        class="mt-0.5 shrink-0 flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-emerald-900/30 transition hover:bg-emerald-500 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
         @if (isLoading()) {
           <svg class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -32,17 +33,49 @@
          [class.text-gray-500]="themeService.isLight()">{{ lang.t('dashboard.subtitle') }}</p>
       @if (lastUpdated()) {
         <span class="shrink-0 text-xs flex items-center gap-1"
-              [class.text-slate-500]="themeService.isDark()"
-              [class.text-gray-400]="themeService.isLight()">
-          <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          {{ lang.t('dashboard.lastUpdated') }}: {{ lastUpdated() | date:'short' }}
+              [class.text-amber-400]="isStaleCache()"
+              [class.text-slate-500]="!isStaleCache() && themeService.isDark()"
+              [class.text-gray-400]="!isStaleCache() && themeService.isLight()">
+          @if (isStaleCache()) {
+            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+          } @else {
+            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          }
+          {{ lang.t('dashboard.lastUpdated') }}: {{ cacheAgeLabel() }}
+          @if (isStaleCache()) {
+            <span class="rounded px-1 py-0.5 text-xs font-semibold bg-amber-500/20 text-amber-400">stale</span>
+          }
         </span>
       }
     </div>
   </div>
 
-  <!-- Error Banner -->
-  @if (quoteError()) {
+  <!-- Offline Banner -->
+  @if (networkStatus.isOffline()) {
+    <div class="rounded-lg border px-4 py-2.5 text-xs flex items-center gap-2"
+         [class.border-blue-500/30]="themeService.isDark()"
+         [class.bg-blue-500/10]="themeService.isDark()"
+         [class.text-blue-300]="themeService.isDark()"
+         [class.border-blue-300]="themeService.isLight()"
+         [class.bg-blue-50]="themeService.isLight()"
+         [class.text-blue-700]="themeService.isLight()">
+      <!-- Wifi-off icon -->
+      <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M12 12h.01M3 3l18 18M9.879 9.879A5 5 0 0012 9c.88 0 1.7.23 2.415.635M6.343 6.343A9 9 0 0012 4.5c2.04 0 3.92.68 5.428 1.814" />
+      </svg>
+      <span>
+        <span class="font-semibold">You're offline.</span>
+        @if (cacheAgeLabel()) {
+          Showing cached prices from {{ cacheAgeLabel() }}.
+        } @else {
+          No cached prices available — connect to the internet to load quotes.
+        }
+      </span>
+    </div>
+  }
+
+  <!-- Fetch Error Banner (online but request failed) -->
+  @if (!networkStatus.isOffline() && quoteError()) {
     <div class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-300 flex items-center gap-2">
       <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
       <span class="font-medium">{{ quoteError() }}</span>

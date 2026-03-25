@@ -5,7 +5,7 @@
 import { CurrencyCode } from './currency.model';
 
 export type RedRuleType = 'CHANGE_PERCENT_NEGATIVE' | 'CHANGE_PERCENT_THRESHOLD' | 'BELOW_SMA';
-export type QuoteDataSource = 'mock' | 'yahoo';
+export type QuoteDataSource = 'mock' | 'yahoo' | 'finnhub' | 'alphavantage';
 
 export interface RedRule {
   type: RedRuleType;
@@ -19,7 +19,9 @@ export interface AppSettings {
 
   // Quote data source
   quoteDataSource: QuoteDataSource;
-  yahooProxyUrl: string;  // CORS proxy URL for Yahoo Finance
+  yahooProxyUrl: string;       // CORS proxy URL for Yahoo Finance
+  finnhubApiKey?: string;       // Finnhub API key (free at finnhub.io/register)
+  alphaVantageApiKey?: string;  // Alpha Vantage API key (free at alphavantage.co/support)
 
   // Quote refresh settings
   autoRefresh: boolean;
