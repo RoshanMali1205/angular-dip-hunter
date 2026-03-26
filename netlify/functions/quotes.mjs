@@ -18,6 +18,10 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json',
 };
 
+// Shared User-Agent for all outbound HTTP requests
+const UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
 // ─── Finnhub ────────────────────────────────────────────────────────────────
 
 /**
@@ -37,16 +41,30 @@ function toFinnhubSymbol(yahooSymbol) {
  * 60 req/min limit — well within range for 30 stocks.
  */
 async function fetchFromFinnhub(symbols, apiKey) {
+  let firstFailLogged = false; // log once per invocation to avoid 30 identical lines
+
   const requests = symbols.map(async (yahooSymbol) => {
     try {
       const finnhubSymbol = toFinnhubSymbol(yahooSymbol);
       const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(finnhubSymbol)}&token=${apiKey}`;
       const res = await fetch(url);
-      if (!res.ok) return null;
+      if (!res.ok) {
+        if (!firstFailLogged) {
+          firstFailLogged = true;
+          console.log(`[finnhub] ${finnhubSymbol}: HTTP ${res.status} — FINNHUB_API_KEY in Netlify env may be invalid or rate-limited`);
+        }
+        return null;
+      }
       const data = await res.json();
-      // pc === 0 means symbol not found or bad response
+      // pc === 0 means symbol not found or not in your Finnhub plan
       // c === 0 just means market is closed — pc (previous close) is still valid
-      if (!data || data.pc === 0) return null;
+      if (!data || data.pc === 0) {
+        if (!firstFailLogged) {
+          firstFailLogged = true;
+          console.log(`[finnhub] ${finnhubSymbol}: c=${data?.c} pc=${data?.pc} — symbol not found or NSE not included in your Finnhub plan`);
+        }
+        return null;
+      }
       return { yahooSymbol, data };
     } catch {
       return null;
@@ -108,10 +126,50 @@ async function fetchFromAlphaVantage(symbols, apiKey) {
   return results;
 }
 
-// ─── Yahoo Finance (fallback) ────────────────────────────────────────────────
+// ─── Stooq (cloud-safe fallback for Indian stocks) ───────────────────────────
+//
+// Stooq is a free financial data provider with no API key required.
+// It works reliably from cloud/serverless IPs (unlike Yahoo Finance).
+// Indian NSE stocks use lowercase .ns suffix: reliance.ns, hdfcbank.ns
+// CSV format: Symbol,Date,Time,Open,High,Low,Close,Volume
 
-const UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+async function fetchFromStooq(symbols) {
+  const requests = symbols.map(async (yahooSymbol) => {
+    try {
+      const stooqSym = yahooSymbol.toLowerCase(); // RELIANCE.NS → reliance.ns
+      const url =
+        `https://stooq.com/q/l/?s=${encodeURIComponent(stooqSym)}` +
+        `&f=sd2t2ohlcv&h&e=csv`;
+      const res = await fetch(url, { headers: { 'User-Agent': UA } });
+      if (!res.ok) return null;
+      const text = await res.text();
+      const lines = text.trim().split('\n');
+      if (lines.length < 2) return null;
+      const headers = lines[0].split(',').map(h => h.trim());
+      const values  = lines[1].split(',').map(v => v.trim());
+      const row = {};
+      headers.forEach((h, i) => { row[h] = values[i]; });
+      const price = parseFloat(row['Close'] || '0');
+      if (!price || price <= 0) return null;
+      return {
+        yahooSymbol,
+        price,
+        open:   parseFloat(row['Open']   || '0'),
+        high:   parseFloat(row['High']   || '0'),
+        low:    parseFloat(row['Low']    || '0'),
+        volume: parseInt(row['Volume']   || '0') || 0,
+      };
+    } catch {
+      return null;
+    }
+  });
+  const settled = await Promise.allSettled(requests);
+  return settled
+    .filter(r => r.status === 'fulfilled' && r.value !== null)
+    .map(r => r.value);
+}
+
+// ─── Yahoo Finance (last-resort) ─────────────────────────────────────────────
 
 let authCache = null;
 
@@ -315,6 +373,41 @@ export const handler = async (event) => {
     }
 
     const successCount = Object.keys(quotes).length;
+
+    // ── Stooq fallback: when primary source returns 0 quotes ─────────────────
+    // Triggered when Finnhub returns bad data (invalid key / NSE not in plan)
+    // or Yahoo Finance is blocked by cloud IP detection.
+    // Stooq is free, no-auth, and works from any server IP.
+    if (successCount === 0) {
+      const failedSource = source;
+      source = 'stooq';
+      console.log(`[quotes] ${failedSource} returned 0 quotes — falling back to Stooq`);
+
+      const stooqResults = await fetchFromStooq(symbols);
+      for (const { yahooSymbol, price, open, high, low, volume } of stooqResults) {
+        const baseSymbol = yahooSymbol.replace(/\.(NS|BSE|BO)$/i, '');
+        quotes[yahooSymbol] = {
+          symbol: baseSymbol,
+          yahooSymbol,
+          price,
+          previousClose: open, // best available proxy — Stooq basic endpoint has no explicit previousClose field
+          change: parseFloat((price - open).toFixed(2)),
+          changePercent: open > 0 ? parseFloat(((price - open) / open * 100).toFixed(2)) : 0,
+          dayHigh: high,
+          dayLow: low,
+          volume,
+          fiftyTwoWeekHigh: 0,
+          fiftyTwoWeekLow: 0,
+          currency: 'INR',
+          name: baseSymbol,
+          timestamp,
+          source: 'stooq',
+        };
+      }
+      console.log(`[quotes] Stooq fallback: ${Object.keys(quotes).length}/${symbols.length} symbols`);
+    }
+
+    const finalSuccessCount = Object.keys(quotes).length;
     const returnedSet = new Set(Object.keys(quotes));
     const errors = symbols
       .filter((s) => !returnedSet.has(s))
@@ -327,9 +420,9 @@ export const handler = async (event) => {
         quotes,
         meta: {
           requested: symbols.length,
-          success: successCount,
+          success: finalSuccessCount,
           cached: 0,
-          fetched: successCount,
+          fetched: finalSuccessCount,
           errors: errors.length,
           timestamp,
           source,
