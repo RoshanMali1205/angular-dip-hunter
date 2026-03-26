@@ -21,6 +21,17 @@ const CORS_HEADERS = {
 // ─── Finnhub ────────────────────────────────────────────────────────────────
 
 /**
+ * Convert Yahoo Finance symbol format to Finnhub format.
+ * Finnhub uses exchange-prefixed symbols: NSE:RELIANCE, BSE:RELIANCE
+ * Yahoo uses suffix format: RELIANCE.NS, RELIANCE.BO
+ */
+function toFinnhubSymbol(yahooSymbol) {
+  if (/\.NS$/i.test(yahooSymbol))          return 'NSE:' + yahooSymbol.replace(/\.NS$/i, '');
+  if (/\.(BO|BSE)$/i.test(yahooSymbol))    return 'BSE:' + yahooSymbol.replace(/\.(BO|BSE)$/i, '');
+  return yahooSymbol; // US stocks or already in exchange:symbol format
+}
+
+/**
  * Fetch all symbols from Finnhub in parallel.
  * Each symbol is fetched individually (no batch endpoint on free tier).
  * 60 req/min limit — well within range for 30 stocks.
@@ -28,7 +39,8 @@ const CORS_HEADERS = {
 async function fetchFromFinnhub(symbols, apiKey) {
   const requests = symbols.map(async (yahooSymbol) => {
     try {
-      const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(yahooSymbol)}&token=${apiKey}`;
+      const finnhubSymbol = toFinnhubSymbol(yahooSymbol);
+      const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(finnhubSymbol)}&token=${apiKey}`;
       const res = await fetch(url);
       if (!res.ok) return null;
       const data = await res.json();
@@ -264,7 +276,8 @@ export const handler = async (event) => {
     // ── Path 3: Yahoo Finance fallback ─────────────────────────────────────
     else {
       source = 'yahoo';
-      console.log(`[quotes] No API keys set — falling back to Yahoo Finance`);
+      const yahooReason = requestedSource === 'yahoo' ? 'client requested Yahoo Finance' : 'no API keys set';
+      console.log(`[quotes] Using Yahoo Finance (${yahooReason}) for ${symbols.length} symbols`);
 
       const symbolsJoined = symbols.join(',');
       let results;

@@ -239,10 +239,9 @@ export class QuoteService {
 
     return this.http.get<BatchQuotesResponse>(url).pipe(
       map(response => {
-        
         const quotes: Record<string, Quote> = {};
-        
-        Object.entries(response.quotes).forEach(([yahooSymbol, data]) => {
+
+        Object.entries(response.quotes ?? {}).forEach(([yahooSymbol, data]) => {
           const symbol = data.symbol; // Already stripped of .NS
           quotes[symbol] = {
             symbol,
@@ -257,15 +256,21 @@ export class QuoteService {
             fiftyTwoWeekHigh: data.fiftyTwoWeekHigh,
             fiftyTwoWeekLow: data.fiftyTwoWeekLow,
             timestamp: data.timestamp,
-            source: 'yahoo'
+            source: sourceHint as Quote['source']
           };
         });
-        
+
+        // Server returned no quotes (all symbols failed or API error returned HTTP 200).
+        // Throw so catchError falls back to mock data instead of caching empty results.
+        if (Object.keys(quotes).length === 0) {
+          const errDetail = response.errors?.map(e => e.error ?? e.symbol).join(', ') ?? 'unknown';
+          throw new Error(`Server returned 0 quotes. Errors: ${errDetail}`);
+        }
+
         return quotes;
       }),
       catchError(err => {
         console.error('[QuoteService] Batch fetch failed:', err);
-        // Fallback to mock data
         return this.generateMockQuotes(symbols);
       })
     );
@@ -282,7 +287,8 @@ export class QuoteService {
 
     const requests = symbols.map(symbol =>
       this.http.get<FinnhubQuoteResponse>(
-        `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol + '.NS')}&token=${encodeURIComponent(apiKey)}`
+        // Finnhub uses exchange-prefixed format: NSE:RELIANCE (not RELIANCE.NS)
+        `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent('NSE:' + symbol)}&token=${encodeURIComponent(apiKey)}`
       ).pipe(
         map(data => ({ symbol, data })),
         catchError(() => of({ symbol, data: null as FinnhubQuoteResponse | null }))
@@ -295,13 +301,15 @@ export class QuoteService {
         const now = new Date().toISOString();
 
         results.forEach(({ symbol, data }) => {
-          if (data && data.c > 0) {
+          // data.c === 0 means market closed — use previous close (pc) as price
+          if (data && (data.c > 0 || data.pc > 0)) {
+            const marketOpen = data.c > 0;
             quotes[symbol] = {
               symbol,
-              price: data.c,
+              price: marketOpen ? data.c : data.pc,
               currency: 'INR',
-              change: data.d ?? 0,
-              changePercent: data.dp ?? 0,
+              change: marketOpen ? (data.d ?? 0) : 0,
+              changePercent: marketOpen ? (data.dp ?? 0) : 0,
               previousClose: data.pc,
               dayHigh: data.h,
               dayLow: data.l,
@@ -388,6 +396,10 @@ export class QuoteService {
    * Update cache with new quotes
    */
   private updateCache(quotes: Record<string, Quote>): void {
+    // Don't overwrite a valid cache with empty data or update the "last fetched" timestamp.
+    // An empty result means the fetch failed silently — next load should retry.
+    if (Object.keys(quotes).length === 0) return;
+
     const now = new Date().toISOString();
     const merged = { ...this._quotesCache(), ...quotes };
     
