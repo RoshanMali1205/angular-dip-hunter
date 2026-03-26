@@ -184,6 +184,9 @@ export const handler = async (event) => {
     };
   }
 
+  // Client can request a specific source (overrides env-var auto-selection)
+  const requestedSource = event.queryStringParameters?.source; // 'yahoo' | 'finnhub' | 'alphavantage' | undefined
+
   const timestamp = new Date().toISOString();
   const finnhubKey = process.env.FINNHUB_API_KEY;
   const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
@@ -192,8 +195,8 @@ export const handler = async (event) => {
     const quotes = {};
     let source = 'yahoo';
 
-    // ── Path 1: Finnhub (when FINNHUB_API_KEY env var is set) ──────────────
-    if (finnhubKey) {
+    // ── Path 1: Finnhub (when key is available AND client wants finnhub or auto) ──
+    if (finnhubKey && requestedSource !== 'yahoo' && requestedSource !== 'alphavantage') {
       source = 'finnhub';
       console.log(`[quotes] Using Finnhub for ${symbols.length} symbols`);
 
@@ -226,8 +229,8 @@ export const handler = async (event) => {
       console.log(`[quotes] Finnhub OK — ${Object.keys(quotes).length}/${symbols.length} symbols`);
     }
 
-    // ── Path 2: Alpha Vantage (when ALPHA_VANTAGE_API_KEY env var is set) ──
-    else if (alphaVantageKey) {
+    // ── Path 2: Alpha Vantage (when key is available AND client wants alphavantage or auto) ──
+    else if (alphaVantageKey && requestedSource !== 'yahoo') {
       source = 'alphavantage';
       console.log(`[quotes] Using Alpha Vantage for ${symbols.length} symbols (batched, may be slow)`);
 

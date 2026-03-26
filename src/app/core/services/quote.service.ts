@@ -199,7 +199,8 @@ export class QuoteService {
       source === 'finnhub'      && hasClientFinnhubKey ? this.fetchFromFinnhub(symbols) :
       source === 'alphavantage' && hasClientAVKey       ? this.fetchFromAlphaVantage(symbols) :
       source === 'mock'                                 ? this.generateMockQuotes(symbols) :
-                                                         this.fetchFromYahooFinance(symbols);
+      source === 'yahoo'                                ? this.fetchFromYahooFinance(symbols, 'yahoo') :
+                                                         this.fetchFromYahooFinance(symbols, source);
 
     return fetchObservable.pipe(
       tap(quotes => {
@@ -219,7 +220,7 @@ export class QuoteService {
   /**
    * Fetch quotes from Yahoo Finance API via batch endpoint
    */
-  private fetchFromYahooFinance(symbols: string[]): Observable<Record<string, Quote>> {
+  private fetchFromYahooFinance(symbols: string[], sourceHint = 'yahoo'): Observable<Record<string, Quote>> {
     const settings = this.settingsService.settings();
     // Empty string = same origin (Netlify). Explicit URL = external proxy or local dev server.
     const baseUrl = settings.yahooProxyUrl ?? '';
@@ -234,7 +235,7 @@ export class QuoteService {
     const yahooSymbols = symbols.map(s => `${s}.NS`).join(',');
     // Use /.netlify/functions/quotes directly to avoid SPA catch-all redirect swallowing the request
     const functionPath = baseUrl ? `${baseUrl}/api/quotes` : '/.netlify/functions/quotes';
-    const url = `${functionPath}?symbols=${encodeURIComponent(yahooSymbols)}`;
+    const url = `${functionPath}?symbols=${encodeURIComponent(yahooSymbols)}&source=${encodeURIComponent(sourceHint)}`;
 
     return this.http.get<BatchQuotesResponse>(url).pipe(
       map(response => {
