@@ -7,7 +7,7 @@ import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService, Language } from '../../core/services/language.service';
 import { UserService } from '../../core/services/user.service';
 import { TourService } from '../../core/services/tour.service';
-import { QuoteService } from '../../core/services/quote.service';
+import { QuoteService, QuoteSourceAvailability } from '../../core/services/quote.service';
 import { DialogService } from '../../shared/components/dialog/dialog.service';
 import { CurrencySelectorComponent } from '../../shared/components/currency-selector/currency-selector.component';
 import { CurrencyService } from '../../core/services/currency.service';
@@ -40,6 +40,12 @@ export class SettingsPageComponent implements OnInit {
   selectedDataSource = signal<QuoteDataSource>('yahoo');
   finnhubKeyInput = signal('');
   alphaVantageKeyInput = signal('');
+  proxySources = signal<QuoteSourceAvailability>({
+    finnhub: false,
+    alphavantage: false,
+    yahoo: true,
+    mock: true
+  });
   
   // Display currency
   displayCurrency = computed(() => this.settingsService.displayCurrency());
@@ -71,6 +77,11 @@ export class SettingsPageComponent implements OnInit {
     this.finnhubKeyInput.set(this.settings().finnhubApiKey ?? '');
     this.alphaVantageKeyInput.set(this.settings().alphaVantageApiKey ?? '');
     this.userName.set(this.userService.user().name);
+
+    this.quoteService.getProxyCapabilities().subscribe(capabilities => {
+      this.proxySources.set(capabilities);
+      this.ensureSelectableDataSource();
+    });
   }
   
   // User Profile
@@ -135,7 +146,16 @@ export class SettingsPageComponent implements OnInit {
   }
   
   // Data Source settings
-  onDataSourceChange(source: QuoteDataSource): void {
+  async onDataSourceChange(source: QuoteDataSource): Promise<void> {
+    if (!this.isSourceSelectable(source)) {
+      const providerName = source === 'finnhub' ? 'Finnhub' : 'Alpha Vantage';
+      await this.dialog.alert(
+        `${providerName} is not configured on this server. Add your own API key below or ask the app admin to configure the server key before selecting it.`,
+        `${providerName} Unavailable`
+      );
+      return;
+    }
+
     this.selectedDataSource.set(source);
     this.settingsService.updateSettings({ quoteDataSource: source });
     this.quoteService.clearCache();
@@ -144,12 +164,59 @@ export class SettingsPageComponent implements OnInit {
   onSaveFinnhubKey(): void {
     const key = this.finnhubKeyInput().trim();
     this.settingsService.updateSettings({ finnhubApiKey: key });
+    this.ensureSelectableDataSource();
     this.quoteService.clearCache();
   }
 
   onSaveAlphaVantageKey(): void {
     const key = this.alphaVantageKeyInput().trim();
     this.settingsService.updateSettings({ alphaVantageApiKey: key });
+    this.ensureSelectableDataSource();
+    this.quoteService.clearCache();
+  }
+
+  hasClientKey(source: 'finnhub' | 'alphavantage'): boolean {
+    return source === 'finnhub'
+      ? this.finnhubKeyInput().trim().length > 0
+      : this.alphaVantageKeyInput().trim().length > 0;
+  }
+
+  isSourceSelectable(source: QuoteDataSource): boolean {
+    if (source === 'yahoo' || source === 'mock') {
+      return true;
+    }
+
+    return this.hasClientKey(source) || this.proxySources()[source];
+  }
+
+  isServerSourceAvailable(source: 'finnhub' | 'alphavantage'): boolean {
+    return this.proxySources()[source];
+  }
+
+  getSourceStatusLabel(source: 'finnhub' | 'alphavantage'): string {
+    if (this.hasClientKey(source)) {
+      return 'Personal key';
+    }
+
+    if (this.isServerSourceAvailable(source)) {
+      return 'Server configured';
+    }
+
+    return 'Not configured';
+  }
+
+  private ensureSelectableDataSource(): void {
+    const selectedSource = this.selectedDataSource();
+    if (selectedSource === 'yahoo' || selectedSource === 'mock') {
+      return;
+    }
+
+    if (this.isSourceSelectable(selectedSource)) {
+      return;
+    }
+
+    this.selectedDataSource.set('yahoo');
+    this.settingsService.updateSettings({ quoteDataSource: 'yahoo' });
     this.quoteService.clearCache();
   }
   

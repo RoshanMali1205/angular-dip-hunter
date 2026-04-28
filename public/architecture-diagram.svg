@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 640" width="940" height="640" font-family="'Segoe UI', system-ui, sans-serif">
+
+  <defs>
+    <marker id="arr"        markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#475569"/></marker>
+    <marker id="arrBlue"    markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/></marker>
+    <marker id="arrGreen"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker>
+    <marker id="arrGray"    markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#525252"/></marker>
+    <marker id="arrPurple"  markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6366f1"/></marker>
+    <marker id="arrViolet"  markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#a78bfa"/></marker>
+    <marker id="arrVioletL" markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto"><path d="M8,0 L8,6 L0,3 z" fill="#a78bfa"/></marker>
+    <marker id="arrRed"     markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#f97316"/></marker>
+    <marker id="arrRedL"    markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto"><path d="M8,0 L8,6 L0,3 z" fill="#f97316"/></marker>
+  </defs>
+
+  <!-- ── Background ── -->
+  <rect width="940" height="640" fill="#0f172a" rx="12"/>
+
+  <!-- ── Title ── -->
+  <text x="470" y="36" text-anchor="middle" fill="#f1f5f9" font-size="17" font-weight="700" letter-spacing="0.5">Angular Dip Hunter — Quote Fetch Architecture</text>
+  <text x="470" y="54" text-anchor="middle" fill="#64748b" font-size="11">Data source selection · Server-side fallback chain · Client cache layer</text>
+
+  <!-- ═══════════════════════════════════════════════════════
+       LEFT: ANGULAR CLIENT
+  ═══════════════════════════════════════════════════════ -->
+
+  <rect x="18" y="68" width="384" height="532" fill="#1e293b" rx="10" stroke="#334155" stroke-width="1.5"/>
+  <text x="210" y="88" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600" letter-spacing="1">ANGULAR CLIENT</text>
+
+  <!-- Angular App -->
+  <rect x="60" y="96" width="300" height="50" rx="8" fill="#1d4ed8" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="210" y="116" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Angular App</text>
+  <text x="210" y="133" text-anchor="middle" fill="#bfdbfe" font-size="10">QuoteService · Watchlist · Dashboard</text>
+
+  <!-- Arrow App → Cache -->
+  <line x1="210" y1="146" x2="210" y2="167" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="223" y="161" fill="#22d3ee" font-size="10">check TTL</text>
+
+  <!-- Cache Check -->
+  <rect x="60" y="168" width="300" height="64" rx="8" fill="#164e63" stroke="#0891b2" stroke-width="1.5"/>
+  <text x="210" y="188" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Cache Check</text>
+  <text x="210" y="204" text-anchor="middle" fill="#a5f3fc" font-size="10">localStorage · TTL-based expiry</text>
+  <text x="210" y="220" text-anchor="middle" fill="#a5f3fc" font-size="10">Source-aware invalidation</text>
+
+  <!-- Cache HIT path left -->
+  <path d="M60,200 Q24,200 24,310 Q24,420 60,420" fill="none" stroke="#0891b2" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrBlue)"/>
+  <text x="16" y="312" fill="#0891b2" font-size="9" font-weight="600" transform="rotate(-90,16,312)">CACHE HIT — serve cached quotes</text>
+
+  <!-- Arrow Cache → Offline -->
+  <line x1="210" y1="232" x2="210" y2="253" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="223" y="247" fill="#64748b" font-size="10">cache miss</text>
+
+  <!-- Offline Guard -->
+  <rect x="60" y="254" width="300" height="50" rx="8" fill="#1c1917" stroke="#57534e" stroke-width="1.5"/>
+  <text x="210" y="274" text-anchor="middle" fill="#d6d3d1" font-size="12" font-weight="700">Offline Guard</text>
+  <text x="210" y="290" text-anchor="middle" fill="#a8a29e" font-size="10">NetworkStatusService · serve cache immediately</text>
+
+  <!-- Arrow Offline → Source Selector -->
+  <line x1="210" y1="304" x2="210" y2="325" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="223" y="319" fill="#64748b" font-size="10">online</text>
+
+  <!-- Source Selector -->
+  <rect x="60" y="326" width="300" height="64" rx="8" fill="#312e81" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="210" y="347" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Source Selector</text>
+  <text x="210" y="363" text-anchor="middle" fill="#c7d2fe" font-size="10">Settings: yahoo · finnhub · alphavantage · mock</text>
+  <text x="210" y="379" text-anchor="middle" fill="#c7d2fe" font-size="10">Client key present? → direct call · else → Netlify proxy</text>
+
+  <!-- Arrow to Netlify (right) -->
+  <line x1="360" y1="358" x2="518" y2="358" stroke="#a78bfa" stroke-width="2" marker-end="url(#arrViolet)"/>
+  <text x="438" y="351" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">HTTPS / Netlify proxy</text>
+
+  <!-- Arrows Source Selector → Mock (left) and Direct (right peer) -->
+  <line x1="130" y1="390" x2="100" y2="411" stroke="#6366f1" stroke-width="1.2" marker-end="url(#arrPurple)"/>
+  <line x1="290" y1="390" x2="320" y2="411" stroke="#6366f1" stroke-width="1.2" marker-end="url(#arrPurple)"/>
+
+  <!-- Mock Data box -->
+  <rect x="60" y="412" width="128" height="50" rx="8" fill="#1a1a1a" stroke="#525252" stroke-width="1.5"/>
+  <text x="124" y="433" text-anchor="middle" fill="#a3a3a3" font-size="11" font-weight="600">Mock Data</text>
+  <text x="124" y="449" text-anchor="middle" fill="#737373" font-size="9">Seeded prices · ±3%</text>
+  <text x="124" y="460" text-anchor="middle" fill="#525252" font-size="9">Selected source</text>
+
+  <!-- Direct API box -->
+  <rect x="230" y="412" width="130" height="50" rx="8" fill="#1c1917" stroke="#78350f" stroke-width="1.5"/>
+  <text x="295" y="433" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="600">Direct API Call</text>
+  <text x="295" y="449" text-anchor="middle" fill="#92400e" font-size="9">Client key in Settings</text>
+  <text x="295" y="460" text-anchor="middle" fill="#78350f" font-size="9">Finnhub / Alpha Vantage</text>
+
+  <!-- Mock Data fallback box (final safety net) -->
+  <rect x="60" y="494" width="300" height="56" rx="8" fill="#1c0c00" stroke="#f97316" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="210" y="516" text-anchor="middle" fill="#fb923c" font-size="12" font-weight="700">Mock Data Fallback</text>
+  <text x="210" y="532" text-anchor="middle" fill="#fed7aa" font-size="10">Proxy error / 0 quotes returned → seeded mock data</text>
+  <text x="210" y="546" text-anchor="middle" fill="#9a3412" font-size="10">App stays usable · labelled "Mock" in UI</text>
+
+  <!-- Error fallback arrow from proxy response area down to Mock fallback -->
+  <line x1="330" y1="462" x2="348" y2="494" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrRed)"/>
+  <text x="355" y="482" fill="#f97316" font-size="9">error /</text>
+  <text x="355" y="493" fill="#f97316" font-size="9">0 quotes</text>
+
+  <!-- Cache Write -->
+  <rect x="60" y="562" width="300" height="28" rx="8" fill="#14532d" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="210" y="580" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Cache Write — merge · timestamp · localStorage</text>
+
+  <!-- Arrows → Cache Write -->
+  <line x1="124" y1="462" x2="124" y2="561" stroke="#525252" stroke-width="1" marker-end="url(#arrGray)"/>
+  <line x1="295" y1="462" x2="250" y2="561" stroke="#78350f" stroke-width="1" marker-end="url(#arrGray)"/>
+  <line x1="210" y1="550" x2="210" y2="561" stroke="#f97316" stroke-width="1" marker-end="url(#arrRed)"/>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       RIGHT: NETLIFY SERVERLESS FUNCTION
+  ═══════════════════════════════════════════════════════ -->
+
+  <rect x="418" y="68" width="504" height="532" fill="#1e293b" rx="10" stroke="#334155" stroke-width="1.5"/>
+  <text x="670" y="88" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600" letter-spacing="1">NETLIFY SERVERLESS FUNCTION  /.netlify/functions/quotes</text>
+  <text x="670" y="106" text-anchor="middle" fill="#64748b" font-size="10">Auto-selects source by env var · client can override via ?source= param</text>
+
+  <!-- ── ① Finnhub ── -->
+  <rect x="438" y="116" width="464" height="100" rx="8" fill="#0c2340" stroke="#0ea5e9" stroke-width="1.5"/>
+  <rect x="438" y="116" width="48" height="100" rx="8" fill="#0ea5e9"/>
+  <text x="462" y="161" text-anchor="middle" fill="#fff" font-size="14" font-weight="900" transform="rotate(-90,462,166)">①</text>
+  <text x="504" y="139" fill="#7dd3fc" font-size="12" font-weight="700">Finnhub</text>
+  <text x="504" y="156" fill="#bae6fd" font-size="10">NSE:SYMBOL format · 60 req/min free · no credit card</text>
+  <text x="504" y="172" fill="#bae6fd" font-size="10">Requires: FINNHUB_API_KEY env var in Netlify dashboard</text>
+  <text x="504" y="188" fill="#64748b" font-size="10">finnhub.io/api/v1/quote · parallel requests · market-closed safe (uses pc)</text>
+  <text x="504" y="204" fill="#0891b2" font-size="9">↳ Stooq CSV fallback if this returns 0 quotes (cloud IP safe)</text>
+
+  <!-- ── connector ① → ② ── -->
+  <line x1="670" y1="216" x2="670" y2="228" stroke="#475569" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="682" y="226" fill="#64748b" font-size="9">no key / 0 results</text>
+
+  <!-- ── ② Alpha Vantage ── -->
+  <rect x="438" y="228" width="464" height="100" rx="8" fill="#1a0d3d" stroke="#8b5cf6" stroke-width="1.5"/>
+  <rect x="438" y="228" width="48" height="100" rx="8" fill="#8b5cf6"/>
+  <text x="462" y="273" text-anchor="middle" fill="#fff" font-size="14" font-weight="900" transform="rotate(-90,462,278)">②</text>
+  <text x="504" y="251" fill="#ddd6fe" font-size="12" font-weight="700">Alpha Vantage</text>
+  <text x="504" y="268" fill="#ede9fe" font-size="10">SYMBOL.BSE format · 25 req/day free</text>
+  <text x="504" y="284" fill="#ede9fe" font-size="10">Requires: ALPHA_VANTAGE_API_KEY env var in Netlify dashboard</text>
+  <text x="504" y="300" fill="#64748b" font-size="10">alphavantage.co · batched 5/min with 12 s delay between batches</text>
+  <text x="504" y="316" fill="#8b5cf6" font-size="9">↳ Stooq CSV fallback if this returns 0 quotes (cloud IP safe)</text>
+
+  <!-- ── connector ② → ③ ── -->
+  <line x1="670" y1="328" x2="670" y2="340" stroke="#475569" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="682" y="338" fill="#64748b" font-size="9">no key / 0 results</text>
+
+  <!-- ── ③ Yahoo Finance ── -->
+  <rect x="438" y="340" width="464" height="110" rx="8" fill="#1f1400" stroke="#eab308" stroke-width="1.5"/>
+  <rect x="438" y="340" width="48" height="110" rx="8" fill="#eab308"/>
+  <text x="462" y="389" text-anchor="middle" fill="#422006" font-size="14" font-weight="900" transform="rotate(-90,462,395)">③</text>
+  <text x="504" y="363" fill="#fef08a" font-size="12" font-weight="700">Yahoo Finance</text>
+  <text x="504" y="380" fill="#fef9c3" font-size="10">SYMBOL.NS format · No API key required · default fallback</text>
+  <text x="504" y="396" fill="#fef9c3" font-size="10">Fast path: query2 (no crumb auth) — tried first</text>
+  <text x="504" y="412" fill="#fef9c3" font-size="10">Auth path: query1 (crumb + cookie, 25-min cache) — if fast fails</text>
+  <text x="504" y="428" fill="#eab308" font-size="9">↳ Stooq CSV fallback if Yahoo returns 0 quotes (blocked by cloud IP)</text>
+  <text x="504" y="440" fill="#64748b" font-size="9">stooq.com/q/l/ · symbol.ns lowercase · no auth · works from any server</text>
+
+  <!-- Response JSON arrow back to client -->
+  <line x1="438" y1="395" x2="361" y2="395" stroke="#a78bfa" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrVioletL)"/>
+  <text x="400" y="388" text-anchor="middle" fill="#a78bfa" font-size="9">JSON response</text>
+
+  <!-- ── Data Sources note ── -->
+  <rect x="438" y="464" width="464" height="100" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <text x="670" y="484" text-anchor="middle" fill="#8b949e" font-size="11" font-weight="700">External Data Sources</text>
+
+  <!-- Finnhub pill -->
+  <rect x="450" y="492" width="86" height="22" rx="11" fill="#0c2340" stroke="#0ea5e9" stroke-width="1"/>
+  <text x="493" y="507" text-anchor="middle" fill="#7dd3fc" font-size="10">finnhub.io</text>
+
+  <!-- Alpha Vantage pill -->
+  <rect x="546" y="492" width="110" height="22" rx="11" fill="#1a0d3d" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="601" y="507" text-anchor="middle" fill="#ddd6fe" font-size="10">alphavantage.co</text>
+
+  <!-- Yahoo pill -->
+  <rect x="666" y="492" width="120" height="22" rx="11" fill="#1f1400" stroke="#eab308" stroke-width="1"/>
+  <text x="726" y="507" text-anchor="middle" fill="#fef08a" font-size="10">query1/2.finance.yahoo</text>
+
+  <!-- Stooq pill -->
+  <rect x="796" y="492" width="84" height="22" rx="11" fill="#1c1917" stroke="#57534e" stroke-width="1"/>
+  <text x="838" y="507" text-anchor="middle" fill="#a8a29e" font-size="10">stooq.com</text>
+
+  <text x="670" y="534" text-anchor="middle" fill="#64748b" font-size="10">All outbound calls from Netlify function — Angular client never calls these APIs directly</text>
+  <text x="670" y="550" text-anchor="middle" fill="#64748b" font-size="10">(unless client API key is set in Settings, which bypasses the proxy entirely)</text>
+
+  <!-- ═══════════════════════════════════════════════════════
+       BOTTOM LEGEND
+  ═══════════════════════════════════════════════════════ -->
+  <rect x="18" y="608" width="904" height="26" rx="7" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <rect x="30"  y="617" width="9" height="9" rx="2" fill="#0ea5e9"/>  <text x="44"  y="626" fill="#94a3b8" font-size="10">Priority 1 (Finnhub)</text>
+  <rect x="152" y="617" width="9" height="9" rx="2" fill="#8b5cf6"/>  <text x="166" y="626" fill="#94a3b8" font-size="10">Priority 2 (Alpha Vantage)</text>
+  <rect x="304" y="617" width="9" height="9" rx="2" fill="#eab308"/>  <text x="318" y="626" fill="#94a3b8" font-size="10">Priority 3 (Yahoo Finance)</text>
+  <line x1="456" y1="621" x2="474" y2="621" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="478" y="626" fill="#94a3b8" font-size="10">Proxy call / response</text>
+  <line x1="580" y1="621" x2="598" y2="621" stroke="#0891b2" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="602" y="626" fill="#94a3b8" font-size="10">Cache hit path</text>
+  <line x1="678" y1="621" x2="696" y2="621" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="700" y="626" fill="#94a3b8" font-size="10">Error → Mock Data fallback</text>
+  <rect x="838" y="617" width="9" height="9" rx="2" fill="#57534e"/>  <text x="852" y="626" fill="#94a3b8" font-size="10">Stooq (auto)</text>
+
+</svg>

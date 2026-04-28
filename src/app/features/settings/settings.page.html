@@ -339,6 +339,7 @@
                   [class.border-emerald-500]="selectedDataSource() === 'finnhub'"
                   [class.bg-slate-800/50]="selectedDataSource() === 'finnhub' && themeService.isDark()"
                   [class.bg-emerald-50]="selectedDataSource() === 'finnhub' && themeService.isLight()"
+              [class.opacity-70]="!isSourceSelectable('finnhub')"
                   [class.border-slate-700]="selectedDataSource() !== 'finnhub' && themeService.isDark()"
                   [class.bg-slate-800/30]="selectedDataSource() !== 'finnhub' && themeService.isDark()"
                   [class.border-gray-300]="selectedDataSource() !== 'finnhub' && themeService.isLight()"
@@ -347,14 +348,27 @@
               <p class="text-sm font-semibold"
                  [class.text-white]="themeService.isDark()"
                  [class.text-gray-900]="themeService.isLight()">Finnhub</p>
-              <span class="text-xs rounded-full px-2 py-0.5 font-medium bg-emerald-500/20 text-emerald-400">Recommended</span>
+              <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                <span class="text-xs rounded-full px-2 py-0.5 font-medium bg-emerald-500/20 text-emerald-400">Recommended</span>
+                <span class="text-[10px] rounded-full px-2 py-0.5 font-medium"
+                      [class.bg-cyan-500/20]="hasClientKey('finnhub')"
+                      [class.text-cyan-400]="hasClientKey('finnhub')"
+                      [class.bg-emerald-500/20]="!hasClientKey('finnhub') && isServerSourceAvailable('finnhub')"
+                      [class.text-emerald-400]="!hasClientKey('finnhub') && isServerSourceAvailable('finnhub')"
+                      [class.bg-amber-500/20]="!hasClientKey('finnhub') && !isServerSourceAvailable('finnhub')"
+                      [class.text-amber-400]="!hasClientKey('finnhub') && !isServerSourceAvailable('finnhub')">
+                  {{ getSourceStatusLabel('finnhub') }}
+                </span>
+              </div>
             </div>
             <p class="text-xs"
                [class.text-slate-400]="themeService.isDark()"
                [class.text-gray-500]="themeService.isLight()">60 req/min free • NSE stocks</p>
             <p class="text-xs mt-0.5"
                [class.text-slate-500]="themeService.isDark()"
-               [class.text-gray-400]="themeService.isLight()">No credit card required</p>
+              [class.text-gray-400]="themeService.isLight()">
+              {{ isSourceSelectable('finnhub') ? 'No credit card required' : 'Needs server key or your own API key' }}
+            </p>
           </button>
 
           <!-- Alpha Vantage -->
@@ -363,6 +377,7 @@
                   [class.border-emerald-500]="selectedDataSource() === 'alphavantage'"
                   [class.bg-slate-800/50]="selectedDataSource() === 'alphavantage' && themeService.isDark()"
                   [class.bg-emerald-50]="selectedDataSource() === 'alphavantage' && themeService.isLight()"
+              [class.opacity-70]="!isSourceSelectable('alphavantage')"
                   [class.border-slate-700]="selectedDataSource() !== 'alphavantage' && themeService.isDark()"
                   [class.bg-slate-800/30]="selectedDataSource() !== 'alphavantage' && themeService.isDark()"
                   [class.border-gray-300]="selectedDataSource() !== 'alphavantage' && themeService.isLight()"
@@ -371,14 +386,27 @@
               <p class="text-sm font-semibold"
                  [class.text-white]="themeService.isDark()"
                  [class.text-gray-900]="themeService.isLight()">Alpha Vantage</p>
-              <span class="text-xs rounded-full px-2 py-0.5 font-medium bg-amber-500/20 text-amber-400">Fallback</span>
+              <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                <span class="text-xs rounded-full px-2 py-0.5 font-medium bg-amber-500/20 text-amber-400">Fallback</span>
+                <span class="text-[10px] rounded-full px-2 py-0.5 font-medium"
+                      [class.bg-cyan-500/20]="hasClientKey('alphavantage')"
+                      [class.text-cyan-400]="hasClientKey('alphavantage')"
+                      [class.bg-emerald-500/20]="!hasClientKey('alphavantage') && isServerSourceAvailable('alphavantage')"
+                      [class.text-emerald-400]="!hasClientKey('alphavantage') && isServerSourceAvailable('alphavantage')"
+                      [class.bg-amber-500/20]="!hasClientKey('alphavantage') && !isServerSourceAvailable('alphavantage')"
+                      [class.text-amber-400]="!hasClientKey('alphavantage') && !isServerSourceAvailable('alphavantage')">
+                  {{ getSourceStatusLabel('alphavantage') }}
+                </span>
+              </div>
             </div>
             <p class="text-xs"
                [class.text-slate-400]="themeService.isDark()"
                [class.text-gray-500]="themeService.isLight()">25 req/day free • BSE stocks</p>
             <p class="text-xs mt-0.5"
                [class.text-slate-500]="themeService.isDark()"
-               [class.text-gray-400]="themeService.isLight()">Best for small watchlists</p>
+              [class.text-gray-400]="themeService.isLight()">
+              {{ isSourceSelectable('alphavantage') ? 'Best for small watchlists' : 'Needs server key or your own API key' }}
+            </p>
           </button>
 
           <!-- Yahoo Finance -->
@@ -436,24 +464,60 @@
           </svg>
           <div>
             @if (selectedDataSource() === 'finnhub') {
-              <p class="text-sm"
-                 [class.text-slate-300]="themeService.isDark()"
-                 [class.text-gray-700]="themeService.isLight()">
-                Quotes are fetched via the server using <strong>Finnhub</strong>.
-                No action needed — the API key is configured by the app admin.
-              </p>
+              <div class="flex items-start justify-between gap-3">
+                <p class="text-sm"
+                   [class.text-slate-300]="themeService.isDark()"
+                   [class.text-gray-700]="themeService.isLight()">
+                  @if (hasClientKey('finnhub')) {
+                    Using your personal <strong>Finnhub</strong> API key directly from this device.
+                  } @else if (isServerSourceAvailable('finnhub')) {
+                    Quotes are fetched via the server using <strong>Finnhub</strong>.
+                    No action needed — the API key is configured by the app admin.
+                  } @else {
+                    <strong>Finnhub</strong> is not configured on this server yet.
+                    Add your own API key below or switch to Yahoo Finance.
+                  }
+                </p>
+                <span class="shrink-0 text-[10px] rounded-full px-2 py-0.5 font-medium"
+                      [class.bg-cyan-500/20]="hasClientKey('finnhub')"
+                      [class.text-cyan-400]="hasClientKey('finnhub')"
+                      [class.bg-emerald-500/20]="!hasClientKey('finnhub') && isServerSourceAvailable('finnhub')"
+                      [class.text-emerald-400]="!hasClientKey('finnhub') && isServerSourceAvailable('finnhub')"
+                      [class.bg-amber-500/20]="!hasClientKey('finnhub') && !isServerSourceAvailable('finnhub')"
+                      [class.text-amber-400]="!hasClientKey('finnhub') && !isServerSourceAvailable('finnhub')">
+                  {{ getSourceStatusLabel('finnhub') }}
+                </span>
+              </div>
               <p class="text-xs mt-1"
                  [class.text-slate-400]="themeService.isDark()"
                  [class.text-gray-500]="themeService.isLight()">
                 NSE stocks (SYMBOL.NS) • Real-time prices • 60 req/min free tier
               </p>
             } @else if (selectedDataSource() === 'alphavantage') {
-              <p class="text-sm"
-                 [class.text-slate-300]="themeService.isDark()"
-                 [class.text-gray-700]="themeService.isLight()">
-                Quotes are fetched via the server using <strong>Alpha Vantage</strong>.
-                No action needed — the API key is configured by the app admin.
-              </p>
+              <div class="flex items-start justify-between gap-3">
+                <p class="text-sm"
+                   [class.text-slate-300]="themeService.isDark()"
+                   [class.text-gray-700]="themeService.isLight()">
+                  @if (hasClientKey('alphavantage')) {
+                    Using your personal <strong>Alpha Vantage</strong> API key directly from this device.
+                  } @else if (isServerSourceAvailable('alphavantage')) {
+                    Quotes are fetched via the server using <strong>Alpha Vantage</strong>.
+                    No action needed — the API key is configured by the app admin.
+                  } @else {
+                    <strong>Alpha Vantage</strong> is not configured on this server yet.
+                    Add your own API key below or switch to Yahoo Finance.
+                  }
+                </p>
+                <span class="shrink-0 text-[10px] rounded-full px-2 py-0.5 font-medium"
+                      [class.bg-cyan-500/20]="hasClientKey('alphavantage')"
+                      [class.text-cyan-400]="hasClientKey('alphavantage')"
+                      [class.bg-emerald-500/20]="!hasClientKey('alphavantage') && isServerSourceAvailable('alphavantage')"
+                      [class.text-emerald-400]="!hasClientKey('alphavantage') && isServerSourceAvailable('alphavantage')"
+                      [class.bg-amber-500/20]="!hasClientKey('alphavantage') && !isServerSourceAvailable('alphavantage')"
+                      [class.text-amber-400]="!hasClientKey('alphavantage') && !isServerSourceAvailable('alphavantage')">
+                  {{ getSourceStatusLabel('alphavantage') }}
+                </span>
+              </div>
               <p class="text-xs mt-1"
                  [class.text-slate-400]="themeService.isDark()"
                  [class.text-gray-500]="themeService.isLight()">

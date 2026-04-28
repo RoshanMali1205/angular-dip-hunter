@@ -93,7 +93,12 @@
   <div class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5" data-tour="kpi-cards">
 
     <!-- Total Stocks -->
-    <div class="rounded-xl border-l-4 border-l-blue-500 p-4 relative overflow-hidden"
+        <div class="rounded-xl border-l-4 border-l-blue-500 p-4 relative overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          role="button"
+          tabindex="0"
+          aria-label="Jump to stock list"
+          (click)="jumpToSection('stock-table-section')"
+          (keydown)="onCardKeydown($event, 'stock-table-section')"
          [class.bg-slate-800/60]="themeService.isDark()"
          [class.border-t]="true" [class.border-r]="true" [class.border-b]="true"
          [class.border-slate-700/40]="themeService.isDark()"
@@ -123,7 +128,12 @@
     </div>
 
     <!-- Red Stocks -->
-    <div class="rounded-xl border-l-4 border-l-red-500 p-4 relative overflow-hidden"
+        <div class="rounded-xl border-l-4 border-l-red-500 p-4 relative overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          role="button"
+          tabindex="0"
+          aria-label="Jump to red candidates"
+          (click)="jumpToSection('red-candidates-section')"
+          (keydown)="onCardKeydown($event, 'red-candidates-section')"
          [class.bg-slate-800/60]="themeService.isDark()"
          [class.border-t]="true" [class.border-r]="true" [class.border-b]="true"
          [class.border-slate-700/40]="themeService.isDark()"
@@ -151,7 +161,12 @@
     </div>
 
     <!-- Total Invested -->
-    <div class="rounded-xl border-l-4 border-l-purple-500 p-4 relative overflow-hidden"
+        <div class="rounded-xl border-l-4 border-l-purple-500 p-4 relative overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          role="button"
+          tabindex="0"
+          aria-label="Jump to portfolio overview"
+          (click)="jumpToSection('portfolio-overview-section')"
+          (keydown)="onCardKeydown($event, 'portfolio-overview-section')"
          [class.bg-slate-800/60]="themeService.isDark()"
          [class.border-t]="true" [class.border-r]="true" [class.border-b]="true"
          [class.border-slate-700/40]="themeService.isDark()"
@@ -181,7 +196,12 @@
     </div>
 
     <!-- Current Value -->
-    <div class="rounded-xl border-l-4 border-l-cyan-500 p-4 relative overflow-hidden"
+        <div class="rounded-xl border-l-4 border-l-cyan-500 p-4 relative overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          role="button"
+          tabindex="0"
+          aria-label="Jump to portfolio overview"
+          (click)="jumpToSection('portfolio-overview-section')"
+          (keydown)="onCardKeydown($event, 'portfolio-overview-section')"
          [class.bg-slate-800/60]="themeService.isDark()"
          [class.border-t]="true" [class.border-r]="true" [class.border-b]="true"
          [class.border-slate-700/40]="themeService.isDark()"
@@ -211,7 +231,12 @@
     </div>
 
     <!-- Total P/L — most important card, slightly more prominent -->
-    <div class="rounded-xl border-l-4 p-4 relative overflow-hidden col-span-2 md:col-span-1"
+        <div class="rounded-xl border-l-4 p-4 relative overflow-hidden col-span-2 md:col-span-1 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          role="button"
+          tabindex="0"
+          aria-label="Jump to portfolio overview"
+          (click)="jumpToSection('portfolio-overview-section')"
+          (keydown)="onCardKeydown($event, 'portfolio-overview-section')"
          [class.border-l-emerald-500]="kpis().totalPL >= 0"
          [class.border-l-red-500]="kpis().totalPL < 0"
          [class.bg-slate-800/60]="themeService.isDark()"
@@ -252,7 +277,10 @@
   }
 
   <!-- Portfolio Overview Section -->
-  <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+    <div id="portfolio-overview-section"
+      class="grid grid-cols-1 gap-4 lg:grid-cols-3 rounded-xl transition-all duration-300"
+      [class.ring-2]="isSectionHighlighted('portfolio-overview-section')"
+      [class.ring-cyan-400]="isSectionHighlighted('portfolio-overview-section')">
 
     <!-- Holdings Pie Chart (2 cols) -->
     <div class="lg:col-span-2 rounded-xl border p-5"
@@ -451,7 +479,10 @@
       </div>
 
       <!-- Stock Table -->
-      <div class="rounded-xl border" data-tour="stock-list"
+       <div id="stock-table-section"
+         class="rounded-xl border transition-all duration-300" data-tour="stock-list"
+         [class.ring-2]="isSectionHighlighted('stock-table-section')"
+         [class.ring-blue-400]="isSectionHighlighted('stock-table-section')"
            [class.border-slate-700/50]="themeService.isDark()"
            [class.bg-slate-800/40]="themeService.isDark()"
            [class.border-gray-200]="themeService.isLight()"
@@ -703,7 +734,11 @@
     </div>
 
     <!-- Red Candidates Panel -->
-    <div class="lg:col-span-1 min-w-0" data-tour="red-candidates">
+    <div id="red-candidates-section"
+         class="lg:col-span-1 min-w-0 rounded-xl transition-all duration-300"
+         data-tour="red-candidates"
+         [class.ring-2]="isSectionHighlighted('red-candidates-section')"
+         [class.ring-red-400]="isSectionHighlighted('red-candidates-section')">
       <div class="rounded-xl border p-4 flex flex-col"
            [class.border-red-500/20]="themeService.isDark()"
            [class.bg-slate-800/40]="themeService.isDark()"

@@ -41,6 +41,22 @@ interface BatchQuotesResponse {
   errors?: { symbol: string; error?: string; status?: number }[];
 }
 
+interface QuoteProxyCapabilitiesResponse {
+  capabilities?: {
+    finnhub?: boolean;
+    alphavantage?: boolean;
+    yahoo?: boolean;
+  };
+  preferredSource?: string;
+}
+
+export interface QuoteSourceAvailability {
+  finnhub: boolean;
+  alphavantage: boolean;
+  yahoo: boolean;
+  mock: boolean;
+}
+
 // Finnhub single-quote response
 interface FinnhubQuoteResponse {
   c: number;   // Current price
@@ -270,7 +286,8 @@ export class QuoteService {
         return quotes;
       }),
       catchError(err => {
-        console.error('[QuoteService] Batch fetch failed:', err);
+        const reason = err instanceof Error ? err.message : 'Unknown proxy error';
+        console.warn(`[QuoteService] ${sourceHint} quotes unavailable, falling back to mock data: ${reason}`);
         return this.generateMockQuotes(symbols);
       })
     );
@@ -390,6 +407,31 @@ export class QuoteService {
    */
   refresh(symbols: string[]): Observable<Record<string, Quote>> {
     return this.fetchQuotes(symbols, true);
+  }
+
+  /**
+   * Discover which proxy-backed sources are configured on the current server.
+   */
+  getProxyCapabilities(): Observable<QuoteSourceAvailability> {
+    const settings = this.settingsService.settings();
+    const baseUrl = settings.yahooProxyUrl ?? '';
+    const functionPath = baseUrl ? `${baseUrl}/api/quotes` : '/.netlify/functions/quotes';
+    const url = `${functionPath}?capabilities=1`;
+
+    return this.http.get<QuoteProxyCapabilitiesResponse>(url).pipe(
+      map(response => ({
+        finnhub: Boolean(response.capabilities?.finnhub),
+        alphavantage: Boolean(response.capabilities?.alphavantage),
+        yahoo: response.capabilities?.yahoo !== false,
+        mock: true,
+      })),
+      catchError(() => of({
+        finnhub: false,
+        alphavantage: false,
+        yahoo: true,
+        mock: true,
+      }))
+    );
   }
 
   /**

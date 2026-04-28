@@ -236,6 +236,24 @@ export const handler = async (event) => {
     return { statusCode: 204, headers: CORS_HEADERS, body: '' };
   }
 
+  if (event.queryStringParameters?.capabilities === '1') {
+    const finnhubKey = process.env.FINNHUB_API_KEY;
+    const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
+
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({
+        capabilities: {
+          finnhub: Boolean(finnhubKey),
+          alphavantage: Boolean(alphaVantageKey),
+          yahoo: true,
+        },
+        preferredSource: finnhubKey ? 'finnhub' : (alphaVantageKey ? 'alphavantage' : 'yahoo'),
+      }),
+    };
+  }
+
   const symbolsParam = event.queryStringParameters?.symbols;
   if (!symbolsParam) {
     return {

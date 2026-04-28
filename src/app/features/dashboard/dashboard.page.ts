@@ -3,9 +3,10 @@
  * Main dashboard with folder view, KPIs, stock list, and red candidates
  */
 
-import { Component, OnInit, signal, computed, inject, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { QuoteDataSource } from '../../core/models/settings.model';
 import {
   PortfolioService,
   QuoteService,
@@ -20,6 +21,7 @@ import { TourService } from '../../core/services/tour.service';
 import { PriceAlertService } from '../../core/services/price-alert.service';
 import { FolderId } from '../../core/models/folder.model';
 import { StockViewModel, DashboardKPIs, Holding } from '../../core/models';
+import { DialogService } from '../../shared/components/dialog/dialog.service';
 import {
   SkeletonCardComponent,
   SkeletonStockRowComponent,
@@ -51,17 +53,19 @@ export interface ProgressMetric {
   ],
   templateUrl: './dashboard.page.html'
 })
-export class DashboardPageComponent implements OnInit {
+export class DashboardPageComponent implements OnInit, OnDestroy {
   private portfolioService = inject(PortfolioService);
   private quoteService = inject(QuoteService);
   private settingsService = inject(SettingsService);
   private plannerService = inject(PlannerService);
   private tourService = inject(TourService);
+  private dialog = inject(DialogService);
   readonly alertService = inject(PriceAlertService);
   public holdingsService = inject(HoldingsService);
 
   public themeService = inject(ThemeService);
   public lang = inject(LanguageService);
+  private highlightTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     // Show data source popup after the tour finishes for first-time users
@@ -81,6 +85,13 @@ export class DashboardPageComponent implements OnInit {
   isLoading = signal(false);
   pieGroupBy = signal<PieGroupBy>('stock');
   showDataSourceModal = signal(false);
+  highlightedSection = signal<string | null>(null);
+  proxySources = signal({
+    finnhub: false,
+    alphavantage: false,
+    yahoo: true,
+    mock: true,
+  });
   
   // Pagination
   currentPage = signal(1);
@@ -261,6 +272,9 @@ export class DashboardPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadQuotes();
+    this.quoteService.getProxyCapabilities().subscribe(capabilities => {
+      this.proxySources.set(capabilities);
+    });
 
     // If the tour is already completed (returning user who cleared dh_welcome_shown),
     // show the popup immediately since the tour won't run to trigger it.
@@ -270,7 +284,23 @@ export class DashboardPageComponent implements OnInit {
     }
   }
 
-  onChooseDataSource(source: 'yahoo' | 'mock'): void {
+  ngOnDestroy(): void {
+    if (this.highlightTimer) {
+      clearTimeout(this.highlightTimer);
+      this.highlightTimer = null;
+    }
+  }
+
+  async onChooseDataSource(source: QuoteDataSource): Promise<void> {
+    if (!this.isSourceSelectable(source)) {
+      const providerName = source === 'finnhub' ? 'Finnhub' : 'Alpha Vantage';
+      await this.dialog.alert(
+        `${providerName} is not configured on this server. Add a personal API key in Settings or ask the app admin to configure it before selecting this source.`,
+        `${providerName} Unavailable`
+      );
+      return;
+    }
+
     this.settingsService.updateSettings({ quoteDataSource: source });
     localStorage.setItem('dh_welcome_shown', '1');
     this.showDataSourceModal.set(false);
@@ -278,6 +308,19 @@ export class DashboardPageComponent implements OnInit {
     // so the next fetch uses the correct source
     this.quoteService.clearCache();
     this.loadQuotes();
+  }
+
+  private isSourceSelectable(source: QuoteDataSource): boolean {
+    if (source === 'yahoo' || source === 'mock') {
+      return true;
+    }
+
+    const settings = this.settingsService.settings();
+    const hasPersonalKey = source === 'finnhub'
+      ? Boolean(settings.finnhubApiKey?.trim())
+      : Boolean(settings.alphaVantageApiKey?.trim());
+
+    return hasPersonalKey || this.proxySources()[source];
   }
 
   /**
@@ -293,11 +336,11 @@ export class DashboardPageComponent implements OnInit {
   }
 
   /**
-   * Refresh quotes (bypass cache) — fetch all 30 stocks at once
+   * Refresh quotes (bypass cache) - fetch all 30 stocks at once
    */
   onRefresh(): void {
     this.isLoading.set(true);
-    const symbols = this.portfolioService.getActiveSymbols(); // all folders
+    const symbols = this.portfolioService.getActiveSymbols();
     this.quoteService.refresh(symbols).subscribe({
       next: () => this.isLoading.set(false),
       error: () => this.isLoading.set(false)
@@ -313,7 +356,7 @@ export class DashboardPageComponent implements OnInit {
     this.currentPage.set(1);
     this.loadQuotes();
   }
-  
+
   /**
    * Change page
    */
@@ -349,8 +392,6 @@ export class DashboardPageComponent implements OnInit {
 
   /**
    * Toggle price alert for a stock.
-   * If no alert is set, uses the current changePercent as the threshold (rounded down to nearest integer).
-   * If an alert is already set, removes it.
    */
   async onToggleAlert(vm: StockViewModel): Promise<void> {
     if (this.settingsService.hasAlert(vm.symbol)) {
@@ -358,37 +399,52 @@ export class DashboardPageComponent implements OnInit {
       return;
     }
 
-    // Request notification permission if needed
     if (this.alertService.permissionStatus() !== 'granted') {
       const perm = await this.alertService.requestPermission();
       if (perm !== 'granted') return;
     }
 
-    // Default threshold: -5% minimum dip to trigger alert
     const defaultThreshold = -5;
-
     this.settingsService.setAlert(vm.symbol, defaultThreshold);
   }
 
-  /** Whether an alert is set for a stock */
   hasAlert(symbol: string): boolean {
     return this.settingsService.hasAlert(symbol);
   }
 
+  jumpToSection(sectionId: string): void {
+    const target = document.getElementById(sectionId);
+    if (!target) return;
 
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    this.highlightedSection.set(sectionId);
 
-  /**
-   * Format percent
-   */
+    if (this.highlightTimer) {
+      clearTimeout(this.highlightTimer);
+    }
+
+    this.highlightTimer = setTimeout(() => {
+      this.highlightedSection.set(null);
+      this.highlightTimer = null;
+    }, 2000);
+  }
+
+  onCardKeydown(event: KeyboardEvent, sectionId: string): void {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    this.jumpToSection(sectionId);
+  }
+
+  isSectionHighlighted(sectionId: string): boolean {
+    return this.highlightedSection() === sectionId;
+  }
+
   formatPercent(value: number | undefined): string {
-    if (value === undefined) return '—';
+    if (value === undefined) return '-';
     const sign = value >= 0 ? '+' : '';
     return `${sign}${value.toFixed(2)}%`;
   }
 
-  /**
-   * Track by function for stock list
-   */
   trackByStock(index: number, vm: StockViewModel): string {
     return vm.stockId;
   }
