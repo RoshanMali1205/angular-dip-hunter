@@ -26,6 +26,9 @@ const EMAILJS_CONFIGURED =
   EMAILJS_CONFIG.templateId !== '' &&
   EMAILJS_CONFIG.publicKey !== '';
 
+const DEMO_RESET_LINK_ENABLED =
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
@@ -204,7 +207,7 @@ export class ForgotPasswordPageComponent {
     // Simulate a short delay for UX
     await new Promise(r => setTimeout(r, 800));
 
-    const token = this.authService.requestPasswordReset(this.email);
+    const token = await this.authService.requestPasswordReset(this.email);
 
     if (!token) {
       // Always show success even if email not found (security: don't reveal account existence)
@@ -217,8 +220,8 @@ export class ForgotPasswordPageComponent {
 
     if (EMAILJS_CONFIGURED) {
       await this.sendEmailViaEmailJS(this.email, resetLink);
-    } else {
-      // Demo mode: show the link on screen
+    } else if (DEMO_RESET_LINK_ENABLED) {
+      // Local dev mode only: show the link on screen
       this.demoResetLink.set(resetLink);
     }
 

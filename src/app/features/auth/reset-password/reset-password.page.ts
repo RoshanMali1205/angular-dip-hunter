@@ -254,9 +254,14 @@ export class ResetPasswordPageComponent implements OnInit {
   private token = '';
 
   ngOnInit(): void {
+    void this.initializeTokenValidation();
+  }
+
+  private async initializeTokenValidation(): Promise<void> {
     const token = this.route.snapshot.queryParamMap.get('token') ?? '';
     this.token = token;
-    if (!token || !this.authService.validateResetToken(token)) {
+    const validEmail = token ? await this.authService.validateResetToken(token) : null;
+    if (!validEmail) {
       this.tokenInvalid.set(true);
     }
   }
