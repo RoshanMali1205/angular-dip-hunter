@@ -344,6 +344,23 @@
         "description": "You now know the basics of Dip Hunter. Start exploring and happy investing! You can restart this tour anytime from Settings."
       },
       "restartTour": "Restart Tour"
+    },
+    "whatsNew": {
+      "label": "Product Updates",
+      "title": "What's New",
+      "subtitle": "Recent improvements in this release",
+      "gotIt": "Got it",
+      "viewChangelog": "View full changelog",
+      "tags": {
+        "new": "New",
+        "improved": "Improved",
+        "fix": "Fix"
+      },
+      "highlights": {
+        "versionAwareModal": "Added version-aware What's New modal support so updates can be announced clearly.",
+        "startupFlowGuarded": "Improved startup timing so update messaging does not interrupt first-time onboarding tour.",
+        "authRouteExcluded": "Adjusted route behavior to avoid showing product update modals on authentication screens."
+      }
     }
   },
   "hi": {
@@ -691,6 +708,23 @@
         "description": "अब आप डिप हंटर की मूल बातें जानते हैं। अन्वेषण शुरू करें और शुभ निवेश! आप इस टूर को कभी भी सेटिंग्स से पुनः शुरू कर सकते हैं।"
       },
       "restartTour": "टूर पुनः शुरू करें"
+    },
+    "whatsNew": {
+      "label": "प्रोडक्ट अपडेट्स",
+      "title": "क्या नया है",
+      "subtitle": "इस रिलीज में हाल के सुधार",
+      "gotIt": "ठीक है",
+      "viewChangelog": "पूरा चेंजलॉग देखें",
+      "tags": {
+        "new": "नया",
+        "improved": "बेहतर",
+        "fix": "फिक्स"
+      },
+      "highlights": {
+        "versionAwareModal": "वर्जन-आधारित 'क्या नया है' मोडल जोड़ा गया ताकि अपडेट स्पष्ट रूप से दिखाए जा सकें।",
+        "startupFlowGuarded": "स्टार्टअप समय में सुधार किया गया ताकि अपडेट संदेश पहली बार के ऑनबोर्डिंग टूर में बाधा न बने।",
+        "authRouteExcluded": "रूट व्यवहार अपडेट किया गया ताकि प्रोडक्ट अपडेट मोडल ऑथ स्क्रीन पर न दिखे।"
+      }
     }
   },
   "mr": {
@@ -1038,6 +1072,23 @@
         "description": "आता तुम्हाला डिप हंटरच्या मूलभूत गोष्टी माहित आहेत. शोधणे सुरू करा आणि शुभ गुंतवणूक! तुम्ही हा टूर कधीही सेटिंग्जमधून पुन्हा सुरू करू शकता."
       },
       "restartTour": "टूर पुन्हा सुरू करा"
+    },
+    "whatsNew": {
+      "label": "प्रॉडक्ट अपडेट्स",
+      "title": "नवीन काय",
+      "subtitle": "या रिलीजमधील अलीकडील सुधारणा",
+      "gotIt": "समजले",
+      "viewChangelog": "पूर्ण चेंजलॉग पहा",
+      "tags": {
+        "new": "नवीन",
+        "improved": "सुधारित",
+        "fix": "दुरुस्ती"
+      },
+      "highlights": {
+        "versionAwareModal": "अपडेट्स स्पष्ट दाखवण्यासाठी व्हर्जन-जाणणारा 'नवीन काय' मोडल जोडला आहे.",
+        "startupFlowGuarded": "स्टार्टअप वेळ सुधारली आहे जेणेकरून अपडेट संदेश प्रथमच ऑनबोर्डिंग टूरमध्ये अडथळा आणणार नाही.",
+        "authRouteExcluded": "ऑथ स्क्रीनवर प्रॉडक्ट अपडेट मोडल दिसू नये यासाठी रूट वर्तन सुधारले आहे."
+      }
     }
   }
 }

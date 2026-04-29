@@ -1,4 +1,4 @@
-import { Component, signal, inject, HostListener, ElementRef, OnInit, DestroyRef } from '@angular/core';
+import { Component, signal, inject, HostListener, ElementRef, OnInit, DestroyRef, effect } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
@@ -13,11 +13,14 @@ import { TourOverlayComponent } from './shared/components/tour-overlay/tour-over
 import { DialogComponent } from './shared/components/dialog/dialog.component';
 import { DialogService } from './shared/components/dialog/dialog.service';
 import { DASHBOARD_TOUR_STEPS } from './core/tour/tour.config';
+import { WhatsNewService } from './core/services/whats-new.service';
+import { WhatsNewRelease } from './core/config/app-release.config';
+import { WhatsNewModalComponent } from './shared/components/whats-new-modal/whats-new-modal.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent, DialogComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent, DialogComponent, WhatsNewModalComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -27,6 +30,8 @@ export class App implements OnInit {
   protected readonly showUserMenu = signal(false);
   protected readonly showLangMenu = signal(false);
   protected readonly isAuthPage = signal(false);
+  protected readonly showWhatsNewModal = signal(false);
+  protected readonly latestRelease = signal<WhatsNewRelease | null>(null);
 
   private readonly router = inject(Router);
   private readonly elementRef = inject(ElementRef);
@@ -34,6 +39,7 @@ export class App implements OnInit {
   private readonly swUpdate = inject(SwUpdate);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(DialogService);
+  private readonly whatsNewService = inject(WhatsNewService);
 
   // Close menus when clicking outside
   @HostListener('document:click', ['$event'])
@@ -64,6 +70,10 @@ export class App implements OnInit {
       this.isAuthPage.set(event.urlAfterRedirects.startsWith('/auth'));
       this.closeMobileMenu();
       this.showUserMenu.set(false);
+
+      if (this.isAuthPage()) {
+        this.showWhatsNewModal.set(false);
+      }
       
       // Re-highlight current step when navigating (for tour)
       if (this.tourService.isActive()) {
@@ -77,6 +87,19 @@ export class App implements OnInit {
           setTimeout(() => this.tourService.start(DASHBOARD_TOUR_STEPS), 1000);
         }
       }
+
+      this.tryShowWhatsNew();
+    });
+
+    effect(() => {
+      if (!this.tourService.justFinished()) {
+        return;
+      }
+
+      setTimeout(() => {
+        this.tryShowWhatsNew();
+        this.tourService.consumeJustFinished();
+      }, 0);
     });
   }
 
@@ -100,7 +123,43 @@ export class App implements OnInit {
       if (!this.tourService.isCompleted() && !this.isAuthPage()) {
         setTimeout(() => this.tourService.start(DASHBOARD_TOUR_STEPS), 1000);
       }
+
+      this.tryShowWhatsNew();
     }
+  }
+
+  closeWhatsNewModal(): void {
+    this.showWhatsNewModal.set(false);
+  }
+
+  private tryShowWhatsNew(): void {
+    if (!this.authService.isAuthenticated()) {
+      return;
+    }
+
+    if (this.isAuthPage() || this.router.url.startsWith('/auth')) {
+      return;
+    }
+
+    if (!this.tourService.isCompleted() || this.tourService.isActive()) {
+      return;
+    }
+
+    if (this.whatsNewService.seedCurrentVersionIfMissing()) {
+      return;
+    }
+
+    if (!this.whatsNewService.shouldShowWhatsNew()) {
+      return;
+    }
+
+    const release = this.whatsNewService.getLatestRelease();
+    if (!release) {
+      return;
+    }
+
+    this.latestRelease.set(release);
+    this.showWhatsNewModal.set(true);
   }
 
   toggleMobileMenu(): void {

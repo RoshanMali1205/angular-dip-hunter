@@ -9,7 +9,9 @@ import { LanguageService } from './core/services/language.service';
 import { UserService } from './core/services/user.service';
 import { AuthService } from './core/services/auth.service';
 import { TourService } from './core/services/tour.service';
+import { WhatsNewService } from './core/services/whats-new.service';
 import { DEFAULT_USER } from './core/models/user.model';
+import { WhatsNewRelease } from './core/config/app-release.config';
 
 // Minimal stubs – only surface what the template and constructor actually call.
 const mockThemeService = {
@@ -42,6 +44,8 @@ const mockTourService = {
   start: vi.fn(),
   setUser: vi.fn(),
   highlightCurrentStep: vi.fn(),
+  justFinished: signal(false),
+  consumeJustFinished: vi.fn(),
   steps: signal([]),
   currentIndex: signal(0),
 };
@@ -51,8 +55,23 @@ const mockSwUpdate = {
   versionUpdates: NEVER,
 };
 
+const mockWhatsNewService = {
+  seedCurrentVersionIfMissing: vi.fn().mockReturnValue(false),
+  shouldShowWhatsNew: vi.fn().mockReturnValue(false),
+  getLatestRelease: vi.fn().mockReturnValue(null),
+  markAsSeen: vi.fn(),
+};
+
+const releaseFixture: WhatsNewRelease = {
+  version: '1.1.0',
+  date: '2026-04-29',
+  highlights: [{ icon: 'spark', tag: 'new', textKey: 'whatsNew.highlights.versionAwareModal' }],
+};
+
 describe('App', () => {
   beforeEach(async () => {
+    vi.clearAllMocks();
+
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
@@ -62,6 +81,7 @@ describe('App', () => {
         { provide: UserService, useValue: mockUserService },
         { provide: AuthService, useValue: mockAuthService },
         { provide: TourService, useValue: mockTourService },
+        { provide: WhatsNewService, useValue: mockWhatsNewService },
         { provide: SwUpdate, useValue: mockSwUpdate },
       ],
     }).compileComponents();
@@ -107,5 +127,66 @@ describe('App', () => {
     const app = fixture.componentInstance;
 
     expect((app as unknown as { title: ReturnType<typeof signal> }).title()).toBe('Dip Hunter');
+  });
+
+  it('renders whats new modal when modal flag is true and release exists', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as unknown as {
+      showWhatsNewModal: ReturnType<typeof signal<boolean>>;
+      latestRelease: ReturnType<typeof signal<WhatsNewRelease | null>>;
+    };
+
+    app.latestRelease.set(releaseFixture);
+    app.showWhatsNewModal.set(true);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-whats-new-modal')).toBeTruthy();
+  });
+
+  it('hides whats new modal when closeWhatsNewModal() is called', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as unknown as {
+      showWhatsNewModal: ReturnType<typeof signal<boolean>>;
+      closeWhatsNewModal: () => void;
+    };
+
+    app.showWhatsNewModal.set(true);
+    app.closeWhatsNewModal();
+
+    expect(app.showWhatsNewModal()).toBe(false);
+  });
+
+  it('seeds whats new version after onboarding completion without showing modal', () => {
+    mockAuthService.isAuthenticated.mockReturnValue(true);
+    mockTourService.isCompleted.mockReturnValue(true);
+    mockTourService.isActive.mockReturnValue(false);
+    mockWhatsNewService.seedCurrentVersionIfMissing.mockReturnValue(true);
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    expect(mockWhatsNewService.seedCurrentVersionIfMissing).toHaveBeenCalled();
+    expect(mockWhatsNewService.shouldShowWhatsNew).not.toHaveBeenCalled();
+  });
+
+  it('re-checks whats new when tour just finished signal is emitted', () => {
+    vi.useFakeTimers();
+    mockAuthService.isAuthenticated.mockReturnValue(true);
+    mockTourService.isCompleted.mockReturnValue(true);
+    mockTourService.isActive.mockReturnValue(false);
+    mockWhatsNewService.seedCurrentVersionIfMissing.mockReturnValue(false);
+    mockWhatsNewService.shouldShowWhatsNew.mockReturnValue(false);
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const initialCalls = mockWhatsNewService.shouldShowWhatsNew.mock.calls.length;
+    mockTourService.justFinished.set(true);
+    vi.runAllTimers();
+
+    expect(mockWhatsNewService.shouldShowWhatsNew.mock.calls.length).toBeGreaterThan(initialCalls);
+    expect(mockTourService.consumeJustFinished).toHaveBeenCalled();
+    vi.useRealTimers();
   });
 });

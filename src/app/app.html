@@ -476,6 +476,13 @@
 <!-- Custom Dialog (Global) -->
 <app-dialog />
 
+<!-- What's New Modal (Global) -->
+@if (showWhatsNewModal()) {
+  @if (latestRelease(); as release) {
+    <app-whats-new-modal [release]="release" (closed)="closeWhatsNewModal()" />
+  }
+}
+
 <!-- Mobile Bottom Navigation Bar (PWA - visible only on mobile) -->
 @if (!isAuthPage()) {
 <nav class="fixed bottom-0 left-0 right-0 z-40 md:hidden border-t backdrop-blur-xl"
