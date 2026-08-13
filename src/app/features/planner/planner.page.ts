@@ -3,7 +3,7 @@
  * Create and manage monthly purchase plans
  */
 
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PlannerService, QuoteService, PortfolioService, SettingsService, LanguageService, ThemeService, DraftsService } from '../../core/services';
@@ -47,6 +47,21 @@ export class PlannerPageComponent implements OnInit {
   selectedAllocationStrategy = signal<AdvisorStrategy>('equal');
   showStrategySection = signal(true);
 
+  /** Avoid clobbering in-progress budget edits when plan items change */
+  private lastSyncedPlanId: string | null = null;
+
+  constructor() {
+    // Keep the budget field aligned with the selected plan (on plan/month switch)
+    effect(() => {
+      const plan = this.currentPlan();
+      if (!plan || plan.id === this.lastSyncedPlanId) return;
+      untracked(() => {
+        this.lastSyncedPlanId = plan.id;
+        this.budget.set(plan.budget);
+      });
+    });
+  }
+
   /** All plans for the selected month */
   plansForMonth = computed(() =>
     this.plannerService.getPlansForMonth(this.selectedMonth())
@@ -56,10 +71,17 @@ export class PlannerPageComponent implements OnInit {
     const planId = this.selectedPlanId();
     const plans = this.plansForMonth();
     if (planId) {
-      return plans.find(p => p.id === planId) || plans[0] || undefined;
+      return plans.find(p => p.id === planId) || this.preferEditablePlan(plans);
     }
-    return plans[0] || undefined;
+    // Default to an editable draft so stocks added from the dashboard red list
+    // are visible immediately (FINAL plans are often created first and would
+    // otherwise hide the new draft).
+    return this.preferEditablePlan(plans);
   });
+
+  private preferEditablePlan(plans: MonthlyPlan[]): MonthlyPlan | undefined {
+    return plans.find(p => p.status === 'DRAFT') || plans[0] || undefined;
+  }
 
   isPlanLocked = computed(() =>
     this.currentPlan()?.status === 'FINAL'
@@ -161,11 +183,13 @@ export class PlannerPageComponent implements OnInit {
 
   onMonthChange(month: string): void {
     this.selectedMonth.set(month);
-    this.selectedPlanId.set(null); // reset to first plan
+    this.selectedPlanId.set(null); // reset → prefer draft via currentPlan
+    this.lastSyncedPlanId = null; // force budget resync
   }
 
   onSelectPlan(planId: string): void {
     this.selectedPlanId.set(planId);
+    this.lastSyncedPlanId = null; // force budget resync for the new plan
   }
 
   async onCreatePlan(): Promise<void> {
@@ -177,6 +201,7 @@ export class PlannerPageComponent implements OnInit {
       name = input.trim() || `Plan ${existingPlans.length + 1}`;
     }
     const plan = this.plannerService.getOrCreatePlan(this.selectedMonth(), name);
+    this.lastSyncedPlanId = null;
     this.selectedPlanId.set(plan.id);
   }
 
@@ -239,7 +264,7 @@ export class PlannerPageComponent implements OnInit {
     });
 
     // Apply allocation amounts & quantities to the freshly added items
-    const refreshedPlan = this.plannerService.getPlanForMonth(this.selectedMonth());
+    const refreshedPlan = this.plannerService.getPlanById(plan.id);
     if (!refreshedPlan) return;
 
     const updatedItems = refreshedPlan.items.map(item => {

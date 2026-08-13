@@ -386,7 +386,12 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
    * Creates a new draft when the only plan(s) for the month are finalized.
    */
   async onAddToPlan(vm: StockViewModel): Promise<void> {
-    const plan = this.plannerService.getOrCreatePlan(this.plannerService.currentMonth);
+    const month = this.plannerService.currentMonth;
+    const existingIds = new Set(
+      this.plannerService.getPlansForMonth(month).map(p => p.id)
+    );
+    const plan = this.plannerService.getOrCreatePlan(month);
+    const createdNewPlan = !existingIds.has(plan.id);
 
     if (plan.status === 'FINAL') {
       await this.dialog.alert(
@@ -403,6 +408,16 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
       await this.dialog.alert(
         'Could not add this stock to the plan. It may already be included, or the plan is locked.',
         'Add Failed'
+      );
+      return;
+    }
+
+    // Only interrupt when we had to spin up a new draft (common after finalizing)
+    if (createdNewPlan) {
+      const planLabel = plan.name || 'a new draft plan';
+      await this.dialog.alert(
+        `Added ${vm.symbol} to ${planLabel}. Open Planner to set a budget and allocate.`,
+        'Added to New Plan'
       );
     }
   }
