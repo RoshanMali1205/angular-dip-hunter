@@ -138,7 +138,7 @@ describe('App', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const brandImg = compiled.querySelector('header img[alt="Indian flag"]') as HTMLImageElement | null;
+    const brandImg = compiled.querySelector('header img[alt="Dip Hunter Independence Day icon"]') as HTMLImageElement | null;
     expect(brandImg).toBeTruthy();
     expect(brandImg?.getAttribute('src')).toContain('icons-india/');
   });
@@ -152,7 +152,7 @@ describe('App', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('header img[alt="Indian flag"]')).toBeNull();
+    expect(compiled.querySelector('header img[alt="Dip Hunter Independence Day icon"]')).toBeNull();
   });
 
   it('renders whats new modal when modal flag is true and release exists', () => {

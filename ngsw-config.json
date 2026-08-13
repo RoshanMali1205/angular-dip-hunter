@@ -26,6 +26,7 @@
       "resources": {
         "files": [
           "/icons/*",
+          "/icons-default/*",
           "/icons-india/*",
           "/assets/**/*",
           "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
