@@ -382,12 +382,44 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Add stock to current month's plan
+   * Add stock to current month's editable (draft) plan.
+   * Creates a new draft when the only plan(s) for the month are finalized.
    */
-  onAddToPlan(vm: StockViewModel): void {
-    const plan = this.plannerService.getOrCreatePlan(this.plannerService.currentMonth);
+  async onAddToPlan(vm: StockViewModel): Promise<void> {
+    const month = this.plannerService.currentMonth;
+    const existingIds = new Set(
+      this.plannerService.getPlansForMonth(month).map(p => p.id)
+    );
+    const plan = this.plannerService.getOrCreatePlan(month);
+    const createdNewPlan = !existingIds.has(plan.id);
+
+    if (plan.status === 'FINAL') {
+      await this.dialog.alert(
+        'The current plan is finalized and cannot be edited. Create a new plan in Planner to add stocks.',
+        'Plan Locked'
+      );
+      return;
+    }
+
     const quote = this.quoteService.getQuote(vm.symbol);
-    this.plannerService.addItem(plan.id, vm.stockId, vm.symbol, quote);
+    const item = this.plannerService.addItem(plan.id, vm.stockId, vm.symbol, quote);
+
+    if (!item) {
+      await this.dialog.alert(
+        'Could not add this stock to the plan. It may already be included, or the plan is locked.',
+        'Add Failed'
+      );
+      return;
+    }
+
+    // Only interrupt when we had to spin up a new draft (common after finalizing)
+    if (createdNewPlan) {
+      const planLabel = plan.name || 'a new draft plan';
+      await this.dialog.alert(
+        `Added ${vm.symbol} to ${planLabel}. Open Planner to set a budget and allocate.`,
+        'Added to New Plan'
+      );
+    }
   }
 
   /**

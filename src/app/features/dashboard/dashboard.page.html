@@ -504,7 +504,7 @@
               <th class="px-3 py-2.5 text-right">{{ lang.t('dashboard.change') }}</th>
               <th class="px-3 py-2.5 text-center">{{ lang.t('dashboard.status') }}</th>
               <th class="hidden md:table-cell px-3 py-2.5 text-right">{{ lang.t('dashboard.holdings') }}</th>
-              <th class="hidden md:table-cell px-3 py-2.5 w-20"></th>
+              <th class="px-3 py-2.5 w-20 text-right"></th>
             </tr>
           </thead>
           <tbody class="divide-y"
@@ -587,13 +587,13 @@
                       <span class="text-xs" [class.text-slate-600]="themeService.isDark()" [class.text-gray-300]="themeService.isLight()">—</span>
                     }
                   </td>
-                  <td class="hidden md:table-cell px-3 py-2 text-right">
+                  <td class="px-3 py-2 text-right">
                     <div class="flex items-center justify-end gap-1.5">
                       <!-- Bell alert toggle -->
                       <button
                         (click)="onToggleAlert(vm)"
                         [title]="hasAlert(vm.symbol) ? 'Remove dip alert for ' + vm.symbol : 'Set dip alert for ' + vm.symbol"
-                        class="rounded p-1 transition"
+                        class="rounded p-1 transition hidden sm:inline-flex"
                         [class.text-amber-400]="hasAlert(vm.symbol)"
                         [class.hover:text-amber-300]="hasAlert(vm.symbol)"
                         [class.text-slate-500]="!hasAlert(vm.symbol) && themeService.isDark()"
