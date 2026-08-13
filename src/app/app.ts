@@ -16,11 +16,12 @@ import { DASHBOARD_TOUR_STEPS } from './core/tour/tour.config';
 import { WhatsNewService } from './core/services/whats-new.service';
 import { WhatsNewRelease } from './core/config/app-release.config';
 import { WhatsNewModalComponent } from './shared/components/whats-new-modal/whats-new-modal.component';
+import { IndependenceDayFlagComponent } from './shared/components/independence-day-flag/independence-day-flag.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent, DialogComponent, WhatsNewModalComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent, DialogComponent, WhatsNewModalComponent, IndependenceDayFlagComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

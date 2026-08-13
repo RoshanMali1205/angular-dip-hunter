@@ -470,6 +470,11 @@
   }
 </div>
 
+<!-- Independence Day flag (visible until 15 Aug EOD IST) -->
+@if (!isAuthPage()) {
+  <app-independence-day-flag />
+}
+
 <!-- Tour Overlay (Global) -->
 <app-tour-overlay />
 
