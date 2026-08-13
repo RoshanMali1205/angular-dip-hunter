@@ -76,14 +76,29 @@ export class PlannerService {
   }
 
   /**
-   * Get or create plan for a month
+   * Get the first editable (DRAFT) plan for a month, if any
+   */
+  getDraftPlanForMonth(month: string): MonthlyPlan | undefined {
+    return this.getPlansForMonth(month).find(p => p.status === 'DRAFT');
+  }
+
+  /**
+   * Get or create an editable plan for a month.
+   * Prefer an existing DRAFT — never return a FINAL plan for mutation flows
+   * (dashboard red-list add, draft load, etc.), since addItem rejects FINAL.
    */
   getOrCreatePlan(month: string, name?: string): MonthlyPlan {
-    const plans = this.getPlansForMonth(month);
-    if (plans.length > 0 && !name) {
-      return plans[0];
+    if (name) {
+      return this.createPlan(month, 0, 'EQUAL_WEIGHT', name);
     }
-    return this.createPlan(month, 0, 'EQUAL_WEIGHT', name);
+
+    const draft = this.getDraftPlanForMonth(month);
+    if (draft) {
+      return draft;
+    }
+
+    // No draft yet (none, or only FINAL plans) — create a new editable plan
+    return this.createPlan(month, 0, 'EQUAL_WEIGHT');
   }
 
   /**
@@ -289,11 +304,12 @@ export class PlannerService {
   }
 
   /**
-   * Check if stock is in current plan
+   * Check if stock is already in an editable (DRAFT) plan for the current month.
+   * Stocks only present on FINAL plans remain addable to a new draft.
    */
   isInCurrentPlan(stockId: string): boolean {
-    const plan = this.getCurrentPlan();
-    return plan?.items.some(i => i.stockId === stockId) ?? false;
+    const draft = this.getDraftPlanForMonth(this.currentMonth);
+    return draft?.items.some(i => i.stockId === stockId) ?? false;
   }
 
   /**

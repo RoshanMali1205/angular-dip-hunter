@@ -284,6 +284,17 @@
         <div class="divide-y max-h-[480px] overflow-y-auto"
              [class.divide-slate-700/30]="themeService.isDark()"
              [class.divide-gray-100]="themeService.isLight()">
+          @if (isPlanLocked()) {
+            <div class="px-4 py-3 text-xs border-b"
+                 [class.border-amber-500/20]="themeService.isDark()"
+                 [class.bg-amber-500/10]="themeService.isDark()"
+                 [class.text-amber-300]="themeService.isDark()"
+                 [class.border-amber-200]="themeService.isLight()"
+                 [class.bg-amber-50]="themeService.isLight()"
+                 [class.text-amber-700]="themeService.isLight()">
+              This plan is finalized. Create a <button type="button" (click)="onCreatePlan()" class="font-semibold underline underline-offset-2 hover:no-underline">new plan</button> to add red stocks.
+            </div>
+          }
           @for (vm of availableRedStocks(); track vm.stockId) {
             <div class="flex items-center justify-between px-4 py-3 transition group"
                  [class.hover:bg-slate-800/60]="themeService.isDark()"

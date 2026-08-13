@@ -382,12 +382,29 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Add stock to current month's plan
+   * Add stock to current month's editable (draft) plan.
+   * Creates a new draft when the only plan(s) for the month are finalized.
    */
-  onAddToPlan(vm: StockViewModel): void {
+  async onAddToPlan(vm: StockViewModel): Promise<void> {
     const plan = this.plannerService.getOrCreatePlan(this.plannerService.currentMonth);
+
+    if (plan.status === 'FINAL') {
+      await this.dialog.alert(
+        'The current plan is finalized and cannot be edited. Create a new plan in Planner to add stocks.',
+        'Plan Locked'
+      );
+      return;
+    }
+
     const quote = this.quoteService.getQuote(vm.symbol);
-    this.plannerService.addItem(plan.id, vm.stockId, vm.symbol, quote);
+    const item = this.plannerService.addItem(plan.id, vm.stockId, vm.symbol, quote);
+
+    if (!item) {
+      await this.dialog.alert(
+        'Could not add this stock to the plan. It may already be included, or the plan is locked.',
+        'Add Failed'
+      );
+    }
   }
 
   /**
