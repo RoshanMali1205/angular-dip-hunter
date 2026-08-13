@@ -1,0 +1,78 @@
+{
+  "name": "Dip Hunter - Stock Portfolio",
+  "short_name": "Dip Hunter",
+  "description": "Smart stock portfolio tracker for identifying buying opportunities",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "start_url": "./",
+  "theme_color": "#FF9933",
+  "background_color": "#138808",
+  "icons": [
+    {
+      "src": "icons-india/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons-india/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons-india/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons-india/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons-india/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons-india/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons-india/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons-india/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["finance", "business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your portfolio dashboard",
+      "url": "./dashboard",
+      "icons": [{ "src": "icons-india/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Stock Vault",
+      "short_name": "Stocks",
+      "description": "Manage your stocks",
+      "url": "./folders",
+      "icons": [{ "src": "icons-india/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ]
+}

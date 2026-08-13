@@ -8,9 +8,11 @@
       "resources": {
         "files": [
           "/favicon.ico",
+          "/favicon-india.ico",
           "/index.csr.html",
           "/index.html",
           "/manifest.webmanifest",
+          "/manifest-india.webmanifest",
           "/robots.txt",
           "/*.css",
           "/*.js"
@@ -24,6 +26,7 @@
       "resources": {
         "files": [
           "/icons/*",
+          "/icons-india/*",
           "/assets/**/*",
           "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
         ]

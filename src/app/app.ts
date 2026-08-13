@@ -16,12 +16,12 @@ import { DASHBOARD_TOUR_STEPS } from './core/tour/tour.config';
 import { WhatsNewService } from './core/services/whats-new.service';
 import { WhatsNewRelease } from './core/config/app-release.config';
 import { WhatsNewModalComponent } from './shared/components/whats-new-modal/whats-new-modal.component';
-import { IndependenceDayFlagComponent } from './shared/components/independence-day-flag/independence-day-flag.component';
+import { isIndependenceDayIconActive } from './core/config/independence-day.config';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent, DialogComponent, WhatsNewModalComponent, IndependenceDayFlagComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent, DialogComponent, WhatsNewModalComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -33,6 +33,8 @@ export class App implements OnInit {
   protected readonly isAuthPage = signal(false);
   protected readonly showWhatsNewModal = signal(false);
   protected readonly latestRelease = signal<WhatsNewRelease | null>(null);
+  /** Tiranga brand mark / app-icon theme until 15 Aug EOD IST. */
+  protected readonly showIndependenceDayIcon = signal(isIndependenceDayIconActive());
 
   private readonly router = inject(Router);
   private readonly elementRef = inject(ElementRef);
