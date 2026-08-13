@@ -20,12 +20,38 @@
     gtag('config', 'G-7TY27GZK38');
   </script>
 
-  <!-- Favicons -->
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="icon" type="image/png" sizes="96x96" href="icons/icon-96x96.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
-  <link rel="manifest" href="manifest.webmanifest">
+  <!-- Favicons / PWA icons (Tiranga strip on app icon until 15 Aug EOD IST) -->
+  <link id="app-favicon-ico" rel="icon" type="image/x-icon" href="favicon.ico">
+  <link id="app-favicon-svg" rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link id="app-favicon-96" rel="icon" type="image/png" sizes="96x96" href="icons/icon-96x96.png">
+  <link id="app-favicon-192" rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+  <link id="app-apple-touch-icon" rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
+  <link id="app-manifest" rel="manifest" href="manifest.webmanifest">
+  <script>
+    (function () {
+      // Independence Day EOD IST — keep in sync with independence-day.config.ts
+      var eod = Date.parse('2026-08-15T23:59:59.999+05:30');
+      if (!(Date.now() <= eod)) {
+        return;
+      }
+
+      var ico = document.getElementById('app-favicon-ico');
+      var svg = document.getElementById('app-favicon-svg');
+      var i96 = document.getElementById('app-favicon-96');
+      var i192 = document.getElementById('app-favicon-192');
+      var apple = document.getElementById('app-apple-touch-icon');
+      var manifest = document.getElementById('app-manifest');
+      var theme = document.querySelector('meta[name="theme-color"]');
+
+      if (ico) ico.setAttribute('href', 'favicon-india.ico');
+      if (svg) svg.setAttribute('href', 'favicon-india.svg');
+      if (i96) i96.setAttribute('href', 'icons-india/icon-96x96.png');
+      if (i192) i192.setAttribute('href', 'icons-india/icon-192x192.png');
+      if (apple) apple.setAttribute('href', 'icons-india/icon-192x192.png');
+      if (manifest) manifest.setAttribute('href', 'manifest-india.webmanifest');
+      if (theme) theme.setAttribute('content', '#FF9933');
+    })();
+  </script>
 </head>
 <body class="bg-slate-950 text-white min-h-screen">
   <app-root></app-root>

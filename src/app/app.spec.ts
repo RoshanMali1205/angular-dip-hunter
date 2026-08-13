@@ -129,6 +129,32 @@ describe('App', () => {
     expect((app as unknown as { title: ReturnType<typeof signal> }).title()).toBe('Dip Hunter');
   });
 
+  it('shows Tiranga brand mark in header while Independence Day icon window is active', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as unknown as {
+      showIndependenceDayIcon: ReturnType<typeof signal<boolean>>;
+    };
+    app.showIndependenceDayIcon.set(true);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const brandImg = compiled.querySelector('header img[alt="Dip Hunter Independence Day icon"]') as HTMLImageElement | null;
+    expect(brandImg).toBeTruthy();
+    expect(brandImg?.getAttribute('src')).toContain('icons-india/');
+  });
+
+  it('shows default brand mark when Independence Day icon window is inactive', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance as unknown as {
+      showIndependenceDayIcon: ReturnType<typeof signal<boolean>>;
+    };
+    app.showIndependenceDayIcon.set(false);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('header img[alt="Dip Hunter Independence Day icon"]')).toBeNull();
+  });
+
   it('renders whats new modal when modal flag is true and release exists', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as unknown as {
