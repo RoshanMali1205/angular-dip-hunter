@@ -64,7 +64,7 @@ export class PlannerPageComponent implements OnInit {
 
   /** All plans for the selected month */
   plansForMonth = computed(() =>
-    this.plannerService.getPlansForMonth(this.selectedMonth())
+    this.plannerService.plans().filter(p => p.month === this.selectedMonth())
   );
 
   currentPlan = computed(() => {
