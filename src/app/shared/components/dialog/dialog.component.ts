@@ -10,14 +10,14 @@ import { ThemeService } from '../../../core/services/theme.service';
   imports: [CommonModule, FormsModule],
   template: `
     @if (dialogService.state(); as dlg) {
-      <!-- Backdrop -->
-      <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-           (click)="onBackdropClick($event)">
-        <!-- Overlay -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn"></div>
+      <div class="fixed inset-0 z-[9999]">
+        <!-- Backdrop (behind panel — must not intercept panel clicks) -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn"
+             (click)="onCancel()"></div>
 
         <!-- Dialog Panel -->
-        <div class="relative w-full max-w-md rounded-2xl border shadow-2xl animate-scaleIn"
+        <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
+        <div class="pointer-events-auto relative z-10 w-full max-w-md rounded-2xl border shadow-2xl animate-scaleIn"
              [class.border-slate-700]="themeService.isDark()"
              [class.bg-slate-800]="themeService.isDark()"
              [class.border-gray-200]="themeService.isLight()"
@@ -100,6 +100,7 @@ import { ThemeService } from '../../../core/services/theme.service';
           <div class="flex items-center justify-end gap-2 px-5 pb-5 pt-2">
             @if (dlg.type !== 'alert') {
               <button
+                type="button"
                 (click)="onCancel()"
                 class="rounded-lg px-4 py-2 text-sm font-medium border transition"
                 [class.border-slate-600]="themeService.isDark()"
@@ -112,12 +113,14 @@ import { ThemeService } from '../../../core/services/theme.service';
               </button>
             }
             <button
+              type="button"
               (click)="onConfirm()"
               class="rounded-lg px-4 py-2 text-sm font-semibold text-white transition"
               [ngClass]="confirmBtnClass(dlg.type)">
               {{ dlg.confirmText || (dlg.type === 'alert' ? 'OK' : 'Confirm') }}
             </button>
           </div>
+        </div>
         </div>
       </div>
     }
@@ -153,12 +156,6 @@ export class DialogComponent {
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.dialogService.state()) {
-      this.onCancel();
-    }
-  }
-
-  onBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) {
       this.onCancel();
     }
   }
