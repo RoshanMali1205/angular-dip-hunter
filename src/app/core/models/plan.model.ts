@@ -6,7 +6,7 @@ export type PlanStatus = 'DRAFT' | 'FINAL';
 export type AllocationStrategy = 'EQUAL_WEIGHT' | 'CUSTOM_WEIGHT' | 'EQUAL' | 'RISK_ADJUSTED' | 'DEFENSIVE' | 'AI_ADVISOR';
 
 /** Strategy type used by the allocation advisor UI */
-export type AdvisorStrategy = 'equal' | 'risk-adjusted' | 'defensive';
+export type AdvisorStrategy = 'equal' | 'risk-adjusted' | 'defensive' | 'gemini';
 
 export interface AllocationSuggestion {
   strategy: AdvisorStrategy;
@@ -22,6 +22,31 @@ export interface AllocationSuggestion {
   }[];
   riskProfile: 'aggressive' | 'balanced' | 'conservative';
   expectedReturn: string;
+  /** Present when suggestion came from the Gemini serverless function */
+  provider?: 'gemini';
+  model?: string;
+  disclaimer?: string;
+}
+
+/** Slim stock payload sent to /api/ai */
+export interface AiAllocateStockInput {
+  symbol: string;
+  displayName: string;
+  sector?: string;
+  price?: number;
+  changePercent?: number;
+  holdingQty?: number;
+}
+
+export interface AiAllocateRequest {
+  action: 'allocate';
+  budget: number;
+  currency?: string;
+  stocks: AiAllocateStockInput[];
+}
+
+export interface AiAllocateResponse {
+  suggestion: AllocationSuggestion;
 }
 
 export interface PlanItem {

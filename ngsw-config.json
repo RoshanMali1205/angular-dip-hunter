@@ -53,6 +53,16 @@
         "timeout": "10s",
         "strategy": "freshness"
       }
+    },
+    {
+      "name": "ai-api",
+      "urls": ["/.netlify/functions/ai*", "/api/ai*"],
+      "cacheConfig": {
+        "maxSize": 5,
+        "maxAge": "0u",
+        "timeout": "30s",
+        "strategy": "freshness"
+      }
     }
   ]
 }
