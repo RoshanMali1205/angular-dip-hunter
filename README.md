@@ -89,6 +89,7 @@ The application manages a **split-portfolio structure**:
   - Equal Weight distribution
   - Risk-Adjusted allocation
   - Defensive allocation
+  - **Gemini Advisor** (optional) — model-weighted split via `GEMINI_API_KEY`
 - Plan finalization and execution tracking
 - Save plans as drafts for later use
 
@@ -598,12 +599,17 @@ clearCache(): void
 ```
 
 ### `AllocationAdvisorService` _(New)_
-Generates AI-powered allocation strategies for the monthly planner.
+Generates allocation strategies for the monthly planner — three local heuristics plus an optional Gemini-backed fourth strategy.
 
 ```typescript
 suggestAllocations(stocks: StockViewModel[], budget: number): AllocationSuggestion[]
-// Strategies: Equal Weight | Risk-Adjusted | Defensive
+// Heuristics: Equal Weight | Risk-Adjusted | Defensive
+
+fetchGeminiAllocation(stocks: StockViewModel[], budget: number): Observable<AllocationSuggestion | null>
+// Calls POST /api/ai (Netlify function or local proxy). Returns null if Gemini is unavailable.
 ```
+
+**Gemini setup:** set `GEMINI_API_KEY` in Netlify env (optional `GEMINI_MODEL`, default `gemini-2.0-flash`). For local proxy: `export GEMINI_API_KEY=...` before starting `server/`.
 
 ### `PortfolioInsightsService` _(New)_
 Analyzes holdings and generates insights about portfolio health.
@@ -878,6 +884,42 @@ Response:
 }
 ```
 
+### AI Allocation API (Gemini)
+
+Requires `GEMINI_API_KEY` on the Netlify function / local proxy.
+
+```
+POST /api/ai
+Content-Type: application/json
+
+{
+  "action": "allocate",
+  "budget": 10000,
+  "currency": "INR",
+  "stocks": [
+    { "symbol": "TCS", "displayName": "TCS", "sector": "IT", "price": 3500, "changePercent": -2.1 }
+  ]
+}
+
+Response:
+{
+  "suggestion": {
+    "strategy": "gemini",
+    "name": "Gemini Advisor",
+    "description": "...",
+    "rationale": "...",
+    "riskProfile": "balanced",
+    "expectedReturn": "12-18%",
+    "allocations": [
+      { "symbol": "TCS", "displayName": "TCS", "allocation": 10000, "percentage": 100, "reason": "..." }
+    ],
+    "provider": "gemini",
+    "model": "gemini-2.0-flash",
+    "disclaimer": "AI-assisted suggestion — not financial advice."
+  }
+}
+```
+
 ### History API
 
 ```
@@ -1099,6 +1141,7 @@ The Service Worker is enabled only in production builds and registered with `reg
 - [ ] Export to Excel/PDF
 
 ### Version 2.0.0 (Vision)
+- [x] Gemini allocation advisor (planner) — optional via `GEMINI_API_KEY`
 - [ ] AI-powered dip predictions
 - [ ] Portfolio optimization suggestions
 - [ ] Social features (share strategies)
