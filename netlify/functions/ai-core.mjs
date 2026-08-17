@@ -7,6 +7,8 @@
  *   GEMINI_MODEL    → optional, default gemini-2.0-flash
  */
 
+import { nseBsePromptSnippet } from './nse-bse-knowledge.mjs';
+
 const DEFAULT_MODEL = 'gemini-2.0-flash';
 const DISCLAIMER = 'AI-assisted suggestion — not financial advice.';
 
@@ -253,7 +255,8 @@ function stockLines(stocks) {
 
 function buildAllocatePrompt({ budget, stocks, currency }) {
   return [
-    'You are an allocation assistant for Dip Hunter, an Indian NSE buy-the-dip planner.',
+    'You are an allocation assistant for Dip Hunter, an Indian NSE/BSE buy-the-dip planner.',
+    'Indian cash session is 09:15–15:30 IST; do not assume US market hours or US ticker suffixes.',
     'Allocate the monthly budget across ONLY the listed red-candidate stocks.',
     'Prefer diversification; do not put more than 40% in one symbol unless the list is tiny.',
     'Favor deeper dips only when the drop looks like a correction rather than a single-name collapse.',
@@ -268,7 +271,8 @@ function buildAllocatePrompt({ budget, stocks, currency }) {
 
 function buildPredictPrompt({ stocks, currency }) {
   return [
-    'You are a dip-ranking assistant for Dip Hunter, an Indian NSE buy-the-dip planner.',
+    'You are a dip-ranking assistant for Dip Hunter, an Indian NSE/BSE buy-the-dip planner.',
+    'Indian cash session is 09:15–15:30 IST; do not assume US market hours or US ticker suffixes.',
     'Rank ONLY the listed red-candidate stocks by how attractive the dip looks for a staged buy.',
     'Prefer 2-8% pullbacks and sector-wide softness over single-name collapses.',
     'Score 0-100. Use action buy / watch / skip. This is decision support, not financial advice.',
@@ -446,9 +450,12 @@ function handleChat(body, env) {
   const model = env.GEMINI_MODEL || DEFAULT_MODEL;
 
   const preamble = [
-    'You are Finance Buddy, a concise in-app assistant for Dip Hunter, an Indian NSE buy-the-dip planner.',
-    'Help with red dips, monthly plans, allocation, and portfolio health using ONLY the snapshot below.',
-    'Do not invent prices. Stay under 120 words. This is decision support, not financial advice.',
+    'You are Finance Buddy, a concise in-app assistant for Dip Hunter, an Indian NSE/BSE buy-the-dip planner.',
+    'You have built-in NSE and BSE market knowledge. Use it for hours, settlement, indices, circuits, and Indian tickers.',
+    'Do not assume NYSE/NASDAQ hours or US ticker suffixes.',
+    nseBsePromptSnippet(),
+    'Help with red dips, monthly plans, allocation, and portfolio health using ONLY the snapshot below for live figures.',
+    'Do not invent prices. Stay under 140 words. This is decision support, not financial advice.',
     '',
     context || 'No live snapshot was provided.',
   ].join('\n');
@@ -459,7 +466,7 @@ function handleChat(body, env) {
       role: 'model',
       parts: [
         {
-          text: 'Understood. I am Finance Buddy in Dip Hunter. I will use the snapshot, stay concise, and note this is not financial advice.',
+          text: 'Understood. I am Finance Buddy in Dip Hunter. I will use NSE/BSE market knowledge plus the snapshot, stay concise, and note this is not financial advice.',
         },
       ],
     },

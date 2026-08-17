@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "disclaimer": "Not financial advice. Exchange hours, holidays, and settlement rules can change — confirm on NSE/BSE/SEBI.",
+  "prompt": "Indian cash equities on NSE and BSE — not US markets. Do not assume NYSE/NASDAQ hours or US ticker suffixes.\nHours (IST, Mon–Fri except exchange holidays): pre-open ~09:00–09:15 (order entry ~09:00–09:08, matching ~09:08–09:12, buffer ~09:12–09:15); continuous cash 09:15–15:30; closing session ~15:40–16:00. No regular Saturday/Sunday cash trading. Muhurat is a special Diwali session when announced.\nNSE = National Stock Exchange (benchmark Nifty 50). BSE = Bombay Stock Exchange (benchmark Sensex 30). Many names trade on both; Dip Hunter’s default universe is NSE cash symbols stored without a suffix (RELIANCE, TCS).\nQuote suffixes: Yahoo/NSE = SYMBOL.NS, Yahoo/BSE = SYMBOL.BO.\nSettlement: standard cash equity is T+1; optional T+0 exists for eligible names — do not invent which names qualify. Confirm holidays on the exchange calendar.\nCircuits: stock price bands are commonly 2/5/10/20%; index-wide halts have historically used 10/15/20% of the previous close. A frozen lower-circuit name is not an ordinary staged dip.\nF&O is a separate segment (lots, expiry, margins). Dip Hunter monthly plans are cash/delivery-style buys, not F&O lots.\nDip Hunter Growth 20: RELIANCE, HDFCBANK, ICICIBANK, TCS, INFY, BHARTIARTL, HAL, LT, ADANIPORTS, ITC, BAJFINANCE, SUNPHARMA, TITAN, NTPC, ULTRACEMCO, ASIANPAINT, MARUTI, M&M, PERSISTENT, AFFLE.\nDip Hunter Dividend 10: VEDL, COALINDIA, CASTROLIND, ONGC, POWERGRID, RECLTD, PFC, NTPC, ITC, WIPRO. ITC and NTPC appear in both folders.\nDip context: prefer orderly ~2–8% pullbacks and sector softness over single-name news crashes or circuit-frozen names. Currency is INR. Never invent live prices. Do not quote stale tax rates (STT/LTCG/STCG). This is decision support, not financial advice.",
+  "topics": [
+    {
+      "id": "hours",
+      "title": "NSE & BSE cash market hours",
+      "keywords": [
+        "market hours",
+        "trading hours",
+        "nse open",
+        "bse open",
+        "when does nse",
+        "when does bse",
+        "when does the market",
+        "market open",
+        "market close",
+        "session timing",
+        "market timing",
+        "pre-open",
+        "preopen",
+        "pre open",
+        "closing session",
+        "9:15",
+        "09:15",
+        "15:30",
+        "3:30 pm",
+        "3:30pm"
+      ],
+      "strongKeywords": ["trading hours", "market hours", "pre-open"],
+      "answer": "NSE and BSE cash equities trade in IST, Monday–Friday except exchange holidays. Pre-open is about 09:00–09:15 (order entry ~09:00–09:08, matching ~09:08–09:12, then a short buffer). Continuous trading is 09:15–15:30. A closing session around 15:40–16:00 sets the official close. There is no regular weekend cash session."
+    },
+    {
+      "id": "nse-vs-bse",
+      "title": "NSE vs BSE",
+      "keywords": [
+        "nse vs bse",
+        "bse vs nse",
+        "nse and bse",
+        "difference between nse",
+        "difference between bse",
+        "national stock exchange",
+        "bombay stock exchange",
+        "which exchange",
+        "what is nse",
+        "what is bse"
+      ],
+      "strongKeywords": ["nse vs bse", "bse vs nse", "national stock exchange", "bombay stock exchange"],
+      "answer": "NSE (National Stock Exchange) is India’s larger electronic cash and derivatives venue; its headline index is the Nifty 50. BSE (Bombay Stock Exchange) is the older exchange; its headline index is the Sensex 30. The same company can list on both. Dip Hunter tracks NSE cash symbols by default (no .NS/.BO suffix in the app)."
+    },
+    {
+      "id": "settlement",
+      "title": "Equity settlement (T+1)",
+      "keywords": [
+        "t+1",
+        "t + 1",
+        "t+0",
+        "t + 0",
+        "settlement",
+        "settlement cycle",
+        "delivery cycle",
+        "pay-in",
+        "pay in",
+        "pay-out",
+        "rolling settlement"
+      ],
+      "strongKeywords": ["t+1", "t+0", "settlement cycle"],
+      "answer": "Indian cash equities generally settle on T+1 (trade day plus one working day) through the clearing corporation. Optional T+0 exists for eligible names — do not assume a specific stock is T+0. Settlement days skip exchange holidays, so a Friday trade often funds on Monday if Monday is a business day."
+    },
+    {
+      "id": "indices",
+      "title": "Nifty and Sensex",
+      "keywords": [
+        "nifty 50",
+        "nifty50",
+        "what is nifty",
+        "what is sensex",
+        "bank nifty",
+        "nifty bank",
+        "sensex 30",
+        "benchmark index"
+      ],
+      "strongKeywords": ["nifty", "sensex", "bank nifty"],
+      "answer": "Nifty 50 is NSE’s benchmark of 50 large Indian companies. Sensex (BSE Sensex 30) is BSE’s benchmark of 30 large companies. Bank Nifty tracks NSE banking names and is widely used in F&O. These are index levels, not the live price of a single Dip Hunter holding."
+    },
+    {
+      "id": "circuits",
+      "title": "Circuit filters and index halts",
+      "keywords": [
+        "circuit breaker",
+        "circuit filter",
+        "circuit limit",
+        "upper circuit",
+        "lower circuit",
+        "price band",
+        "price bands",
+        "freeze quantity",
+        "hit circuit",
+        "uc/lc"
+      ],
+      "strongKeywords": ["circuit breaker", "upper circuit", "lower circuit", "price band"],
+      "answer": "Individual stocks often have dynamic price bands (commonly 2%, 5%, 10%, or 20%) that freeze trading at the limit. Index-wide circuit breakers have historically halted the market at 10%, 15%, and 20% moves from the previous close. A name stuck on a lower circuit is not a normal staged dip — liquidity may be gone until the band unfreezes."
+    },
+    {
+      "id": "symbols",
+      "title": "NSE/BSE ticker suffixes",
+      "keywords": [
+        ".ns",
+        ".bo",
+        "yahoo suffix",
+        "ticker suffix",
+        "symbol suffix",
+        "nse ticker",
+        "bse ticker",
+        "yahoo finance symbol"
+      ],
+      "strongKeywords": [".ns", ".bo", "ticker suffix"],
+      "answer": "Dip Hunter stores NSE tickers without a suffix (TCS, RELIANCE). Yahoo-style quotes usually use SYMBOL.NS for NSE and SYMBOL.BO for BSE. Do not mix US suffixes like .NYSE. Some names differ slightly across vendors (M&M vs M&M.NS)."
+    },
+    {
+      "id": "universe",
+      "title": "Dip Hunter NSE universe",
+      "keywords": [
+        "growth 20",
+        "growth twenty",
+        "dividend 10",
+        "dividend ten",
+        "g20 stocks",
+        "d10 stocks",
+        "watched stocks",
+        "default stocks",
+        "which stocks does dip hunter"
+      ],
+      "strongKeywords": ["growth 20", "growth twenty", "dividend 10", "dividend ten"],
+      "answer": "Growth 20 (NSE): RELIANCE, HDFCBANK, ICICIBANK, TCS, INFY, BHARTIARTL, HAL, LT, ADANIPORTS, ITC, BAJFINANCE, SUNPHARMA, TITAN, NTPC, ULTRACEMCO, ASIANPAINT, MARUTI, M&M, PERSISTENT, AFFLE. Dividend 10 (NSE): VEDL, COALINDIA, CASTROLIND, ONGC, POWERGRID, RECLTD, PFC, NTPC, ITC, WIPRO. ITC and NTPC sit in both folders."
+    },
+    {
+      "id": "derivatives",
+      "title": "Cash vs F&O",
+      "keywords": [
+        "f&o",
+        "fno",
+        "futures and options",
+        "stock futures",
+        "index options",
+        "lot size",
+        "weekly expiry",
+        "derivatives segment"
+      ],
+      "strongKeywords": ["f&o", "fno", "lot size", "weekly expiry"],
+      "answer": "Cash/delivery trades buy the actual shares in the 09:15–15:30 session and usually settle T+1. F&O is a different NSE/BSE segment with lots, margins, and expiries (index options often expire weekly). Dip Hunter monthly plans are for cash-style dip buys, not F&O lot sizes. Lot sizes change — look them up on the exchange rather than guessing."
+    },
+    {
+      "id": "holidays",
+      "title": "Holidays and special sessions",
+      "keywords": [
+        "trading holiday",
+        "market holiday",
+        "nse holiday",
+        "bse holiday",
+        "muhurat",
+        "muhurat trading",
+        "diwali trading",
+        "weekend trading",
+        "saturday trading",
+        "sunday trading"
+      ],
+      "strongKeywords": ["trading holiday", "muhurat", "nse holiday", "bse holiday"],
+      "answer": "NSE and BSE publish a joint-style holiday calendar each year (Republic Day, Holi, Diwali, and others). Regular cash markets are closed on weekends. Muhurat trading is a short special Diwali session when the exchanges announce it — it is not a full 09:15–15:30 day. Always check the current exchange circular before assuming a session exists."
+    }
+  ]
+}

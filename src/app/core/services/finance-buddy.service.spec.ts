@@ -131,4 +131,24 @@ describe('FinanceBuddyService', () => {
     expect(assistant.table?.rows[0]['change']).toBe('-4.2%');
     expect(assistant.text).not.toContain('INFY (');
   });
+
+  it('answers NSE hours from built-in knowledge when Gemini is unavailable', () => {
+    service.send('When does NSE open?');
+
+    const req = httpMock.expectOne('/.netlify/functions/ai');
+    req.flush(
+      { error: 'Gemini is not configured', code: 'GEMINI_API_KEY_MISSING' },
+      { status: 503, statusText: 'Service Unavailable' }
+    );
+
+    const assistant = service.messages().at(-1) as ChatMessage;
+    expect(assistant.provider).toBe('local');
+    expect(assistant.table).toBeUndefined();
+    expect(assistant.text).toContain('09:15');
+    expect(assistant.text).toContain('Not financial advice');
+  });
+
+  it('includes an NSE/BSE market chip among suggested prompts', () => {
+    expect(service.suggestedPrompts()).toContain('buddy.chipMarket');
+  });
 });

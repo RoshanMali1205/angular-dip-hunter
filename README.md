@@ -75,7 +75,7 @@ The application manages a **split-portfolio structure**:
 - One-click add to monthly plan
 - Skeleton loaders during data fetch
 - **AI Dip Insights** — Gemini ranks red candidates with buy / watch / skip scores (local heuristic fallback)
-- **Finance Buddy** — floating chat on every signed-in page (Gemini when `GEMINI_API_KEY` is set)
+- **Finance Buddy** — floating chat on every signed-in page with built-in NSE/BSE knowledge (Gemini when `GEMINI_API_KEY` is set)
 
 ### 📁 Folder Management
 - Organize stocks into Growth Twenty and Dividend Ten folders
@@ -298,6 +298,8 @@ angular-dip-hunter/
 │   │   │   │   └── auth.guard.ts          # authGuard / guestGuard
 │   │   │   ├── 📁 interceptors/
 │   │   │   │   └── auth.interceptor.ts    # Auth token interceptor
+│   │   │   ├── 📁 knowledge/
+│   │   │   │   └── nse-bse-knowledge.ts   # NSE/BSE fact matcher for Finance Buddy
 │   │   │   ├── 📁 models/                 # TypeScript interfaces & types
 │   │   │   │   ├── auth.model.ts
 │   │   │   │   ├── folder.model.ts
@@ -314,6 +316,7 @@ angular-dip-hunter/
 │   │   │   │   ├── allocation-advisor.service.ts  # AI allocation strategies
 │   │   │   │   ├── auth.service.ts
 │   │   │   │   ├── drafts.service.ts              # Plan drafts management
+│   │   │   │   ├── finance-buddy.service.ts       # In-app chat + NSE/BSE fallback
 │   │   │   │   ├── holdings.service.ts
 │   │   │   │   ├── language.service.ts
 │   │   │   │   ├── performance.service.ts
@@ -354,6 +357,7 @@ angular-dip-hunter/
 │   │   │   └── 📁 transactions/
 │   │   ├── 📁 shared/
 │   │   │   └── 📁 components/
+│   │   │       ├── 📁 finance-buddy/      # Floating Gemini chat
 │   │   │       ├── 📁 dialog/             # Custom themed dialog system
 │   │   │       ├── 📁 radial-progress/    # Radial progress indicator
 │   │   │       ├── 📁 skeleton/           # Skeleton loaders
@@ -364,11 +368,15 @@ angular-dip-hunter/
 │   │   ├── app.html
 │   │   └── app.css
 │   ├── 📁 assets/
-│   │   └── 📁 i18n/
-│   │       └── translations.json          # All language strings (EN/HI/MR)
+│   │   ├── 📁 i18n/
+│   │   │   └── translations.json          # All language strings (EN/HI/MR)
+│   │   └── 📁 knowledge/
+│   │       └── nse-bse.json               # Built-in NSE/BSE facts for Finance Buddy
 │   ├── index.html
 │   ├── main.ts
 │   └── styles.css
+├── 📁 .github/
+│   └── 📁 agents/                         # Custom agents (incl. nse-bse-finance-buddy)
 ├── 📁 public/
 │   ├── manifest.webmanifest               # PWA manifest
 │   └── 📁 icons/                          # PWA icons
@@ -641,7 +649,7 @@ fetchGeminiDipPredictions(stocks: StockViewModel[]): Observable<DipPrediction | 
 ```
 
 ### `FinanceBuddyService`
-Powers the floating Finance Buddy chat. Gemini when `GEMINI_API_KEY` is set; otherwise answers from local portfolio/plan/red-list data.
+Powers the floating Finance Buddy chat. Gemini when `GEMINI_API_KEY` is set; otherwise answers from built-in NSE/BSE facts plus local portfolio/plan/red-list data.
 
 ```typescript
 isOpen: Signal<boolean>
@@ -983,7 +991,7 @@ Response:
 
 ### AI Chat API (Finance Buddy)
 
-Same endpoint and `GEMINI_API_KEY`. Powers the floating Finance Buddy window.
+Same endpoint and `GEMINI_API_KEY`. Powers the floating Finance Buddy window. Chat prompts include a built-in NSE/BSE knowledge pack (hours, T+1, circuits, Nifty/Sensex, Dip Hunter universe). Offline replies use the same pack from `src/assets/knowledge/nse-bse.json`.
 
 ```
 POST /api/ai

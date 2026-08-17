@@ -28,6 +28,11 @@ export const WHATS_NEW_RELEASES: WhatsNewRelease[] = [
       {
         icon: 'spark',
         tag: 'new',
+        textKey: 'whatsNew.highlights.nseBseKnowledge'
+      },
+      {
+        icon: 'spark',
+        tag: 'new',
         textKey: 'whatsNew.highlights.geminiDipInsights'
       },
       {

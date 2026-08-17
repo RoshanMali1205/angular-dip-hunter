@@ -13,6 +13,7 @@ import { PlannerService } from './planner.service';
 import { PortfolioService } from './portfolio.service';
 import { LanguageService } from './language.service';
 import { resolveAiEndpoint } from '../utils/ai-endpoint';
+import { formatNseBseReply, matchNseBseFact } from '../knowledge/nse-bse-knowledge';
 import {
   AiChatRequest,
   AiChatResponse,
@@ -100,6 +101,7 @@ export class FinanceBuddyService {
       this.lang.t('buddy.chipDips'),
       this.lang.t('buddy.chipPlan'),
       this.lang.t('buddy.chipPortfolio'),
+      this.lang.t('buddy.chipMarket'),
     ];
   }
 
@@ -171,6 +173,7 @@ export class FinanceBuddyService {
   }
 
   private tableFor(message: string): ChatTable | undefined {
+    if (matchNseBseFact(message)) return undefined;
     const q = message.toLowerCase();
     if (/dip|red|buy/.test(q)) return this.dipsTable();
     if (/plan|budget|allocat/.test(q)) return this.planTable();
@@ -269,6 +272,11 @@ export class FinanceBuddyService {
   }
 
   localReply(message: string): string {
+    const marketFact = matchNseBseFact(message);
+    if (marketFact) {
+      return formatNseBseReply(marketFact);
+    }
+
     const q = message.toLowerCase();
     const reds = this.redCandidates();
     const summary = this.holdingsService.summary();
