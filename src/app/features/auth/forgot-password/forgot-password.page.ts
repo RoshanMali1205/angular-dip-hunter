@@ -209,8 +209,7 @@ export class ForgotPasswordPageComponent {
 
     const token = await this.authService.requestPasswordReset(this.email);
 
-    if (!token) {
-      // Always show success even if email not found (security: don't reveal account existence)
+    if (!token || token === 'supabase' || this.authService.usesCloudAuth) {
       this.isLoading.set(false);
       this.resetSent.set(true);
       return;

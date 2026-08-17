@@ -37,7 +37,16 @@ import { LanguageService } from '../../../core/services/language.service';
       }
 
       <!-- Success Alert (after registration) -->
-      @if (showRegistrationSuccess()) {
+      @if (showVerifyEmail()) {
+        <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ lang.t('auth.registrationVerifyEmail') }}
+          </div>
+        </div>
+      } @else if (showRegistrationSuccess()) {
         <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
           <div class="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -226,6 +235,7 @@ export class LoginPageComponent implements OnInit {
   rememberMe = false;
   showPassword = signal(false);
   showRegistrationSuccess = signal(false);
+  showVerifyEmail = signal(false);
   showPasswordResetSuccess = signal(false);
 
   ngOnInit(): void {
@@ -233,10 +243,14 @@ export class LoginPageComponent implements OnInit {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       if (params['registered'] === 'true') {
         this.showRegistrationSuccess.set(true);
+        this.showVerifyEmail.set(params['verifyEmail'] === 'true');
         if (params['email']) {
           this.email = params['email'];
         }
-        setTimeout(() => this.showRegistrationSuccess.set(false), 5000);
+        setTimeout(() => {
+          this.showRegistrationSuccess.set(false);
+          this.showVerifyEmail.set(false);
+        }, 8000);
       }
       if (params['passwordReset'] === 'true') {
         this.showPasswordResetSuccess.set(true);

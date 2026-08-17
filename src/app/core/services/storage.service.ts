@@ -3,6 +3,7 @@
  */
 
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 export type StorageKey =
   | 'dh_folders'
@@ -15,10 +16,16 @@ export type StorageKey =
   | 'dh_exchange_rates'
   | 'dh_user';
 
+export interface StorageWriteOptions {
+  /** Skip cloud snapshot push (used while hydrating from Supabase). */
+  localOnly?: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
+  readonly persisted$ = new Subject<{ key: StorageKey }>();
   
   /**
    * Get item from localStorage
@@ -36,9 +43,12 @@ export class StorageService {
   /**
    * Set item in localStorage
    */
-  set<T>(key: StorageKey, value: T): boolean {
+  set<T>(key: StorageKey, value: T, options?: StorageWriteOptions): boolean {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      if (!options?.localOnly) {
+        this.persisted$.next({ key });
+      }
       return true;
     } catch (error) {
       console.error(`Error writing to storage [${key}]:`, error);

@@ -142,11 +142,13 @@ The application manages a **split-portfolio structure**:
 - Reset all data option
 
 ### 🔐 Authentication
-- User registration with validation
+- User registration with validation and email confirmation (Supabase when configured)
 - Login with email/password
+- Password reset via email templates
+- Per-user cloud snapshot of portfolio data (`user_snapshots`)
 - Session-based auth with route guards
 - Protected routes via `authGuard` / `guestGuard`
-- Logout functionality
+- Local mock auth remains when Supabase keys are empty (tests / offline demo)
 
 ### 🌐 Internationalization
 - Full i18n support via `@ngx-translate`
@@ -1143,19 +1145,18 @@ settingsService.importBackup(json: string): boolean
 
 ## 🔐 Authentication
 
+Full backend plan (API, DB, RLS, email templates): [`docs/supabase-backend.md`](docs/supabase-backend.md).
+
+When `environment.supabaseUrl` and `environment.supabaseAnonKey` are set, Dip Hunter uses **Supabase Auth** (confirm email + reset password) and stores each user’s portfolio in Postgres (`user_snapshots`). Empty keys keep the original localStorage mock auth.
+
 ### Flow
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Register  │────▶│    Login    │────▶│  Dashboard  │
-│    Page     │     │    Page     │     │ (Protected) │
-└─────────────┘     └─────────────┘     └─────────────┘
-                           │
-                           ▼
-                    ┌─────────────┐
-                    │ LocalStorage│
-                    │  (Session)  │
-                    └─────────────┘
+Register → confirm-email → Login → Dashboard
+                │
+                ▼
+         Supabase Auth + RLS
+         user_snapshots (per user)
 ```
 
 ### Route Guards

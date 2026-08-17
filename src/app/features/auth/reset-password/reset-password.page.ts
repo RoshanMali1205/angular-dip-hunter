@@ -258,6 +258,13 @@ export class ResetPasswordPageComponent implements OnInit {
   }
 
   private async initializeTokenValidation(): Promise<void> {
+    if (this.authService.usesCloudAuth) {
+      await this.authService.whenReady();
+      const email = await this.authService.validateResetToken('');
+      this.tokenInvalid.set(!email);
+      return;
+    }
+
     const token = this.route.snapshot.queryParamMap.get('token') ?? '';
     this.token = token;
     const validEmail = token ? await this.authService.validateResetToken(token) : null;
