@@ -13,17 +13,17 @@ export interface WhatsNewRelease {
   changelogUrl?: string;
 }
 
-export const APP_VERSION = '1.1.0';
+export const APP_VERSION = '1.2.0';
 
 export const WHATS_NEW_RELEASES: WhatsNewRelease[] = [
   {
     version: APP_VERSION,
-    date: '2026-04-29',
+    date: '2026-08-17',
     highlights: [
       {
         icon: 'spark',
         tag: 'new',
-        textKey: 'whatsNew.highlights.versionAwareModal'
+        textKey: 'whatsNew.highlights.geminiDipInsights'
       },
       {
         icon: 'rocket',
@@ -36,6 +36,6 @@ export const WHATS_NEW_RELEASES: WhatsNewRelease[] = [
         textKey: 'whatsNew.highlights.authRouteExcluded'
       }
     ],
-    changelogUrl: 'https://github.com/roshanmali/angular-dip-hunter/releases'
+    changelogUrl: 'https://github.com/RoshanMali1205/angular-dip-hunter/releases'
   }
 ];

@@ -74,6 +74,7 @@ The application manages a **split-portfolio structure**:
 - Search and filter functionality
 - One-click add to monthly plan
 - Skeleton loaders during data fetch
+- **AI Dip Insights** — Gemini ranks red candidates with buy / watch / skip scores (local heuristic fallback)
 
 ### 📁 Folder Management
 - Organize stocks into Growth Twenty and Dividend Ten folders
@@ -320,7 +321,7 @@ angular-dip-hunter/
 │   │   │   │   ├── portfolio.service.ts
 │   │   │   │   ├── quote.service.ts
 │   │   │   │   ├── settings.service.ts
-│   │   │   │   ├── stock-analysis.service.ts      # AI stock analysis
+│   │   │   │   ├── stock-analysis.service.ts      # AI stock analysis + dip ranking
 │   │   │   │   ├── storage.service.ts
 │   │   │   │   ├── theme.service.ts
 │   │   │   │   ├── tour.service.ts                # First-time user tour
@@ -340,6 +341,7 @@ angular-dip-hunter/
 │   │   │   ├── 📁 dashboard/
 │   │   │   │   └── 📁 components/
 │   │   │   │       ├── holdings-pie-chart.component.ts
+│   │   │   │       ├── dip-insights-card.component.ts
 │   │   │   │       └── portfolio-insights-card.component.ts
 │   │   │   ├── 📁 drafts/                 # Plan drafts management
 │   │   │   ├── 📁 folders/
@@ -502,6 +504,7 @@ angular-dip-hunter/
 |-----------|---------|
 | `HoldingsPieChartComponent` | Portfolio allocation doughnut chart |
 | `PortfolioInsightsCardComponent` | AI-generated portfolio health insights |
+| `DipInsightsCardComponent` | Gemini / local dip ranking (buy, watch, skip) |
 
 ### Shared Components
 
@@ -621,11 +624,18 @@ getInsights(folderId?: FolderId): PortfolioInsight[]
 ```
 
 ### `StockAnalysisService` _(New)_
-Provides detailed AI insights for individual stocks.
+Provides detailed AI insights for individual stocks and ranked dip predictions.
 
 ```typescript
+analyzeRedStock(symbol: string): StockAnalysis
 // Analyzes: dropType, riskLevel, recommendation, supportingFactors
 // Drop types: technical | sector-wide | news-based | correction | unknown
+
+predictDips(stocks: StockViewModel[]): DipPrediction
+// Local heuristic ranking: buy | watch | skip with 0–100 scores
+
+fetchGeminiDipPredictions(stocks: StockViewModel[]): Observable<DipPrediction | null>
+// Calls POST /api/ai { action: "predict" }. Returns null if Gemini is unavailable.
 ```
 
 ### `DraftsService`
@@ -920,6 +930,46 @@ Response:
 }
 ```
 
+### AI Dip Predictions API (Gemini)
+
+Same endpoint and `GEMINI_API_KEY`. Ranks red candidates for the dashboard.
+
+```
+POST /api/ai
+Content-Type: application/json
+
+{
+  "action": "predict",
+  "currency": "INR",
+  "stocks": [
+    { "symbol": "INFY", "displayName": "Infosys", "sector": "IT", "price": 1500, "changePercent": -4.2 }
+  ]
+}
+
+Response:
+{
+  "prediction": {
+    "summary": "INFY is the cleaner dip today",
+    "marketTone": "cautious",
+    "picks": [
+      {
+        "symbol": "INFY",
+        "displayName": "Infosys",
+        "score": 82,
+        "action": "buy",
+        "confidence": "high",
+        "dropType": "technical",
+        "rationale": "Orderly 4% pullback in the preferred dip band",
+        "riskNote": "IT sector still mixed"
+      }
+    ],
+    "provider": "gemini",
+    "model": "gemini-2.0-flash",
+    "disclaimer": "AI-assisted suggestion — not financial advice."
+  }
+}
+```
+
 ### History API
 
 ```
@@ -1142,7 +1192,7 @@ The Service Worker is enabled only in production builds and registered with `reg
 
 ### Version 2.0.0 (Vision)
 - [x] Gemini allocation advisor (planner) — optional via `GEMINI_API_KEY`
-- [ ] AI-powered dip predictions
+- [x] AI-powered dip predictions (dashboard) — optional via `GEMINI_API_KEY`
 - [ ] Portfolio optimization suggestions
 - [ ] Social features (share strategies)
 - [ ] Broker integration

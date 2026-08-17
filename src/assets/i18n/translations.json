@@ -40,7 +40,19 @@
       "noRedAvailable": "No red stocks available",
       "allGreen": "All stocks are green today! 🎉",
       "holdingsAllocation": "Holdings Allocation",
-      "portfolioProgress": "Portfolio Progress"
+      "portfolioProgress": "Portfolio Progress",
+      "dipTitle": "AI Dip Insights",
+      "dipAskingGemini": "Asking Gemini…",
+      "dipGemini": "Gemini",
+      "dipLocal": "Local ranking",
+      "dipEmpty": "No red candidates to rank",
+      "dipScore": "Score",
+      "dipBuy": "Buy",
+      "dipWatch": "Watch",
+      "dipSkip": "Skip",
+      "dipToneRiskOn": "Risk-on",
+      "dipToneCautious": "Cautious",
+      "dipToneDefensive": "Defensive"
     },
     "folders": {
       "title": "🏦 Stock Vault",
@@ -359,7 +371,8 @@
       "highlights": {
         "versionAwareModal": "Added version-aware What's New modal support so updates can be announced clearly.",
         "startupFlowGuarded": "Improved startup timing so update messaging does not interrupt first-time onboarding tour.",
-        "authRouteExcluded": "Adjusted route behavior to avoid showing product update modals on authentication screens."
+        "authRouteExcluded": "Adjusted route behavior to avoid showing product update modals on authentication screens.",
+        "geminiDipInsights": "Gemini now ranks red candidates on the dashboard with buy / watch / skip dip scores. Local heuristics still work if Gemini is offline."
       }
     }
   },
@@ -404,7 +417,19 @@
       "noRedAvailable": "कोई रेड स्टॉक उपलब्ध नहीं",
       "allGreen": "आज सभी स्टॉक ग्रीन हैं! 🎉",
       "holdingsAllocation": "होल्डिंग्स आवंटन",
-      "portfolioProgress": "पोर्टफोलियो प्रगति"
+      "portfolioProgress": "पोर्टफोलियो प्रगति",
+      "dipTitle": "एआई डिप इनसाइट्स",
+      "dipAskingGemini": "जेमिनी से पूछ रहे हैं…",
+      "dipGemini": "जेमिनी",
+      "dipLocal": "स्थानीय रैंकिंग",
+      "dipEmpty": "रैंक करने के लिए कोई रेड उम्मीदवार नहीं",
+      "dipScore": "स्कोर",
+      "dipBuy": "खरीदें",
+      "dipWatch": "देखें",
+      "dipSkip": "छोड़ें",
+      "dipToneRiskOn": "रिस्क-ऑन",
+      "dipToneCautious": "सतर्क",
+      "dipToneDefensive": "रक्षात्मक"
     },
     "folders": {
       "title": "🏦 स्टॉक वॉल्ट",
@@ -723,7 +748,8 @@
       "highlights": {
         "versionAwareModal": "वर्जन-आधारित 'क्या नया है' मोडल जोड़ा गया ताकि अपडेट स्पष्ट रूप से दिखाए जा सकें।",
         "startupFlowGuarded": "स्टार्टअप समय में सुधार किया गया ताकि अपडेट संदेश पहली बार के ऑनबोर्डिंग टूर में बाधा न बने।",
-        "authRouteExcluded": "रूट व्यवहार अपडेट किया गया ताकि प्रोडक्ट अपडेट मोडल ऑथ स्क्रीन पर न दिखे।"
+        "authRouteExcluded": "रूट व्यवहार अपडेट किया गया ताकि प्रोडक्ट अपडेट मोडल ऑथ स्क्रीन पर न दिखे।",
+        "geminiDipInsights": "जेमिनी अब डैशबोर्ड पर रेड उम्मीदवारों को खरीदें / देखें / छोड़ें स्कोर के साथ रैंक करता है। जेमिनी ऑफ़लाइन हो तो स्थानीय रैंकिंग काम करती है।"
       }
     }
   },
@@ -768,7 +794,19 @@
       "noRedAvailable": "रेड स्टॉक्स उपलब्ध नाहीत",
       "allGreen": "आज सर्व स्टॉक्स ग्रीन आहेत! 🎉",
       "holdingsAllocation": "होल्डिंग्ज वाटप",
-      "portfolioProgress": "पोर्टफोलिओ प्रगती"
+      "portfolioProgress": "पोर्टफोलिओ प्रगती",
+      "dipTitle": "एआय डिप इनसाइट्स",
+      "dipAskingGemini": "जेमिनीला विचारत आहे…",
+      "dipGemini": "जेमिनी",
+      "dipLocal": "स्थानिक रँकिंग",
+      "dipEmpty": "रँक करण्यासाठी रेड उमेदवार नाहीत",
+      "dipScore": "स्कोर",
+      "dipBuy": "खरेदी",
+      "dipWatch": "पहा",
+      "dipSkip": "वगळा",
+      "dipToneRiskOn": "रिस्क-ऑन",
+      "dipToneCautious": "सावध",
+      "dipToneDefensive": "संरक्षक"
     },
     "folders": {
       "title": "🏦 स्टॉक व्हॉल्ट",
@@ -1087,7 +1125,8 @@
       "highlights": {
         "versionAwareModal": "अपडेट्स स्पष्ट दाखवण्यासाठी व्हर्जन-जाणणारा 'नवीन काय' मोडल जोडला आहे.",
         "startupFlowGuarded": "स्टार्टअप वेळ सुधारली आहे जेणेकरून अपडेट संदेश प्रथमच ऑनबोर्डिंग टूरमध्ये अडथळा आणणार नाही.",
-        "authRouteExcluded": "ऑथ स्क्रीनवर प्रॉडक्ट अपडेट मोडल दिसू नये यासाठी रूट वर्तन सुधारले आहे."
+        "authRouteExcluded": "ऑथ स्क्रीनवर प्रॉडक्ट अपडेट मोडल दिसू नये यासाठी रूट वर्तन सुधारले आहे.",
+        "geminiDipInsights": "जेमिनी आता डॅशबोर्डवर रेड उमेदवारांना खरेदी / पहा / वगळा स्कोरांसह रँक करते. जेमिनी ऑफलाइन असेल तर स्थानिक रँकिंग काम करते."
       }
     }
   }

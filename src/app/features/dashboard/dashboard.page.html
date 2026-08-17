@@ -734,8 +734,15 @@
     </div>
 
     <!-- Red Candidates Panel -->
+    <div class="lg:col-span-1 min-w-0 space-y-4">
+      <app-dip-insights-card
+        [stocks]="redCandidates()"
+        [prediction]="dipPrediction()"
+        [loading]="dipLoading()"
+        (onAddToPlan)="onAddToPlan($event)" />
+
     <div id="red-candidates-section"
-         class="lg:col-span-1 min-w-0 rounded-xl transition-all duration-300"
+         class="rounded-xl transition-all duration-300"
          data-tour="red-candidates"
          [class.ring-2]="isSectionHighlighted('red-candidates-section')"
          [class.ring-red-400]="isSectionHighlighted('red-candidates-section')">
@@ -780,6 +787,12 @@
                      [class.text-white]="themeService.isDark()"
                      [class.text-gray-900]="themeService.isLight()">{{ vm.symbol }}</p>
                   <p class="text-xs font-medium mt-0.5 text-red-400">{{ formatPercent(vm.changePercent) }}</p>
+                  @if (dipBySymbol().get(vm.symbol); as pick) {
+                    <span class="mt-1 inline-block rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                          [class]="dipActionClasses(pick.action)">
+                      {{ dipActionLabel(pick.action) }}
+                    </span>
+                  }
                 </div>
                 <div class="text-right shrink-0">
                   <p class="text-sm font-semibold"
@@ -809,6 +822,7 @@
           }
         </div>
       </div>
+    </div>
     </div>
   </div>
 </div>
