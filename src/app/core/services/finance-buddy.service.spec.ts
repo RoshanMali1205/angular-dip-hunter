@@ -22,10 +22,16 @@ describe('FinanceBuddyService', () => {
         FinanceBuddyService,
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: QuoteService, useValue: { quotes: signal({}) } },
+        { provide: QuoteService, useValue: { quotes: signal({
+          TCS: { symbol: 'TCS', price: 3500, changePercent: -2 },
+          INFY: { symbol: 'INFY', price: 1500, changePercent: -4.2 },
+        }) } },
         {
           provide: SettingsService,
-          useValue: { settings: signal({ yahooProxyUrl: '' }), isRed: () => false },
+          useValue: {
+            settings: signal({ yahooProxyUrl: '' }),
+            isRed: (quote?: { changePercent?: number }) => (quote?.changePercent ?? 0) < 0,
+          },
         },
         {
           provide: CurrencyService,
@@ -55,7 +61,10 @@ describe('FinanceBuddyService', () => {
             getCurrentPlan: () => undefined,
           },
         },
-        { provide: PortfolioService, useValue: { activeStocks: signal([]) } },
+        { provide: PortfolioService, useValue: { activeStocks: signal([
+          { symbol: 'TCS', displayName: 'TCS' },
+          { symbol: 'INFY', displayName: 'Infosys' },
+        ]) } },
         { provide: LanguageService, useValue: { t: (key: string) => key } },
       ],
     });
@@ -105,5 +114,21 @@ describe('FinanceBuddyService', () => {
     const assistant = service.messages().at(-1) as ChatMessage;
     expect(assistant.provider).toBe('local');
     expect(assistant.text).toContain('2 holdings');
+  });
+
+  it('attaches a dip table sorted deepest-first when Gemini is unavailable', () => {
+    service.send('Which dips look good?');
+
+    const req = httpMock.expectOne('/.netlify/functions/ai');
+    req.flush(
+      { error: 'Gemini is not configured', code: 'GEMINI_API_KEY_MISSING' },
+      { status: 503, statusText: 'Service Unavailable' }
+    );
+
+    const assistant = service.messages().at(-1) as ChatMessage;
+    expect(assistant.table?.columns.map((c) => c.key)).toEqual(['stock', 'change', 'price']);
+    expect(assistant.table?.rows.map((r) => r['stock'])).toEqual(['INFY', 'TCS']);
+    expect(assistant.table?.rows[0]['change']).toBe('-4.2%');
+    expect(assistant.text).not.toContain('INFY (');
   });
 });
