@@ -4,3 +4,4 @@ export * from './radial-progress/radial-progress.component';
 export * from './dialog/dialog.component';
 export * from './dialog/dialog.service';
 export * from './currency-selector/currency-selector.component';
+export * from './finance-buddy/finance-buddy.component';

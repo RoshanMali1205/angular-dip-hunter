@@ -3,7 +3,7 @@
  * Main dashboard with folder view, KPIs, stock list, and red candidates
  */
 
-import { Component, OnInit, OnDestroy, signal, computed, inject, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuoteDataSource } from '../../core/models/settings.model';
@@ -15,12 +15,14 @@ import {
   HoldingsService,
   ThemeService,
   LanguageService,
-  NetworkStatusService
+  NetworkStatusService,
+  StockAnalysisService
 } from '../../core/services';
 import { TourService } from '../../core/services/tour.service';
 import { PriceAlertService } from '../../core/services/price-alert.service';
 import { FolderId } from '../../core/models/folder.model';
 import { StockViewModel, DashboardKPIs, Holding } from '../../core/models';
+import { DipPick, DipPrediction } from '../../core/models/plan.model';
 import { DialogService } from '../../shared/components/dialog/dialog.service';
 import {
   SkeletonCardComponent,
@@ -29,7 +31,7 @@ import {
 } from '../../shared/components';
 import { buildPageNumbers } from '../../shared/utils/pagination.utils';
 import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
-import { HoldingsPieChartComponent, PieGroupBy, PortfolioInsightsCardComponent } from './components';
+import { HoldingsPieChartComponent, PieGroupBy, DipInsightsCardComponent } from './components';
 
 export interface ProgressMetric {
   id: string;
@@ -49,6 +51,7 @@ export interface ProgressMetric {
     SkeletonStockRowComponent,
     RadialProgressComponent,
     HoldingsPieChartComponent,
+    DipInsightsCardComponent,
     CurrencyDisplayPipe
   ],
   templateUrl: './dashboard.page.html'
@@ -60,6 +63,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   private plannerService = inject(PlannerService);
   private tourService = inject(TourService);
   private dialog = inject(DialogService);
+  private stockAnalysis = inject(StockAnalysisService);
   readonly alertService = inject(PriceAlertService);
   public holdingsService = inject(HoldingsService);
 
@@ -75,6 +79,33 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
         this.tourService.consumeJustFinished();
       }
     });
+
+    effect((onCleanup) => {
+      const stocks = this.redCandidates();
+      const symbolsKey = stocks.map((s) => `${s.symbol}:${s.changePercent ?? ''}`).join(',');
+
+      untracked(() => {
+        this.dipPrediction.set(this.stockAnalysis.predictDips(stocks));
+        if (!stocks.length) {
+          this.dipLoading.set(false);
+          return;
+        }
+
+        this.dipLoading.set(true);
+        const sub = this.stockAnalysis.fetchGeminiDipPredictions(stocks).subscribe((prediction) => {
+          const currentKey = this.redCandidates()
+            .map((s) => `${s.symbol}:${s.changePercent ?? ''}`)
+            .join(',');
+          if (currentKey !== symbolsKey) return;
+
+          if (prediction) {
+            this.dipPrediction.set(prediction);
+          }
+          this.dipLoading.set(false);
+        });
+        onCleanup(() => sub.unsubscribe());
+      });
+    });
   }
 
   // UI State
@@ -86,6 +117,8 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   pieGroupBy = signal<PieGroupBy>('stock');
   showDataSourceModal = signal(false);
   highlightedSection = signal<string | null>(null);
+  dipPrediction = signal<DipPrediction | null>(null);
+  dipLoading = signal(false);
   proxySources = signal({
     finnhub: false,
     alphavantage: false,
@@ -188,6 +221,14 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   redCandidates = computed(() => 
     this.stockViewModels().filter(v => v.isRed && !v.isInCurrentPlan)
   );
+
+  dipBySymbol = computed(() => {
+    const map = new Map<string, DipPick>();
+    for (const pick of this.dipPrediction()?.picks ?? []) {
+      map.set(pick.symbol, pick);
+    }
+    return map;
+  });
 
   // Holdings filtered by selected folder for pie chart
   filteredHoldings = computed<Holding[]>(() => {
@@ -475,6 +516,23 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     if (value === undefined) return '-';
     const sign = value >= 0 ? '+' : '';
     return `${sign}${value.toFixed(2)}%`;
+  }
+
+  dipActionLabel(action: DipPick['action']): string {
+    if (action === 'buy') return this.lang.t('dashboard.dipBuy');
+    if (action === 'watch') return this.lang.t('dashboard.dipWatch');
+    return this.lang.t('dashboard.dipSkip');
+  }
+
+  dipActionClasses(action: DipPick['action']): string {
+    const dark = this.themeService.isDark();
+    if (action === 'buy') {
+      return dark ? 'bg-emerald-500/15 text-emerald-300' : 'bg-emerald-50 text-emerald-700';
+    }
+    if (action === 'watch') {
+      return dark ? 'bg-amber-500/15 text-amber-300' : 'bg-amber-50 text-amber-700';
+    }
+    return dark ? 'bg-slate-700/70 text-slate-300' : 'bg-gray-100 text-gray-600';
   }
 
   trackByStock(index: number, vm: StockViewModel): string {

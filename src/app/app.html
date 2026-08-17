@@ -490,6 +490,11 @@
 <!-- Custom Dialog (Global) -->
 <app-dialog />
 
+<!-- Finance Buddy chat (signed-in pages only) -->
+@if (!isAuthPage()) {
+  <app-finance-buddy />
+}
+
 <!-- What's New Modal (Global) -->
 @if (showWhatsNewModal()) {
   @if (latestRelease(); as release) {

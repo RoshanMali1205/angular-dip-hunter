@@ -16,6 +16,7 @@ import {
   AiAllocateResponse,
   AllocationSuggestion,
 } from '../models/plan.model';
+import { resolveAiEndpoint } from '../utils/ai-endpoint';
 
 export type { AdvisorStrategy, AllocationSuggestion };
 
@@ -67,16 +68,13 @@ export class AllocationAdvisorService {
       })),
     };
 
-    return this.http.post<AiAllocateResponse>(this.aiEndpoint(), body).pipe(
+    return this.http.post<AiAllocateResponse>(
+      resolveAiEndpoint(this.settingsService.settings().yahooProxyUrl),
+      body
+    ).pipe(
       map((res) => this.normalizeGeminiSuggestion(res?.suggestion, stocks, budget)),
       catchError(() => of(null))
     );
-  }
-
-  private aiEndpoint(): string {
-    const baseUrl = this.settingsService.settings().yahooProxyUrl ?? '';
-    // Prefer /.netlify/functions/ai on same origin so SPA catch-all cannot swallow the request
-    return baseUrl ? `${baseUrl}/api/ai` : '/.netlify/functions/ai';
   }
 
   private normalizeGeminiSuggestion(

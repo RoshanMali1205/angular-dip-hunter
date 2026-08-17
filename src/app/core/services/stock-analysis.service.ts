@@ -1,12 +1,27 @@
 /**
  * Stock Analysis Service
- * Provides detailed AI insights for individual stocks
+ * Heuristic red-stock insights plus optional Gemini dip ranking via /api/ai
  */
 
-import { Injectable, computed, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, catchError, map, of } from 'rxjs';
 import { QuoteService } from './quote.service';
-import { HoldingsService } from './holdings.service';
 import { PortfolioService } from './portfolio.service';
+import { SettingsService } from './settings.service';
+import { CurrencyService } from './currency.service';
+import { StockViewModel } from '../models';
+import {
+  AiPredictRequest,
+  AiPredictResponse,
+  DipAction,
+  DipConfidence,
+  DipDropType,
+  DipMarketTone,
+  DipPick,
+  DipPrediction,
+} from '../models/plan.model';
+import { resolveAiEndpoint } from '../utils/ai-endpoint';
 
 export interface StockAnalysis {
   symbol: string;
@@ -14,9 +29,9 @@ export interface StockAnalysis {
   currentPrice: number;
   priceChange: number;
   changePercent: number;
-  
+
   analysis: {
-    dropType: 'technical' | 'sector-wide' | 'news-based' | 'correction' | 'unknown';
+    dropType: DipDropType;
     explanation: string;
     supportingFactors: string[];
     riskLevel: 'low' | 'medium' | 'high';
@@ -24,13 +39,18 @@ export interface StockAnalysis {
   };
 }
 
+const LOCAL_DISCLAIMER = 'Local ranking from price/sector heuristics — not financial advice.';
+const GEMINI_DISCLAIMER = 'AI-assisted suggestion — not financial advice.';
+
 @Injectable({
   providedIn: 'root'
 })
 export class StockAnalysisService {
   private quoteService = inject(QuoteService);
-  private holdingsService = inject(HoldingsService);
   private portfolioService = inject(PortfolioService);
+  private settingsService = inject(SettingsService);
+  private currencyService = inject(CurrencyService);
+  private http = inject(HttpClient);
 
   /**
    * Analyze a red stock to determine drop cause
@@ -38,14 +58,11 @@ export class StockAnalysisService {
   analyzeRedStock(symbol: string): StockAnalysis {
     const quotes = this.quoteService.quotes();
     const quote = quotes[symbol];
-    const holdings = this.holdingsService.holdings();
-    const holding = holdings.find(h => h.symbol === symbol);
     const stock = this.portfolioService.stocks().find((s: any) => s.symbol === symbol) as any;
 
     const changePercent = quote?.changePercent ?? 0;
     const priceChange = quote?.change ?? 0;
 
-    // Determine drop type and generate analysis
     const analysis = this.determineDropType(
       symbol,
       changePercent,
@@ -64,6 +81,224 @@ export class StockAnalysisService {
   }
 
   /**
+   * Local dip ranking used immediately and as a Gemini fallback.
+   */
+  predictDips(stocks: StockViewModel[]): DipPrediction {
+    if (stocks.length === 0) {
+      return {
+        summary: 'No red candidates to rank.',
+        marketTone: 'cautious',
+        picks: [],
+        provider: 'local',
+        disclaimer: LOCAL_DISCLAIMER,
+      };
+    }
+
+    const quotes = this.quoteService.quotes();
+    const picks = stocks
+      .map((stock) => this.buildHeuristicPick(stock, quotes))
+      .sort((a, b) => b.score - a.score);
+
+    return {
+      summary: this.summarizeLocalPicks(picks),
+      marketTone: this.inferMarketTone(picks),
+      picks,
+      provider: 'local',
+      disclaimer: LOCAL_DISCLAIMER,
+    };
+  }
+
+  /**
+   * Ask Gemini to rank red candidates. Returns null when unavailable so callers
+   * can keep showing the local heuristic ranking.
+   */
+  fetchGeminiDipPredictions(stocks: StockViewModel[]): Observable<DipPrediction | null> {
+    if (stocks.length === 0) {
+      return of(null);
+    }
+
+    const body: AiPredictRequest = {
+      action: 'predict',
+      currency: this.currencyService.displayCurrency(),
+      stocks: stocks.map((s) => ({
+        symbol: s.symbol,
+        displayName: s.displayName,
+        sector: s.sector,
+        price: s.price,
+        changePercent: s.changePercent,
+        holdingQty: s.holdingQty,
+      })),
+    };
+
+    return this.http.post<AiPredictResponse>(
+      resolveAiEndpoint(this.settingsService.settings().yahooProxyUrl),
+      body
+    ).pipe(
+      map((res) => this.normalizeGeminiPrediction(res?.prediction, stocks)),
+      catchError(() => of(null))
+    );
+  }
+
+  private normalizeGeminiPrediction(
+    prediction: DipPrediction | undefined,
+    stocks: StockViewModel[]
+  ): DipPrediction | null {
+    if (!prediction?.picks?.length) return null;
+
+    const bySymbol = new Map(stocks.map((s) => [s.symbol, s]));
+    const seen = new Set<string>();
+    const picks: DipPick[] = [];
+
+    for (const row of prediction.picks) {
+      const stock = bySymbol.get(row.symbol);
+      if (!stock || seen.has(stock.symbol)) continue;
+      seen.add(stock.symbol);
+      picks.push({
+        symbol: stock.symbol,
+        displayName: stock.displayName,
+        score: this.clampScore(row.score),
+        action: this.asAction(row.action),
+        confidence: this.asConfidence(row.confidence),
+        dropType: this.asDropType(row.dropType),
+        rationale: row.rationale || 'Gemini dip ranking',
+        riskNote: row.riskNote || 'Model estimate only',
+      });
+    }
+
+    if (picks.length === 0) return null;
+
+    const localFallback = this.predictDips(stocks);
+    for (const stock of stocks) {
+      if (seen.has(stock.symbol)) continue;
+      const fallback = localFallback.picks.find((p) => p.symbol === stock.symbol);
+      if (fallback) picks.push(fallback);
+    }
+
+    picks.sort((a, b) => b.score - a.score);
+
+    return {
+      summary: prediction.summary || 'Gemini ranked today’s red candidates by dip quality.',
+      marketTone: this.asMarketTone(prediction.marketTone),
+      picks,
+      provider: 'gemini',
+      model: prediction.model,
+      disclaimer: prediction.disclaimer || GEMINI_DISCLAIMER,
+    };
+  }
+
+  private buildHeuristicPick(
+    stock: StockViewModel,
+    quotes: Record<string, { changePercent?: number }>
+  ): DipPick {
+    const changePercent = stock.changePercent ?? 0;
+    const absChange = Math.abs(changePercent);
+    const sectorWide = this.analyzeSectorTrend(stock.sector, stock.symbol, quotes).isSectorWide;
+
+    let score: number;
+    let dropType: DipDropType;
+    let action: DipAction;
+    let confidence: DipConfidence;
+    let rationale: string;
+    let riskNote: string;
+
+    if (absChange < 2) {
+      score = 28 + absChange * 8;
+      dropType = 'correction';
+      action = 'skip';
+      confidence = 'medium';
+      rationale = `Shallow ${changePercent.toFixed(1)}% move — wait for a clearer dip.`;
+      riskNote = 'Buying here has little dip margin.';
+    } else if (absChange <= 8) {
+      score = 68 + (absChange - 2) * 4;
+      dropType = sectorWide ? 'sector-wide' : 'technical';
+      action = 'buy';
+      confidence = sectorWide ? 'high' : 'medium';
+      rationale = sectorWide
+        ? `${changePercent.toFixed(1)}% pullback with sector-wide softness — classic staged-buy zone.`
+        : `${changePercent.toFixed(1)}% pullback is in the preferred 2–8% dip band.`;
+      riskNote = sectorWide
+        ? 'Sector may stay weak for a few sessions.'
+        : 'Confirm support holds before adding size.';
+    } else if (absChange <= 12) {
+      score = 58 - (absChange - 8) * 4;
+      dropType = sectorWide ? 'sector-wide' : 'technical';
+      action = 'watch';
+      confidence = 'medium';
+      rationale = `${changePercent.toFixed(1)}% drop is steep. Watch for stabilization before averaging.`;
+      riskNote = 'Could be news-driven; avoid catching a falling knife.';
+    } else {
+      score = Math.max(18, 42 - (absChange - 12));
+      dropType = 'news-based';
+      action = 'skip';
+      confidence = 'low';
+      rationale = `Sharp ${changePercent.toFixed(1)}% drop looks news-driven. Wait 2–3 days.`;
+      riskNote = 'Single-name event risk is elevated.';
+    }
+
+    if (sectorWide && action !== 'skip') {
+      score = Math.min(95, score + 6);
+    }
+
+    return {
+      symbol: stock.symbol,
+      displayName: stock.displayName,
+      score: this.clampScore(score),
+      action,
+      confidence,
+      dropType,
+      rationale,
+      riskNote,
+    };
+  }
+
+  private summarizeLocalPicks(picks: DipPick[]): string {
+    const buys = picks.filter((p) => p.action === 'buy').length;
+    const watches = picks.filter((p) => p.action === 'watch').length;
+    if (buys === 0 && watches === 0) {
+      return 'No attractive dips in the current red list. Stay patient.';
+    }
+    if (buys > 0) {
+      return `${buys} buy-zone dip${buys === 1 ? '' : 's'} and ${watches} to watch. Ranked locally until Gemini responds.`;
+    }
+    return `${watches} name${watches === 1 ? '' : 's'} to watch. No high-conviction buy-zone dips yet.`;
+  }
+
+  private inferMarketTone(picks: DipPick[]): DipMarketTone {
+    const buyShare = picks.filter((p) => p.action === 'buy').length / Math.max(picks.length, 1);
+    const skipShare = picks.filter((p) => p.action === 'skip').length / Math.max(picks.length, 1);
+    if (buyShare >= 0.5) return 'risk-on';
+    if (skipShare >= 0.5) return 'defensive';
+    return 'cautious';
+  }
+
+  private clampScore(value: number): number {
+    if (!Number.isFinite(value)) return 50;
+    return Math.max(0, Math.min(100, value));
+  }
+
+  private asAction(value: DipAction | string | undefined): DipAction {
+    return value === 'buy' || value === 'watch' || value === 'skip' ? value : 'watch';
+  }
+
+  private asConfidence(value: DipConfidence | string | undefined): DipConfidence {
+    return value === 'high' || value === 'medium' || value === 'low' ? value : 'medium';
+  }
+
+  private asDropType(value: DipDropType | string | undefined): DipDropType {
+    return value === 'technical' ||
+      value === 'sector-wide' ||
+      value === 'news-based' ||
+      value === 'correction' ||
+      value === 'unknown'
+      ? value
+      : 'unknown';
+  }
+
+  private asMarketTone(value: DipMarketTone | string | undefined): DipMarketTone {
+    return value === 'risk-on' || value === 'cautious' || value === 'defensive' ? value : 'cautious';
+  }
+
+  /**
    * Determine root cause of price drop
    */
   private determineDropType(
@@ -74,7 +309,6 @@ export class StockAnalysisService {
   ) {
     const absChange = Math.abs(changePercent);
 
-    // 1. Check if sector-wide (other stocks in same sector also down)
     const sectorAnalysis = this.analyzeSectorTrend(sector, symbol, allQuotes);
     if (sectorAnalysis.isSectorWide) {
       return {
@@ -90,7 +324,6 @@ export class StockAnalysisService {
       };
     }
 
-    // 2. Check if technical/temporary correction (shallow drop)
     if (absChange < 5) {
       return {
         dropType: 'correction' as const,
@@ -105,7 +338,6 @@ export class StockAnalysisService {
       };
     }
 
-    // 3. Check if sharp drop (likely news-based)
     if (absChange >= 10) {
       return {
         dropType: 'news-based' as const,
@@ -120,7 +352,6 @@ export class StockAnalysisService {
       };
     }
 
-    // 4. Moderate drop (5-10%)
     return {
       dropType: 'technical' as const,
       explanation: `Moderate drop of ${changePercent.toFixed(1)}%. Could be technical or minor news impact.`,
@@ -148,7 +379,7 @@ export class StockAnalysisService {
 
     const stocks = this.portfolioService.stocks();
     const sectorStocks = stocks.filter((s: any) => s.sector === sector && s.symbol !== symbol) as any[];
-    
+
     if (sectorStocks.length === 0) {
       return { isSectorWide: false, downCount: 0, message: '' };
     }
@@ -159,7 +390,7 @@ export class StockAnalysisService {
     });
 
     const downPercentage = (downStocks.length / sectorStocks.length) * 100;
-    const isSectorWide = downPercentage >= 50; // 50%+ of sector is down
+    const isSectorWide = downPercentage >= 50;
 
     return {
       isSectorWide,

@@ -49,6 +49,70 @@ export interface AiAllocateResponse {
   suggestion: AllocationSuggestion;
 }
 
+export type DipAction = 'buy' | 'watch' | 'skip';
+export type DipMarketTone = 'risk-on' | 'cautious' | 'defensive';
+export type DipDropType = 'technical' | 'sector-wide' | 'news-based' | 'correction' | 'unknown';
+export type DipConfidence = 'high' | 'medium' | 'low';
+
+export interface DipPick {
+  symbol: string;
+  displayName: string;
+  score: number;
+  action: DipAction;
+  confidence: DipConfidence;
+  dropType: DipDropType;
+  rationale: string;
+  riskNote: string;
+}
+
+export interface DipPrediction {
+  summary: string;
+  marketTone: DipMarketTone;
+  picks: DipPick[];
+  provider?: 'gemini' | 'local';
+  model?: string;
+  disclaimer?: string;
+}
+
+export interface AiPredictRequest {
+  action: 'predict';
+  currency?: string;
+  stocks: AiAllocateStockInput[];
+}
+
+export interface AiPredictResponse {
+  prediction: DipPrediction;
+}
+
+export type ChatRole = 'user' | 'assistant';
+
+export interface ChatMessage {
+  id: string;
+  role: ChatRole;
+  text: string;
+  provider?: 'gemini' | 'local';
+  createdAt: string;
+}
+
+export interface AiChatHistoryTurn {
+  role: ChatRole;
+  text: string;
+}
+
+export interface AiChatRequest {
+  action: 'chat';
+  message: string;
+  history?: AiChatHistoryTurn[];
+  context?: string;
+}
+
+export interface AiChatResponse {
+  reply: string;
+  provider: 'gemini';
+  model?: string;
+  disclaimer?: string;
+}
+
 export interface PlanItem {
   stockId: string;
   symbol: string;
