@@ -354,16 +354,48 @@ export class PlannerPageComponent implements OnInit {
   }
 
   /**
-   * Execute plan — create BUY transactions for all pending (non-executed) items
+   * Execute plan — create BUY transactions for all pending (non-executed) items.
+   * Newly added stocks have no targetQty until Equal Weight / AI allocation is applied.
    */
   async onExecutePlan(): Promise<void> {
-    const plan = this.currentPlan();
+    let plan = this.currentPlan();
     if (!plan || plan.items.length === 0) return;
 
-    const pending = plan.items.filter(i => !i.isExecuted && i.targetQty && i.targetQty > 0);
+    let pending = plan.items.filter(i => !i.isExecuted && i.targetQty && i.targetQty > 0);
     if (pending.length === 0) {
-      await this.dialog.alert('All items already executed.', 'Nothing to Execute');
-      return;
+      const unexecuted = plan.items.filter(i => !i.isExecuted);
+      if (unexecuted.length === 0) {
+        await this.dialog.alert('All items already executed.', 'Nothing to Execute');
+        return;
+      }
+
+      // Stocks are in the list but have no buy qty yet (addItem sets targetAmount: 0 only)
+      if (plan.status === 'FINAL') {
+        await this.dialog.alert(
+          'Items have no buy quantity. Apply Equal Weight or set quantities before finalizing next time.',
+          'Nothing to Execute'
+        );
+        return;
+      }
+
+      const apply = await this.dialog.confirm(
+        'Stocks are listed but have no buy quantity yet. Apply Equal Weight from the monthly budget now?',
+        'Quantity Required'
+      );
+      if (!apply) return;
+
+      this.plannerService.updatePlan(plan.id, { budget: this.budget() });
+      this.plannerService.applyEqualWeight(plan.id, this.quoteService.quotes());
+
+      plan = this.plannerService.getPlanById(plan.id) ?? plan;
+      pending = plan.items.filter(i => !i.isExecuted && i.targetQty && i.targetQty > 0);
+      if (pending.length === 0) {
+        await this.dialog.alert(
+          'Equal Weight produced 0 quantity (budget may be too low for current prices). Increase the budget or set quantities manually.',
+          'Nothing to Execute'
+        );
+        return;
+      }
     }
 
     const today = new Date().toISOString().split('T')[0];

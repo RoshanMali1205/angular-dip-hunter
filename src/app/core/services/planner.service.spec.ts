@@ -101,4 +101,62 @@ describe('PlannerService', () => {
       expect(service.isInCurrentPlan('stock-a')).toBe(false);
     });
   });
+
+  describe('addItem() leaves quantity unset until allocation', () => {
+    it('adds stocks without targetQty (Execute needs Equal Weight first)', () => {
+      const plan = service.createPlan(service.currentMonth, 10000);
+      const added = service.addItem(plan.id, 'stock-a', 'AAA', { price: 100 } as any)!;
+
+      expect(added.targetAmount).toBe(0);
+      expect(added.targetQty).toBeUndefined();
+      expect(added.isExecuted).toBe(false);
+    });
+  });
+
+  describe('applyEqualWeight()', () => {
+    it('sets targetQty for newly added stocks', () => {
+      const plan = service.createPlan(service.currentMonth, 10000);
+      service.addItem(plan.id, 'stock-a', 'AAA', { price: 100 } as any);
+      service.addItem(plan.id, 'stock-b', 'BBB', { price: 200 } as any);
+
+      const updated = service.applyEqualWeight(plan.id, {
+        AAA: { price: 100 } as any,
+        BBB: { price: 200 } as any
+      })!;
+
+      expect(updated.items[0].targetAmount).toBe(5000);
+      expect(updated.items[0].targetQty).toBe(50);
+      expect(updated.items[1].targetAmount).toBe(5000);
+      expect(updated.items[1].targetQty).toBe(25);
+    });
+
+    it('allocates only among pending items and leaves executed items unchanged', () => {
+      const plan = service.createPlan(service.currentMonth, 10000);
+      service.addItem(plan.id, 'stock-a', 'AAA', { price: 100 } as any);
+      service.addItem(plan.id, 'stock-b', 'BBB', { price: 100 } as any);
+      service.applyEqualWeight(plan.id, {
+        AAA: { price: 100 } as any,
+        BBB: { price: 100 } as any
+      });
+      service.markItemsExecuted(plan.id, ['stock-a']);
+      service.addItem(plan.id, 'stock-c', 'CCC', { price: 50 } as any);
+
+      const updated = service.applyEqualWeight(plan.id, {
+        AAA: { price: 100 } as any,
+        BBB: { price: 100 } as any,
+        CCC: { price: 50 } as any
+      })!;
+
+      const executed = updated.items.find(i => i.stockId === 'stock-a')!;
+      const pendingB = updated.items.find(i => i.stockId === 'stock-b')!;
+      const pendingC = updated.items.find(i => i.stockId === 'stock-c')!;
+
+      expect(executed.isExecuted).toBe(true);
+      expect(executed.targetQty).toBe(50); // unchanged from first allocation
+      expect(pendingB.targetAmount).toBe(5000);
+      expect(pendingB.targetQty).toBe(50);
+      expect(pendingC.targetAmount).toBe(5000);
+      expect(pendingC.targetQty).toBe(100);
+    });
+  });
 });
