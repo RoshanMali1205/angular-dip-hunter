@@ -1,16 +1,14 @@
 /**
  * NSE/BSE prompt pack for Gemini (Finance Buddy chat).
  * Keep this JSON identical to src/assets/knowledge/nse-bse.json.
+ * Use createRequire so Netlify's bundler inlines the JSON (readFileSync is dropped).
  */
 
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
-const pack = JSON.parse(
-  readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'nse-bse-knowledge.json'), 'utf8')
-);
+const require = createRequire(import.meta.url);
+const pack = require('./nse-bse-knowledge.json');
 
 export function nseBsePromptSnippet() {
-  return String(pack.prompt || '').trim();
+  return String(pack?.prompt || '').trim();
 }

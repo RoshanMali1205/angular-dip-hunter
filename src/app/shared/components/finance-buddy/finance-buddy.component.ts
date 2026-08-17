@@ -124,6 +124,9 @@ import { ChatTableColumn } from '../../../core/models/plan.model';
                   @if (msg.role === 'assistant' && msg.provider === 'gemini') {
                     <p class="mt-1 text-[10px] opacity-70">Gemini</p>
                   }
+                  @if (msg.role === 'assistant' && msg.provider === 'local' && msg.id !== 'welcome') {
+                    <p class="mt-1 text-[10px] opacity-70">{{ lang.t('buddy.localLabel') }}</p>
+                  }
                 </div>
               </div>
             }

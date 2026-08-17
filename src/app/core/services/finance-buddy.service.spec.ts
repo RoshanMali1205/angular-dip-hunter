@@ -148,6 +148,34 @@ describe('FinanceBuddyService', () => {
     expect(assistant.text).toContain('Not financial advice');
   });
 
+  it('answers NSE closing questions from built-in knowledge', () => {
+    service.send('NSE closing today?');
+
+    const req = httpMock.expectOne('/.netlify/functions/ai');
+    req.flush(
+      { error: 'Gemini is not configured', code: 'GEMINI_API_KEY_MISSING' },
+      { status: 503, statusText: 'Service Unavailable' }
+    );
+
+    const assistant = service.messages().at(-1) as ChatMessage;
+    expect(assistant.text).toContain('15:30');
+    expect(assistant.text).not.toContain('buddy.offlineHelp');
+  });
+
+  it('explains a missing Gemini key when the question has no local fact', () => {
+    service.send('What is the weather on Mars?');
+
+    const req = httpMock.expectOne('/.netlify/functions/ai');
+    req.flush(
+      { error: 'Gemini is not configured', code: 'GEMINI_API_KEY_MISSING' },
+      { status: 503, statusText: 'Service Unavailable' }
+    );
+
+    const assistant = service.messages().at(-1) as ChatMessage;
+    expect(assistant.text).toContain('buddy.offlineHelp');
+    expect(assistant.text).toContain('buddy.geminiMissing');
+  });
+
   it('includes an NSE/BSE market chip among suggested prompts', () => {
     expect(service.suggestedPrompts()).toContain('buddy.chipMarket');
   });

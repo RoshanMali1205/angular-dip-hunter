@@ -622,7 +622,7 @@ fetchGeminiAllocation(stocks: StockViewModel[], budget: number): Observable<Allo
 // Calls POST /api/ai (Netlify function or local proxy). Returns null if Gemini is unavailable.
 ```
 
-**Gemini setup:** set `GEMINI_API_KEY` in Netlify env (optional `GEMINI_MODEL`, default `gemini-2.0-flash`). For local proxy: `export GEMINI_API_KEY=...` before starting `server/`.
+**Gemini setup:** set `GEMINI_API_KEY` in Netlify **Site settings → Environment variables** with scopes that include **Functions** and **Production**, then trigger a new deploy (saving the variable is not enough). Optional `GEMINI_MODEL` (default `gemini-3.5-flash`; `gemini-2.0-flash` was shut down 1 June 2026). Do not restrict the Google key to HTTP referrers — the Netlify function calls Gemini server-side. For local proxy: `export GEMINI_API_KEY=...` before starting `server/`.
 
 ### `PortfolioInsightsService` _(New)_
 Analyzes holdings and generates insights about portfolio health.
@@ -943,7 +943,7 @@ Response:
       { "symbol": "TCS", "displayName": "TCS", "allocation": 10000, "percentage": 100, "reason": "..." }
     ],
     "provider": "gemini",
-    "model": "gemini-2.0-flash",
+    "model": "gemini-3.5-flash",
     "disclaimer": "AI-assisted suggestion — not financial advice."
   }
 }
@@ -983,7 +983,7 @@ Response:
       }
     ],
     "provider": "gemini",
-    "model": "gemini-2.0-flash",
+    "model": "gemini-3.5-flash",
     "disclaimer": "AI-assisted suggestion — not financial advice."
   }
 }
@@ -1011,7 +1011,7 @@ Response:
 {
   "reply": "INFY’s 4% pullback is the cleaner staged-buy vs TCS.",
   "provider": "gemini",
-  "model": "gemini-2.0-flash",
+  "model": "gemini-3.5-flash",
   "disclaimer": "AI-assisted suggestion — not financial advice."
 }
 ```

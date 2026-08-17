@@ -11,6 +11,13 @@
         "trading hours",
         "nse open",
         "bse open",
+        "nse closing",
+        "bse closing",
+        "nse close",
+        "bse close",
+        "closing today",
+        "close today",
+        "market closing",
         "when does nse",
         "when does bse",
         "when does the market",
@@ -28,7 +35,7 @@
         "3:30 pm",
         "3:30pm"
       ],
-      "strongKeywords": ["trading hours", "market hours", "pre-open"],
+      "strongKeywords": ["trading hours", "market hours", "pre-open", "nse closing", "closing today"],
       "answer": "NSE and BSE cash equities trade in IST, Monday–Friday except exchange holidays. Pre-open is about 09:00–09:15 (order entry ~09:00–09:08, matching ~09:08–09:12, then a short buffer). Continuous trading is 09:15–15:30. A closing session around 15:40–16:00 sets the official close. There is no regular weekend cash session."
     },
     {

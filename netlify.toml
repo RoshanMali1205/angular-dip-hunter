@@ -3,6 +3,9 @@
   publish = "dist/angular-dip-hunter/browser"
   functions = "netlify/functions"
 
+[functions]
+  included_files = ["netlify/functions/nse-bse-knowledge.json"]
+
 [dev]
   command = "ng serve"
   targetPort = 4200

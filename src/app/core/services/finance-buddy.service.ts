@@ -3,7 +3,7 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, of } from 'rxjs';
 import { QuoteService } from './quote.service';
 import { SettingsService } from './settings.service';
@@ -88,7 +88,9 @@ export class FinanceBuddyService {
       )
       .pipe(
         map((res) => this.asAssistant(res?.reply, 'gemini', this.tableFor(text))),
-        catchError(() => of(this.asAssistant(this.localReply(text), 'local', this.tableFor(text))))
+        catchError((err: HttpErrorResponse) =>
+          of(this.asAssistant(this.fallbackReply(text, err), 'local', this.tableFor(text)))
+        )
       )
       .subscribe((assistant) => {
         this.messages.update((list) => [...list, assistant]);
@@ -307,5 +309,29 @@ export class FinanceBuddyService {
     }
 
     return this.lang.t('buddy.offlineHelp');
+  }
+
+  private fallbackReply(message: string, err: HttpErrorResponse): string {
+    const local = this.localReply(message);
+    if (local !== this.lang.t('buddy.offlineHelp')) {
+      return local;
+    }
+    const note = this.geminiFailureNote(err);
+    return note ? `${local}\n\n${note}` : local;
+  }
+
+  private geminiFailureNote(err: HttpErrorResponse): string {
+    const code = String(err?.error?.code || '');
+    const details = `${err?.error?.error || err?.message || ''}`.toLowerCase();
+    if (code === 'GEMINI_API_KEY_MISSING') {
+      return this.lang.t('buddy.geminiMissing');
+    }
+    if (err?.status === 404 || details.includes('not found') || details.includes('shut down')) {
+      return this.lang.t('buddy.geminiModel');
+    }
+    if (err?.status >= 400) {
+      return this.lang.t('buddy.geminiUnavailable');
+    }
+    return this.lang.t('buddy.geminiUnavailable');
   }
 }

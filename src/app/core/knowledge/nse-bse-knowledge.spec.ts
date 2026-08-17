@@ -19,6 +19,7 @@ describe('nse-bse-knowledge', () => {
     expect(topic?.id).toBe('hours');
     expect(formatNseBseReply(topic!)).toContain('09:15');
     expect(formatNseBseReply(topic!)).toContain(NSE_BSE_KNOWLEDGE.disclaimer);
+    expect(matchNseBseFact('NSE closing today?')?.id).toBe('hours');
   });
 
   it('matches NSE vs BSE and ticker suffixes', () => {
