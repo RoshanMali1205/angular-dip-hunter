@@ -11,7 +11,7 @@ describe('nse-bse-knowledge', () => {
     expect(prompt).toContain('09:15–15:30');
     expect(prompt).toContain('SYMBOL.NS');
     expect(prompt).toContain('T+1');
-    expect(prompt).not.toContain('NYSE');
+    expect(prompt).toContain('Do not assume NYSE/NASDAQ hours');
   });
 
   it('matches NSE cash hours before treating the question as a dip list', () => {
