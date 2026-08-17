@@ -228,19 +228,25 @@ export class PlannerService {
   }
 
   /**
-   * Apply equal weight allocation
+   * Apply equal weight allocation to pending (non-executed) items only.
+   * Newly added stocks start with targetAmount 0 and no targetQty — this fills them in.
    */
   applyEqualWeight(planId: string, quotesMap: Record<string, Quote>): MonthlyPlan | null {
     const plan = this._plans().find(p => p.id === planId);
     if (!plan || plan.status === 'FINAL' || plan.items.length === 0) return null;
 
-    const perStock = plan.budget / plan.items.length;
-    
+    const pendingItems = plan.items.filter(i => !i.isExecuted);
+    if (pendingItems.length === 0) return null;
+
+    const perStock = plan.budget / pendingItems.length;
+
     const updatedItems = plan.items.map(item => {
+      if (item.isExecuted) return item;
+
       const quote = quotesMap[item.symbol];
       const price = quote?.price ?? item.plannedPrice;
       const targetQty = price > 0 ? Math.floor(perStock / price) : 0;
-      
+
       return {
         ...item,
         targetAmount: perStock,
