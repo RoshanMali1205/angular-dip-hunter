@@ -10,7 +10,7 @@ function makeState(url: string): RouterStateSnapshot {
 }
 
 describe('authGuard', () => {
-  let authService: { isAuthenticated: ReturnType<typeof vi.fn>; setRedirectUrl: ReturnType<typeof vi.fn> };
+  let authService: { isAuthenticated: ReturnType<typeof vi.fn>; setRedirectUrl: ReturnType<typeof vi.fn>; whenReady: ReturnType<typeof vi.fn> };
   let router: { navigate: ReturnType<typeof vi.fn>; createUrlTree: ReturnType<typeof vi.fn> };
   const fakeUrlTree = {} as any;
 
@@ -18,6 +18,7 @@ describe('authGuard', () => {
     authService = {
       isAuthenticated: vi.fn(),
       setRedirectUrl: vi.fn(),
+      whenReady: vi.fn().mockResolvedValue(undefined),
     };
     router = { navigate: vi.fn(), createUrlTree: vi.fn().mockReturnValue(fakeUrlTree) };
 
@@ -29,10 +30,10 @@ describe('authGuard', () => {
     });
   });
 
-  it('returns true when user is authenticated', () => {
+  it('returns true when user is authenticated', async () => {
     authService.isAuthenticated.mockReturnValue(true);
 
-    const result = TestBed.runInInjectionContext(() =>
+    const result = await TestBed.runInInjectionContext(() =>
       authGuard(mockRoute, makeState('/dashboard'))
     );
 
@@ -40,10 +41,10 @@ describe('authGuard', () => {
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
-  it('returns false and redirects to /auth/login when unauthenticated', () => {
+  it('returns false and redirects to /auth/login when unauthenticated', async () => {
     authService.isAuthenticated.mockReturnValue(false);
 
-    const result = TestBed.runInInjectionContext(() =>
+    const result = await TestBed.runInInjectionContext(() =>
       authGuard(mockRoute, makeState('/dashboard'))
     );
 
@@ -51,10 +52,10 @@ describe('authGuard', () => {
     expect(router.createUrlTree).toHaveBeenCalledWith(['/auth/login']);
   });
 
-  it('stores the attempted URL before redirecting', () => {
+  it('stores the attempted URL before redirecting', async () => {
     authService.isAuthenticated.mockReturnValue(false);
 
-    TestBed.runInInjectionContext(() =>
+    await TestBed.runInInjectionContext(() =>
       authGuard(mockRoute, makeState('/portfolio/folder-1'))
     );
 
@@ -63,12 +64,12 @@ describe('authGuard', () => {
 });
 
 describe('guestGuard', () => {
-  let authService: { isAuthenticated: ReturnType<typeof vi.fn> };
+  let authService: { isAuthenticated: ReturnType<typeof vi.fn>; whenReady: ReturnType<typeof vi.fn> };
   let router: { navigate: ReturnType<typeof vi.fn>; createUrlTree: ReturnType<typeof vi.fn> };
   const fakeUrlTree = {} as any;
 
   beforeEach(() => {
-    authService = { isAuthenticated: vi.fn() };
+    authService = { isAuthenticated: vi.fn(), whenReady: vi.fn().mockResolvedValue(undefined) };
     router = { navigate: vi.fn(), createUrlTree: vi.fn().mockReturnValue(fakeUrlTree) };
 
     TestBed.configureTestingModule({
@@ -79,10 +80,10 @@ describe('guestGuard', () => {
     });
   });
 
-  it('returns true when user is not authenticated', () => {
+  it('returns true when user is not authenticated', async () => {
     authService.isAuthenticated.mockReturnValue(false);
 
-    const result = TestBed.runInInjectionContext(() =>
+    const result = await TestBed.runInInjectionContext(() =>
       guestGuard(mockRoute, makeState('/auth/login'))
     );
 
@@ -90,10 +91,10 @@ describe('guestGuard', () => {
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
-  it('returns false and redirects to / when already authenticated', () => {
+  it('returns false and redirects to / when already authenticated', async () => {
     authService.isAuthenticated.mockReturnValue(true);
 
-    const result = TestBed.runInInjectionContext(() =>
+    const result = await TestBed.runInInjectionContext(() =>
       guestGuard(mockRoute, makeState('/auth/login'))
     );
 

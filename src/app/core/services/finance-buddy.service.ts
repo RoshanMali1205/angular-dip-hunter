@@ -3,7 +3,7 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, of } from 'rxjs';
 import { QuoteService } from './quote.service';
 import { SettingsService } from './settings.service';
@@ -13,10 +13,12 @@ import { PlannerService } from './planner.service';
 import { PortfolioService } from './portfolio.service';
 import { LanguageService } from './language.service';
 import { resolveAiEndpoint } from '../utils/ai-endpoint';
+import { formatNseBseReply, matchNseBseFact } from '../knowledge/nse-bse-knowledge';
 import {
   AiChatRequest,
   AiChatResponse,
   ChatMessage,
+  ChatTable,
 } from '../models/plan.model';
 
 const DISCLAIMER = 'Not financial advice.';
@@ -85,8 +87,10 @@ export class FinanceBuddyService {
         body
       )
       .pipe(
-        map((res) => this.asAssistant(res?.reply, 'gemini')),
-        catchError(() => of(this.asAssistant(this.localReply(text), 'local')))
+        map((res) => this.asAssistant(res?.reply, 'gemini', this.tableFor(text))),
+        catchError((err: HttpErrorResponse) =>
+          of(this.asAssistant(this.fallbackReply(text, err), 'local', this.tableFor(text)))
+        )
       )
       .subscribe((assistant) => {
         this.messages.update((list) => [...list, assistant]);
@@ -99,6 +103,7 @@ export class FinanceBuddyService {
       this.lang.t('buddy.chipDips'),
       this.lang.t('buddy.chipPlan'),
       this.lang.t('buddy.chipPortfolio'),
+      this.lang.t('buddy.chipMarket'),
     ];
   }
 
@@ -112,7 +117,11 @@ export class FinanceBuddyService {
     };
   }
 
-  private asAssistant(text: string | undefined, provider: 'gemini' | 'local'): ChatMessage {
+  private asAssistant(
+    text: string | undefined,
+    provider: 'gemini' | 'local',
+    table?: ChatTable
+  ): ChatMessage {
     const fallback = this.localReply('help');
     return {
       id: this.nextId(),
@@ -120,6 +129,7 @@ export class FinanceBuddyService {
       text: (text && text.trim()) || fallback,
       provider,
       createdAt: new Date().toISOString(),
+      table,
     };
   }
 
@@ -129,16 +139,107 @@ export class FinanceBuddyService {
       : `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
-  private redCandidates(): { symbol: string; changePercent?: number }[] {
+  private redCandidates(): {
+    symbol: string;
+    displayName: string;
+    changePercent?: number;
+    price?: number;
+  }[] {
     const quotes = this.quoteService.quotes();
     return this.portfolioService
       .activeStocks()
       .map((stock) => {
         const quote = quotes[stock.symbol];
-        return { symbol: stock.symbol, changePercent: quote?.changePercent, isRed: this.settingsService.isRed(quote) };
+        return {
+          symbol: stock.symbol,
+          displayName: stock.displayName,
+          changePercent: quote?.changePercent,
+          price: quote?.price,
+          isRed: this.settingsService.isRed(quote),
+        };
       })
       .filter((row) => row.isRed)
-      .map(({ symbol, changePercent }) => ({ symbol, changePercent }));
+      .map(({ symbol, displayName, changePercent, price }) => ({
+        symbol,
+        displayName,
+        changePercent,
+        price,
+      }))
+      .sort((a, b) => (a.changePercent ?? 0) - (b.changePercent ?? 0));
+  }
+
+  private formatChange(value?: number): string {
+    if (typeof value !== 'number' || Number.isNaN(value)) return '—';
+    const sign = value > 0 ? '+' : '';
+    return `${sign}${value.toFixed(1)}%`;
+  }
+
+  private tableFor(message: string): ChatTable | undefined {
+    if (matchNseBseFact(message)) return undefined;
+    const q = message.toLowerCase();
+    if (/dip|red|buy/.test(q)) return this.dipsTable();
+    if (/plan|budget|allocat/.test(q)) return this.planTable();
+    if (/portfolio|holding|p\/?l|pnl|invest/.test(q)) return this.portfolioTable();
+    return undefined;
+  }
+
+  private dipsTable(): ChatTable | undefined {
+    const reds = this.redCandidates().slice(0, 12);
+    if (reds.length === 0) return undefined;
+
+    return {
+      columns: [
+        { key: 'stock', label: this.lang.t('buddy.colStock'), align: 'left' },
+        { key: 'change', label: this.lang.t('buddy.colChange'), align: 'right', tone: 'change' },
+        { key: 'price', label: this.lang.t('buddy.colPrice'), align: 'right' },
+      ],
+      rows: reds.map((r) => ({
+        stock: r.symbol,
+        change: this.formatChange(r.changePercent),
+        price: typeof r.price === 'number' ? this.currencyService.formatDisplay(r.price) : '—',
+      })),
+    };
+  }
+
+  private planTable(): ChatTable | undefined {
+    const plan =
+      this.plannerService.getDraftPlanForMonth(this.plannerService.currentMonth) ??
+      this.plannerService.getCurrentPlan();
+    if (!plan) return undefined;
+    const money = (n: number) => this.currencyService.formatDisplay(n);
+    return {
+      columns: [
+        { key: 'metric', label: this.lang.t('buddy.colMetric'), align: 'left' },
+        { key: 'value', label: this.lang.t('buddy.colValue'), align: 'right' },
+      ],
+      rows: [
+        { metric: this.lang.t('buddy.planName'), value: plan.name || plan.month },
+        { metric: this.lang.t('buddy.planStatus'), value: plan.status },
+        { metric: this.lang.t('buddy.planBudget'), value: money(plan.budget) },
+        { metric: this.lang.t('buddy.planAllocated'), value: money(plan.totalPlannedAmount) },
+        { metric: this.lang.t('buddy.planItems'), value: String(plan.items.length) },
+      ],
+    };
+  }
+
+  private portfolioTable(): ChatTable | undefined {
+    const summary = this.holdingsService.summary();
+    if (summary.holdingsCount === 0) return undefined;
+    const money = (n: number) => this.currencyService.formatDisplay(n);
+    const pl = summary.totalUnrealizedPLPercent;
+    const sign = pl > 0 ? '+' : '';
+    return {
+      columns: [
+        { key: 'metric', label: this.lang.t('buddy.colMetric'), align: 'left' },
+        { key: 'value', label: this.lang.t('buddy.colValue'), align: 'right', tone: 'pl' },
+      ],
+      rows: [
+        { metric: this.lang.t('buddy.portHoldings'), value: String(summary.holdingsCount) },
+        { metric: this.lang.t('buddy.portInvested'), value: money(summary.totalInvested) },
+        { metric: this.lang.t('buddy.portValue'), value: money(summary.totalCurrentValue) },
+        { metric: this.lang.t('buddy.portPL'), value: `${sign}${pl.toFixed(1)}%` },
+      ],
+    };
   }
 
   buildContext(): string {
@@ -173,6 +274,11 @@ export class FinanceBuddyService {
   }
 
   localReply(message: string): string {
+    const marketFact = matchNseBseFact(message);
+    if (marketFact) {
+      return formatNseBseReply(marketFact);
+    }
+
     const q = message.toLowerCase();
     const reds = this.redCandidates();
     const summary = this.holdingsService.summary();
@@ -185,15 +291,7 @@ export class FinanceBuddyService {
       if (reds.length === 0) {
         return `No red candidates right now — watched names look green. ${DISCLAIMER}`;
       }
-      const list = reds
-        .slice(0, 8)
-        .map((r) =>
-          typeof r.changePercent === 'number'
-            ? `${r.symbol} (${r.changePercent.toFixed(1)}%)`
-            : r.symbol
-        )
-        .join(', ');
-      return `Today's red dips: ${list}. Open Planner to allocate, or ask Gemini (when configured) which look like staged buys. ${DISCLAIMER}`;
+      return `${this.lang.t('buddy.dipsIntro')} ${DISCLAIMER}`;
     }
 
     if (/plan|budget|allocat/.test(q)) {
@@ -211,5 +309,29 @@ export class FinanceBuddyService {
     }
 
     return this.lang.t('buddy.offlineHelp');
+  }
+
+  private fallbackReply(message: string, err: HttpErrorResponse): string {
+    const local = this.localReply(message);
+    if (local !== this.lang.t('buddy.offlineHelp')) {
+      return local;
+    }
+    const note = this.geminiFailureNote(err);
+    return note ? `${local}\n\n${note}` : local;
+  }
+
+  private geminiFailureNote(err: HttpErrorResponse): string {
+    const code = String(err?.error?.code || '');
+    const details = `${err?.error?.error || err?.message || ''}`.toLowerCase();
+    if (code === 'GEMINI_API_KEY_MISSING') {
+      return this.lang.t('buddy.geminiMissing');
+    }
+    if (err?.status === 404 || details.includes('not found') || details.includes('shut down')) {
+      return this.lang.t('buddy.geminiModel');
+    }
+    if (err?.status >= 400) {
+      return this.lang.t('buddy.geminiUnavailable');
+    }
+    return this.lang.t('buddy.geminiUnavailable');
   }
 }

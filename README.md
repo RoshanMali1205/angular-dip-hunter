@@ -75,7 +75,7 @@ The application manages a **split-portfolio structure**:
 - One-click add to monthly plan
 - Skeleton loaders during data fetch
 - **AI Dip Insights** — Gemini ranks red candidates with buy / watch / skip scores (local heuristic fallback)
-- **Finance Buddy** — floating chat on every signed-in page (Gemini when `GEMINI_API_KEY` is set)
+- **Finance Buddy** — floating chat on every signed-in page with built-in NSE/BSE knowledge (Gemini when `GEMINI_API_KEY` is set)
 
 ### 📁 Folder Management
 - Organize stocks into Growth Twenty and Dividend Ten folders
@@ -142,11 +142,13 @@ The application manages a **split-portfolio structure**:
 - Reset all data option
 
 ### 🔐 Authentication
-- User registration with validation
+- User registration with validation and email confirmation (Supabase when configured)
 - Login with email/password
+- Password reset via email templates
+- Per-user cloud snapshot of portfolio data (`user_snapshots`)
 - Session-based auth with route guards
 - Protected routes via `authGuard` / `guestGuard`
-- Logout functionality
+- Local mock auth remains when Supabase keys are empty (tests / offline demo)
 
 ### 🌐 Internationalization
 - Full i18n support via `@ngx-translate`
@@ -298,6 +300,8 @@ angular-dip-hunter/
 │   │   │   │   └── auth.guard.ts          # authGuard / guestGuard
 │   │   │   ├── 📁 interceptors/
 │   │   │   │   └── auth.interceptor.ts    # Auth token interceptor
+│   │   │   ├── 📁 knowledge/
+│   │   │   │   └── nse-bse-knowledge.ts   # NSE/BSE fact matcher for Finance Buddy
 │   │   │   ├── 📁 models/                 # TypeScript interfaces & types
 │   │   │   │   ├── auth.model.ts
 │   │   │   │   ├── folder.model.ts
@@ -314,6 +318,7 @@ angular-dip-hunter/
 │   │   │   │   ├── allocation-advisor.service.ts  # AI allocation strategies
 │   │   │   │   ├── auth.service.ts
 │   │   │   │   ├── drafts.service.ts              # Plan drafts management
+│   │   │   │   ├── finance-buddy.service.ts       # In-app chat + NSE/BSE fallback
 │   │   │   │   ├── holdings.service.ts
 │   │   │   │   ├── language.service.ts
 │   │   │   │   ├── performance.service.ts
@@ -354,6 +359,7 @@ angular-dip-hunter/
 │   │   │   └── 📁 transactions/
 │   │   ├── 📁 shared/
 │   │   │   └── 📁 components/
+│   │   │       ├── 📁 finance-buddy/      # Floating Gemini chat
 │   │   │       ├── 📁 dialog/             # Custom themed dialog system
 │   │   │       ├── 📁 radial-progress/    # Radial progress indicator
 │   │   │       ├── 📁 skeleton/           # Skeleton loaders
@@ -364,11 +370,15 @@ angular-dip-hunter/
 │   │   ├── app.html
 │   │   └── app.css
 │   ├── 📁 assets/
-│   │   └── 📁 i18n/
-│   │       └── translations.json          # All language strings (EN/HI/MR)
+│   │   ├── 📁 i18n/
+│   │   │   └── translations.json          # All language strings (EN/HI/MR)
+│   │   └── 📁 knowledge/
+│   │       └── nse-bse.json               # Built-in NSE/BSE facts for Finance Buddy
 │   ├── index.html
 │   ├── main.ts
 │   └── styles.css
+├── 📁 .github/
+│   └── 📁 agents/                         # Custom agents (incl. nse-bse-finance-buddy)
 ├── 📁 public/
 │   ├── manifest.webmanifest               # PWA manifest
 │   └── 📁 icons/                          # PWA icons
@@ -614,7 +624,7 @@ fetchGeminiAllocation(stocks: StockViewModel[], budget: number): Observable<Allo
 // Calls POST /api/ai (Netlify function or local proxy). Returns null if Gemini is unavailable.
 ```
 
-**Gemini setup:** set `GEMINI_API_KEY` in Netlify env (optional `GEMINI_MODEL`, default `gemini-2.0-flash`). For local proxy: `export GEMINI_API_KEY=...` before starting `server/`.
+**Gemini setup:** set `GEMINI_API_KEY` in Netlify **Site settings → Environment variables** with scopes that include **Functions** and **Production**, then trigger a new deploy (saving the variable is not enough). Optional `GEMINI_MODEL` (default `gemini-3.5-flash`; `gemini-2.0-flash` was shut down 1 June 2026). Do not restrict the Google key to HTTP referrers — the Netlify function calls Gemini server-side. For local proxy: `export GEMINI_API_KEY=...` before starting `server/`.
 
 ### `PortfolioInsightsService` _(New)_
 Analyzes holdings and generates insights about portfolio health.
@@ -641,7 +651,7 @@ fetchGeminiDipPredictions(stocks: StockViewModel[]): Observable<DipPrediction | 
 ```
 
 ### `FinanceBuddyService`
-Powers the floating Finance Buddy chat. Gemini when `GEMINI_API_KEY` is set; otherwise answers from local portfolio/plan/red-list data.
+Powers the floating Finance Buddy chat. Gemini when `GEMINI_API_KEY` is set; otherwise answers from built-in NSE/BSE facts plus local portfolio/plan/red-list data.
 
 ```typescript
 isOpen: Signal<boolean>
@@ -935,7 +945,7 @@ Response:
       { "symbol": "TCS", "displayName": "TCS", "allocation": 10000, "percentage": 100, "reason": "..." }
     ],
     "provider": "gemini",
-    "model": "gemini-2.0-flash",
+    "model": "gemini-3.5-flash",
     "disclaimer": "AI-assisted suggestion — not financial advice."
   }
 }
@@ -975,7 +985,7 @@ Response:
       }
     ],
     "provider": "gemini",
-    "model": "gemini-2.0-flash",
+    "model": "gemini-3.5-flash",
     "disclaimer": "AI-assisted suggestion — not financial advice."
   }
 }
@@ -983,7 +993,7 @@ Response:
 
 ### AI Chat API (Finance Buddy)
 
-Same endpoint and `GEMINI_API_KEY`. Powers the floating Finance Buddy window.
+Same endpoint and `GEMINI_API_KEY`. Powers the floating Finance Buddy window. Chat prompts include a built-in NSE/BSE knowledge pack (hours, T+1, circuits, Nifty/Sensex, Dip Hunter universe). Offline replies use the same pack from `src/assets/knowledge/nse-bse.json`.
 
 ```
 POST /api/ai
@@ -1003,7 +1013,7 @@ Response:
 {
   "reply": "INFY’s 4% pullback is the cleaner staged-buy vs TCS.",
   "provider": "gemini",
-  "model": "gemini-2.0-flash",
+  "model": "gemini-3.5-flash",
   "disclaimer": "AI-assisted suggestion — not financial advice."
 }
 ```
@@ -1135,19 +1145,18 @@ settingsService.importBackup(json: string): boolean
 
 ## 🔐 Authentication
 
+Full backend plan (API, DB, RLS, email templates): [`docs/supabase-backend.md`](docs/supabase-backend.md).
+
+When `environment.supabaseUrl` and `environment.supabaseAnonKey` are set, Dip Hunter uses **Supabase Auth** (confirm email + reset password) and stores each user’s portfolio in Postgres (`user_snapshots`). Empty keys keep the original localStorage mock auth.
+
 ### Flow
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Register  │────▶│    Login    │────▶│  Dashboard  │
-│    Page     │     │    Page     │     │ (Protected) │
-└─────────────┘     └─────────────┘     └─────────────┘
-                           │
-                           ▼
-                    ┌─────────────┐
-                    │ LocalStorage│
-                    │  (Session)  │
-                    └─────────────┘
+Register → confirm-email → Login → Dashboard
+                │
+                ▼
+         Supabase Auth + RLS
+         user_snapshots (per user)
 ```
 
 ### Route Guards

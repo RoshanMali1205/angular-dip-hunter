@@ -2,38 +2,20 @@ import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-	// Auth routes (public - only accessible when NOT logged in)
 	{
 		path: 'auth',
 		loadComponent: () =>
 			import('./features/auth/auth-layout.component').then(
 				(m) => m.AuthLayoutComponent
 			),
-		canActivate: [guestGuard],
 		children: [
 			{
-				path: 'login',
+				path: 'callback',
 				loadComponent: () =>
-					import('./features/auth/login/login.page').then(
-						(m) => m.LoginPageComponent
+					import('./features/auth/callback/auth-callback.page').then(
+						(m) => m.AuthCallbackPageComponent
 					),
-				title: 'Login - Dip Hunter'
-			},
-			{
-				path: 'register',
-				loadComponent: () =>
-					import('./features/auth/register/register.page').then(
-						(m) => m.RegisterPageComponent
-					),
-				title: 'Register - Dip Hunter'
-			},
-			{
-				path: 'forgot-password',
-				loadComponent: () =>
-					import('./features/auth/forgot-password/forgot-password.page').then(
-						(m) => m.ForgotPasswordPageComponent
-					),
-				title: 'Forgot Password - Dip Hunter'
+				title: 'Signing in - Dip Hunter'
 			},
 			{
 				path: 'reset-password',
@@ -42,6 +24,33 @@ export const routes: Routes = [
 						(m) => m.ResetPasswordPageComponent
 					),
 				title: 'Reset Password - Dip Hunter'
+			},
+			{
+				path: 'login',
+				loadComponent: () =>
+					import('./features/auth/login/login.page').then(
+						(m) => m.LoginPageComponent
+					),
+				canActivate: [guestGuard],
+				title: 'Login - Dip Hunter'
+			},
+			{
+				path: 'register',
+				loadComponent: () =>
+					import('./features/auth/register/register.page').then(
+						(m) => m.RegisterPageComponent
+					),
+				canActivate: [guestGuard],
+				title: 'Register - Dip Hunter'
+			},
+			{
+				path: 'forgot-password',
+				loadComponent: () =>
+					import('./features/auth/forgot-password/forgot-password.page').then(
+						(m) => m.ForgotPasswordPageComponent
+					),
+				canActivate: [guestGuard],
+				title: 'Forgot Password - Dip Hunter'
 			},
 			{ path: '', redirectTo: 'login', pathMatch: 'full' }
 		]

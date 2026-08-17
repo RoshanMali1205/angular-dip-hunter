@@ -21,3 +21,5 @@ export * from './price-alert.service';
 export * from './csv-import.service';
 export * from './currency.service';
 export * from './finance-buddy.service';
+export * from './supabase-client.service';
+export * from './cloud-sync.service';

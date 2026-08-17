@@ -7,6 +7,7 @@ import { Component, ElementRef, ViewChild, effect, inject } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FinanceBuddyService, LanguageService, ThemeService } from '../../../core/services';
+import { ChatTableColumn } from '../../../core/models/plan.model';
 
 @Component({
   selector: 'app-finance-buddy',
@@ -70,7 +71,9 @@ import { FinanceBuddyService, LanguageService, ThemeService } from '../../../cor
               <div class="flex"
                    [class.justify-end]="msg.role === 'user'"
                    [class.justify-start]="msg.role === 'assistant'">
-                <div class="max-w-[85%] rounded-2xl px-3 py-2 text-xs leading-relaxed"
+                <div class="rounded-2xl px-3 py-2 text-xs leading-relaxed"
+                     [style.max-width]="msg.table ? '100%' : '85%'"
+                     [class.w-full]="!!msg.table"
                      [class.bg-emerald-600]="msg.role === 'user'"
                      [class.text-white]="msg.role === 'user'"
                      [class.rounded-br-md]="msg.role === 'user'"
@@ -79,9 +82,50 @@ import { FinanceBuddyService, LanguageService, ThemeService } from '../../../cor
                      [class.bg-gray-100]="msg.role === 'assistant' && !isDark()"
                      [class.text-gray-800]="msg.role === 'assistant' && !isDark()"
                      [class.rounded-bl-md]="msg.role === 'assistant'">
-                  {{ msg.text }}
+                  <p class="whitespace-pre-wrap">{{ msg.text }}</p>
+                  @if (msg.table; as table) {
+                    <div class="mt-2 overflow-x-auto rounded-lg border"
+                         [class.border-slate-600/60]="isDark()"
+                         [class.border-gray-200]="!isDark()">
+                      <table class="w-full min-w-[12rem] border-collapse text-[11px]">
+                        <thead>
+                          <tr [class.bg-slate-900/70]="isDark()" [class.bg-white]="!isDark()">
+                            @for (col of table.columns; track col.key) {
+                              <th class="px-2 py-1.5 font-semibold"
+                                  [class.text-left]="col.align !== 'right'"
+                                  [class.text-right]="col.align === 'right'"
+                                  [class.text-slate-400]="isDark()"
+                                  [class.text-gray-500]="!isDark()">
+                                {{ col.label }}
+                              </th>
+                            }
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (row of table.rows; track $index) {
+                            <tr [class.border-t]="true"
+                                [class.border-slate-700/50]="isDark()"
+                                [class.border-gray-100]="!isDark()">
+                              @for (col of table.columns; track col.key) {
+                                <td class="px-2 py-1.5 font-medium"
+                                    [class.text-left]="col.align !== 'right'"
+                                    [class.text-right]="col.align === 'right'"
+                                    [class.tabular-nums]="col.align === 'right'"
+                                    [ngClass]="cellToneClass(col.tone, row[col.key])">
+                                  {{ row[col.key] }}
+                                </td>
+                              }
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
                   @if (msg.role === 'assistant' && msg.provider === 'gemini') {
                     <p class="mt-1 text-[10px] opacity-70">Gemini</p>
+                  }
+                  @if (msg.role === 'assistant' && msg.provider === 'local' && msg.id !== 'welcome') {
+                    <p class="mt-1 text-[10px] opacity-70">{{ lang.t('buddy.localLabel') }}</p>
                   }
                 </div>
               </div>
@@ -185,6 +229,13 @@ export class FinanceBuddyComponent {
 
   sendChip(text: string): void {
     this.buddy.send(text);
+  }
+
+  cellToneClass(tone: ChatTableColumn['tone'], value: string | undefined): string {
+    if ((tone !== 'change' && tone !== 'pl') || !value) return '';
+    if (value.startsWith('+')) return 'text-emerald-400';
+    if (value.startsWith('-')) return 'text-red-400';
+    return '';
   }
 
   private submitDraft(): void {

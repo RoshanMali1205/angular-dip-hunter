@@ -11,7 +11,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/assets/i18n/*.json"
+    "src/assets/i18n/*.json",
+    "src/assets/knowledge/*.json"
   ],
   "exclude": [
     "src/**/*.spec.ts"

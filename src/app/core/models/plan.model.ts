@@ -86,12 +86,25 @@ export interface AiPredictResponse {
 
 export type ChatRole = 'user' | 'assistant';
 
+export interface ChatTableColumn {
+  key: string;
+  label: string;
+  align?: 'left' | 'right';
+  tone?: 'change' | 'pl';
+}
+
+export interface ChatTable {
+  columns: ChatTableColumn[];
+  rows: Record<string, string>[];
+}
+
 export interface ChatMessage {
   id: string;
   role: ChatRole;
   text: string;
   provider?: 'gemini' | 'local';
   createdAt: string;
+  table?: ChatTable;
 }
 
 export interface AiChatHistoryTurn {

@@ -6,12 +6,14 @@ import { AuthService } from '../services/auth.service';
  * Functional Auth Guard for Angular 21
  * Protects routes that require authentication
  */
-export const authGuard: CanActivateFn = (
+export const authGuard: CanActivateFn = async (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
-): boolean | UrlTree => {
+): Promise<boolean | UrlTree> => {
   const authService = inject(AuthService);
   const router = inject(Router);
+
+  await authService.whenReady();
 
   if (authService.isAuthenticated()) {
     return true;
@@ -28,12 +30,14 @@ export const authGuard: CanActivateFn = (
  * Guest Guard - Prevents authenticated users from accessing login/register
  * Redirects to dashboard if already logged in
  */
-export const guestGuard: CanActivateFn = (
+export const guestGuard: CanActivateFn = async (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
-): boolean | UrlTree => {
+): Promise<boolean | UrlTree> => {
   const authService = inject(AuthService);
   const router = inject(Router);
+
+  await authService.whenReady();
 
   if (!authService.isAuthenticated()) {
     return true;

@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { Session } from '@supabase/supabase-js';
 import { 
   AuthUser, 
   AuthState, 
@@ -9,6 +10,7 @@ import {
   DEFAULT_AUTH_STATE,
   validatePassword
 } from '../models/auth.model';
+import { SupabaseClientService } from './supabase-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -25,6 +27,14 @@ export class AuthService {
   private readonly LOGIN_LOCKOUT_MS = 15 * 60 * 1000; // 15 min
 
   private readonly router = inject(Router);
+  private readonly supabase = inject(SupabaseClientService);
+
+  get usesCloudAuth(): boolean {
+    return this.supabase.isEnabled;
+  }
+
+  private readyResolved = false;
+  private readyWaiters: Array<() => void> = [];
 
   // Private state signals
   private readonly _state = signal<AuthState>(DEFAULT_AUTH_STATE);
@@ -44,7 +54,79 @@ export class AuthService {
   constructor() {
     // Cleanup for older builds that stored reset tokens in localStorage.
     localStorage.removeItem('dh_reset_tokens');
-    this.restoreSession();
+    if (this.supabase.isEnabled) {
+      void this.initSupabaseSession();
+    } else {
+      this.restoreSession();
+      this.markReady();
+    }
+  }
+
+  whenReady(): Promise<void> {
+    if (this.readyResolved) return Promise.resolve();
+    return new Promise((resolve) => this.readyWaiters.push(resolve));
+  }
+
+  private markReady(): void {
+    if (this.readyResolved) return;
+    this.readyResolved = true;
+    this.readyWaiters.forEach((resolve) => resolve());
+    this.readyWaiters = [];
+  }
+
+  private async initSupabaseSession(): Promise<void> {
+    const client = this.supabase.client;
+    if (!client) {
+      this.markReady();
+      return;
+    }
+    try {
+      const { data } = await client.auth.getSession();
+      this.applySupabaseSession(data.session);
+      client.auth.onAuthStateChange((_event, session) => {
+        this.applySupabaseSession(session);
+      });
+    } catch (error) {
+      console.error('Failed to restore Supabase session:', error);
+    } finally {
+      this.markReady();
+    }
+  }
+
+  private applySupabaseSession(session: Session | null): void {
+    if (!session?.user) {
+      this._state.set({ ...DEFAULT_AUTH_STATE, isLoading: false });
+      return;
+    }
+    const email = session.user.email || '';
+    const meta = session.user.user_metadata as { full_name?: string } | undefined;
+    const user: AuthUser = {
+      id: session.user.id,
+      email,
+      name: meta?.full_name || email.split('@')[0] || 'Investor',
+      createdAt: session.user.created_at,
+    };
+    this._state.set({
+      user,
+      accessToken: session.access_token,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
+  }
+
+  private mapSupabaseError(message: string): string {
+    const lower = message.toLowerCase();
+    if (lower.includes('email not confirmed')) {
+      return 'Please confirm your email before signing in. Check your inbox for the Dip Hunter link.';
+    }
+    if (lower.includes('invalid login credentials')) {
+      return 'Invalid email or password.';
+    }
+    if (lower.includes('user already registered')) {
+      return 'An account with this email already exists. Please login instead.';
+    }
+    return message;
   }
 
   /**
@@ -80,6 +162,10 @@ export class AuthService {
    */
   async login(request: LoginRequest): Promise<boolean> {
     this._state.update(s => ({ ...s, isLoading: true, error: null }));
+
+    if (this.supabase.isEnabled) {
+      return this.loginWithSupabase(request);
+    }
 
     try {
       // Simulate API call delay
@@ -181,12 +267,40 @@ export class AuthService {
     }
   }
 
+  private async loginWithSupabase(request: LoginRequest): Promise<boolean> {
+    const client = this.supabase.client;
+    if (!client) return false;
+    try {
+      if (!request.email || !request.password) {
+        throw new Error('Email and password are required');
+      }
+      const { data, error } = await client.auth.signInWithPassword({
+        email: request.email.trim().toLowerCase(),
+        password: request.password,
+      });
+      if (error) throw new Error(this.mapSupabaseError(error.message));
+      this.applySupabaseSession(data.session);
+      const redirectUrl = this._redirectUrl();
+      this._redirectUrl.set(null);
+      await this.router.navigateByUrl(redirectUrl || '/');
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Login failed. Please try again.';
+      this._state.update((s) => ({ ...s, isLoading: false, error: message }));
+      return false;
+    }
+  }
+
   /**
    * Register new user
    * Stores user credentials in localStorage for validation during login
    */
   async register(request: RegisterRequest): Promise<boolean> {
     this._state.update(s => ({ ...s, isLoading: true, error: null }));
+
+    if (this.supabase.isEnabled) {
+      return this.registerWithSupabase(request);
+    }
 
     try {
       // Simulate API call delay
@@ -248,10 +362,51 @@ export class AuthService {
     }
   }
 
+  private async registerWithSupabase(request: RegisterRequest): Promise<boolean> {
+    const client = this.supabase.client;
+    if (!client) return false;
+    try {
+      if (!request.email || !request.password || !request.name) {
+        throw new Error('All fields are required');
+      }
+      const passwordValidation = validatePassword(request.password);
+      if (!passwordValidation.valid) {
+        throw new Error(passwordValidation.errors[0] ?? 'Password does not meet policy requirements');
+      }
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const { data, error } = await client.auth.signUp({
+        email: request.email.trim().toLowerCase(),
+        password: request.password,
+        options: {
+          data: { full_name: request.name.trim() },
+          emailRedirectTo: `${origin}/auth/callback`,
+        },
+      });
+      if (error) throw new Error(this.mapSupabaseError(error.message));
+      this._state.update((s) => ({ ...s, isLoading: false, error: null }));
+      if (data.session) {
+        this.applySupabaseSession(data.session);
+        await this.router.navigateByUrl('/');
+        return true;
+      }
+      await this.router.navigate(['/auth/login'], {
+        queryParams: { registered: 'true', verifyEmail: 'true', email: request.email },
+      });
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Registration failed. Please try again.';
+      this._state.update((s) => ({ ...s, isLoading: false, error: message }));
+      return false;
+    }
+  }
+
   /**
    * Logout user and clear session
    */
   logout(): void {
+    if (this.supabase.client) {
+      void this.supabase.client.auth.signOut();
+    }
     this.clearStorage();
     this._state.set(DEFAULT_AUTH_STATE);
     this.router.navigate(['/auth/login']);
@@ -299,6 +454,17 @@ export class AuthService {
    * Returns a stateless signed token if the email exists, null otherwise.
    */
   async requestPasswordReset(email: string): Promise<string | null> {
+    if (this.supabase.client) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const { error } = await this.supabase.client.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+        redirectTo: `${origin}/auth/callback`,
+      });
+      if (error) {
+        console.warn('[auth] reset email:', error.message);
+      }
+      return 'supabase';
+    }
+
     const users = this.getRegisteredUsers();
     const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (!user) return null;
@@ -320,6 +486,11 @@ export class AuthService {
    * Returns the associated email if valid, null if invalid/expired.
    */
   async validateResetToken(token: string): Promise<string | null> {
+    if (this.supabase.isEnabled) {
+      const { data } = (await this.supabase.client?.auth.getSession()) ?? { data: { session: null } };
+      return data.session?.user?.email ?? null;
+    }
+
     const [payloadEncoded, signature] = token.split('.');
     if (!payloadEncoded || !signature) return null;
 
@@ -345,12 +516,20 @@ export class AuthService {
   async resetPassword(token: string, newPassword: string): Promise<boolean> {
     this._state.update(s => ({ ...s, isLoading: true, error: null }));
     try {
-      await this.delay(800);
-
       const passwordValidation = validatePassword(newPassword);
       if (!passwordValidation.valid) {
         throw new Error(passwordValidation.errors[0] ?? 'Password does not meet policy requirements');
       }
+
+      if (this.supabase.client) {
+        const { error } = await this.supabase.client.auth.updateUser({ password: newPassword });
+        if (error) throw new Error(this.mapSupabaseError(error.message));
+        await this.supabase.client.auth.signOut();
+        this._state.update((s) => ({ ...s, isLoading: false }));
+        return true;
+      }
+
+      await this.delay(800);
 
       const email = await this.validateResetToken(token);
       if (!email) throw new Error('Reset link is invalid or has expired. Please request a new one.');
