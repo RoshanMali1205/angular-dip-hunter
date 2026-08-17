@@ -10,6 +10,7 @@ import { UserService } from './core/services/user.service';
 import { AuthService } from './core/services/auth.service';
 import { TourService } from './core/services/tour.service';
 import { WhatsNewService } from './core/services/whats-new.service';
+import { FinanceBuddyService } from './core/services/finance-buddy.service';
 import { DEFAULT_USER } from './core/models/user.model';
 import { WhatsNewRelease } from './core/config/app-release.config';
 
@@ -62,6 +63,17 @@ const mockWhatsNewService = {
   markAsSeen: vi.fn(),
 };
 
+const mockFinanceBuddyService = {
+  isOpen: signal(false),
+  loading: signal(false),
+  messages: signal([]),
+  toggle: vi.fn(),
+  close: vi.fn(),
+  clear: vi.fn(),
+  send: vi.fn(),
+  suggestedPrompts: vi.fn().mockReturnValue([]),
+};
+
 const releaseFixture: WhatsNewRelease = {
   version: '1.1.0',
   date: '2026-04-29',
@@ -82,6 +94,7 @@ describe('App', () => {
         { provide: AuthService, useValue: mockAuthService },
         { provide: TourService, useValue: mockTourService },
         { provide: WhatsNewService, useValue: mockWhatsNewService },
+        { provide: FinanceBuddyService, useValue: mockFinanceBuddyService },
         { provide: SwUpdate, useValue: mockSwUpdate },
       ],
     }).compileComponents();
@@ -120,6 +133,15 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('header')).toBeNull();
+    expect(compiled.querySelector('app-finance-buddy')).toBeNull();
+  });
+
+  it('renders Finance Buddy on signed-in pages', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.querySelector('app-finance-buddy')).toBeTruthy();
   });
 
   it('title signal should equal "Dip Hunter"', () => {

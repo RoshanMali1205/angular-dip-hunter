@@ -102,5 +102,5 @@ app.listen(PORT, () => {
   console.log(`\n🚀 Proxy running at http://localhost:${PORT}`);
   console.log(`   GET /api/quotes?symbols=RELIANCE.NS,TCS.NS`);
   console.log(`   GET /api/chart/:symbol`);
-  console.log(`   POST /api/ai  (allocate | predict, requires GEMINI_API_KEY)\n`);
+  console.log(`   POST /api/ai  (allocate | predict | chat, requires GEMINI_API_KEY)\n`);
 });

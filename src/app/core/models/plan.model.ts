@@ -84,6 +84,35 @@ export interface AiPredictResponse {
   prediction: DipPrediction;
 }
 
+export type ChatRole = 'user' | 'assistant';
+
+export interface ChatMessage {
+  id: string;
+  role: ChatRole;
+  text: string;
+  provider?: 'gemini' | 'local';
+  createdAt: string;
+}
+
+export interface AiChatHistoryTurn {
+  role: ChatRole;
+  text: string;
+}
+
+export interface AiChatRequest {
+  action: 'chat';
+  message: string;
+  history?: AiChatHistoryTurn[];
+  context?: string;
+}
+
+export interface AiChatResponse {
+  reply: string;
+  provider: 'gemini';
+  model?: string;
+  disclaimer?: string;
+}
+
 export interface PlanItem {
   stockId: string;
   symbol: string;

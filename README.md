@@ -75,6 +75,7 @@ The application manages a **split-portfolio structure**:
 - One-click add to monthly plan
 - Skeleton loaders during data fetch
 - **AI Dip Insights** — Gemini ranks red candidates with buy / watch / skip scores (local heuristic fallback)
+- **Finance Buddy** — floating chat on every signed-in page (Gemini when `GEMINI_API_KEY` is set)
 
 ### 📁 Folder Management
 - Organize stocks into Growth Twenty and Dividend Ten folders
@@ -517,6 +518,7 @@ angular-dip-hunter/
 | `RadialProgressComponent` | Radial/circular progress indicator |
 | `TourOverlayComponent` | First-time user tour overlay and spotlight |
 | `DialogComponent` | Custom themed dialog (confirm/danger/alert/prompt) |
+| `FinanceBuddyComponent` | Floating Gemini chat for dips, plans, and portfolio |
 
 ---
 
@@ -636,6 +638,15 @@ predictDips(stocks: StockViewModel[]): DipPrediction
 
 fetchGeminiDipPredictions(stocks: StockViewModel[]): Observable<DipPrediction | null>
 // Calls POST /api/ai { action: "predict" }. Returns null if Gemini is unavailable.
+```
+
+### `FinanceBuddyService`
+Powers the floating Finance Buddy chat. Gemini when `GEMINI_API_KEY` is set; otherwise answers from local portfolio/plan/red-list data.
+
+```typescript
+isOpen: Signal<boolean>
+messages: Signal<ChatMessage[]>
+send(text: string): void
 ```
 
 ### `DraftsService`
@@ -967,6 +978,33 @@ Response:
     "model": "gemini-2.0-flash",
     "disclaimer": "AI-assisted suggestion — not financial advice."
   }
+}
+```
+
+### AI Chat API (Finance Buddy)
+
+Same endpoint and `GEMINI_API_KEY`. Powers the floating Finance Buddy window.
+
+```
+POST /api/ai
+Content-Type: application/json
+
+{
+  "action": "chat",
+  "message": "Which dips look good today?",
+  "context": "Red candidates (2): INFY -4.2%, TCS -2.1%",
+  "history": [
+    { "role": "user", "text": "Hi" },
+    { "role": "assistant", "text": "Hello — I can help with dips and your plan." }
+  ]
+}
+
+Response:
+{
+  "reply": "INFY’s 4% pullback is the cleaner staged-buy vs TCS.",
+  "provider": "gemini",
+  "model": "gemini-2.0-flash",
+  "disclaimer": "AI-assisted suggestion — not financial advice."
 }
 ```
 

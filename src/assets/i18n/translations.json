@@ -286,6 +286,21 @@
       "stocks": "stocks",
       "qty": "qty"
     },
+    "buddy": {
+      "title": "Finance Buddy",
+      "subtitle": "Ask about dips, plans, and your portfolio",
+      "placeholder": "Ask Finance Buddy…",
+      "send": "Send",
+      "open": "Open Finance Buddy",
+      "close": "Close chat",
+      "clear": "New chat",
+      "welcome": "Hi, I'm Finance Buddy. Ask me about today's red dips, your monthly plan, or portfolio health. I'm decision support — not financial advice.",
+      "thinking": "Thinking…",
+      "chipDips": "Which dips look good?",
+      "chipPlan": "How is my monthly plan?",
+      "chipPortfolio": "How is my portfolio?",
+      "offlineHelp": "I can help with today's red dips, your monthly plan, or portfolio P/L. Gemini answers when GEMINI_API_KEY is set. Not financial advice."
+    },
     "performance": {
       "title": "Performance",
       "subtitle": "Track stock and portfolio performance over time",
@@ -372,7 +387,8 @@
         "versionAwareModal": "Added version-aware What's New modal support so updates can be announced clearly.",
         "startupFlowGuarded": "Improved startup timing so update messaging does not interrupt first-time onboarding tour.",
         "authRouteExcluded": "Adjusted route behavior to avoid showing product update modals on authentication screens.",
-        "geminiDipInsights": "Gemini now ranks red candidates on the dashboard with buy / watch / skip dip scores. Local heuristics still work if Gemini is offline."
+        "geminiDipInsights": "Gemini now ranks red candidates on the dashboard with buy / watch / skip dip scores. Local heuristics still work if Gemini is offline.",
+        "financeBuddyChat": "Finance Buddy chat is on every signed-in page — ask about dips, your plan, and portfolio health. Gemini answers when configured."
       }
     }
   },
@@ -663,6 +679,21 @@
       "stocks": "स्टॉक्स",
       "qty": "मात्रा"
     },
+    "buddy": {
+      "title": "फाइनेंस बडी",
+      "subtitle": "डिप, प्लान और पोर्टफोलियो के बारे में पूछें",
+      "placeholder": "फाइनेंस बडी से पूछें…",
+      "send": "भेजें",
+      "open": "फाइनेंस बडी खोलें",
+      "close": "चैट बंद करें",
+      "clear": "नई चैट",
+      "welcome": "नमस्ते, मैं फाइनेंस बडी हूँ। आज के रेड डिप, मासिक प्लान या पोर्टफोलियो स्वास्थ्य के बारे में पूछें। यह सलाह नहीं, निर्णय सहायता है।",
+      "thinking": "सोच रहा हूँ…",
+      "chipDips": "कौन से डिप अच्छे लगते हैं?",
+      "chipPlan": "मेरा मासिक प्लान कैसा है?",
+      "chipPortfolio": "मेरा पोर्टफोलियो कैसा है?",
+      "offlineHelp": "मैं आज के रेड डिप, मासिक प्लान या पोर्टफोलियो P/L में मदद कर सकता हूँ। GEMINI_API_KEY सेट हो तो जेमिनी जवाब देता है। यह वित्तीय सलाह नहीं है।"
+    },
     "performance": {
       "title": "प्रदर्शन",
       "subtitle": "समय के साथ स्टॉक और पोर्टफोलियो प्रदर्शन ट्रैक करें",
@@ -749,7 +780,8 @@
         "versionAwareModal": "वर्जन-आधारित 'क्या नया है' मोडल जोड़ा गया ताकि अपडेट स्पष्ट रूप से दिखाए जा सकें।",
         "startupFlowGuarded": "स्टार्टअप समय में सुधार किया गया ताकि अपडेट संदेश पहली बार के ऑनबोर्डिंग टूर में बाधा न बने।",
         "authRouteExcluded": "रूट व्यवहार अपडेट किया गया ताकि प्रोडक्ट अपडेट मोडल ऑथ स्क्रीन पर न दिखे।",
-        "geminiDipInsights": "जेमिनी अब डैशबोर्ड पर रेड उम्मीदवारों को खरीदें / देखें / छोड़ें स्कोर के साथ रैंक करता है। जेमिनी ऑफ़लाइन हो तो स्थानीय रैंकिंग काम करती है।"
+        "geminiDipInsights": "जेमिनी अब डैशबोर्ड पर रेड उम्मीदवारों को खरीदें / देखें / छोड़ें स्कोर के साथ रैंक करता है। जेमिनी ऑफ़लाइन हो तो स्थानीय रैंकिंग काम करती है।",
+        "financeBuddyChat": "फाइनेंस बडी चैट हर साइन-इन पेज पर है — डिप, प्लान और पोर्टफोलियो के बारे में पूछें। कॉन्फ़िगर हो तो जेमिनी जवाब देता है।"
       }
     }
   },
@@ -1040,6 +1072,21 @@
       "stocks": "स्टॉक्स",
       "qty": "मात्रा"
     },
+    "buddy": {
+      "title": "फायनान्स बडी",
+      "subtitle": "डिप, प्लॅन आणि पोर्टफोलिओबद्दल विचारा",
+      "placeholder": "फायनान्स बडीला विचारा…",
+      "send": "पाठवा",
+      "open": "फायनान्स बडी उघडा",
+      "close": "चॅट बंद करा",
+      "clear": "नवीन चॅट",
+      "welcome": "नमस्कार, मी फायनान्स बडी आहे. आजचे रेड डिप, मासिक प्लॅन किंवा पोर्टफोलिओ आरोग्याबद्दल विचारा. ही आर्थिक सल्ला नाही, निर्णय मदत आहे.",
+      "thinking": "विचार करत आहे…",
+      "chipDips": "कोणते डिप चांगले दिसतात?",
+      "chipPlan": "माझा मासिक प्लॅन कसा आहे?",
+      "chipPortfolio": "माझा पोर्टफोलिओ कसा आहे?",
+      "offlineHelp": "मी आजचे रेड डिप, मासिक प्लॅन किंवा पोर्टफोलिओ P/L मध्ये मदत करू शकतो. GEMINI_API_KEY सेट असेल तर जेमिनी उत्तर देते. ही आर्थिक सल्ला नाही."
+    },
     "performance": {
       "title": "कामगिरी",
       "subtitle": "स्टॉक आणि पोर्टफोलिओ कामगिरी ट्रॅक करा",
@@ -1126,7 +1173,8 @@
         "versionAwareModal": "अपडेट्स स्पष्ट दाखवण्यासाठी व्हर्जन-जाणणारा 'नवीन काय' मोडल जोडला आहे.",
         "startupFlowGuarded": "स्टार्टअप वेळ सुधारली आहे जेणेकरून अपडेट संदेश प्रथमच ऑनबोर्डिंग टूरमध्ये अडथळा आणणार नाही.",
         "authRouteExcluded": "ऑथ स्क्रीनवर प्रॉडक्ट अपडेट मोडल दिसू नये यासाठी रूट वर्तन सुधारले आहे.",
-        "geminiDipInsights": "जेमिनी आता डॅशबोर्डवर रेड उमेदवारांना खरेदी / पहा / वगळा स्कोरांसह रँक करते. जेमिनी ऑफलाइन असेल तर स्थानिक रँकिंग काम करते."
+        "geminiDipInsights": "जेमिनी आता डॅशबोर्डवर रेड उमेदवारांना खरेदी / पहा / वगळा स्कोरांसह रँक करते. जेमिनी ऑफलाइन असेल तर स्थानिक रँकिंग काम करते.",
+        "financeBuddyChat": "फायनान्स बडी चॅट प्रत्येक साइन-इन पेजवर आहे — डिप, प्लॅन आणि पोर्टफोलिओबद्दल विचारा. कॉन्फिगर असेल तर जेमिनी उत्तर देते."
       }
     }
   }

@@ -400,6 +400,90 @@ async function handlePredict(body, env) {
   };
 }
 
+async function callGeminiChat({ apiKey, model, contents }) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents,
+      generationConfig: {
+        temperature: 0.5,
+        maxOutputTokens: 512,
+      },
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message =
+      payload?.error?.message || payload?.message || `Gemini HTTP ${response.status}`;
+    const err = new Error(message);
+    err.status = response.status;
+    throw err;
+  }
+
+  const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) {
+    throw new Error('Gemini returned an empty chat response');
+  }
+
+  return String(text).trim().slice(0, 2500);
+}
+
+function handleChat(body, env) {
+  const message = String(body?.message ?? '').trim();
+  if (!message) {
+    return Promise.resolve({ statusCode: 400, body: { error: 'message is required' } });
+  }
+  if (message.length > 2000) {
+    return Promise.resolve({ statusCode: 400, body: { error: 'message is too long (max 2000)' } });
+  }
+
+  const history = Array.isArray(body.history) ? body.history.slice(-10) : [];
+  const context = String(body.context || '').slice(0, 3500);
+  const model = env.GEMINI_MODEL || DEFAULT_MODEL;
+
+  const preamble = [
+    'You are Finance Buddy, a concise in-app assistant for Dip Hunter, an Indian NSE buy-the-dip planner.',
+    'Help with red dips, monthly plans, allocation, and portfolio health using ONLY the snapshot below.',
+    'Do not invent prices. Stay under 120 words. This is decision support, not financial advice.',
+    '',
+    context || 'No live snapshot was provided.',
+  ].join('\n');
+
+  const contents = [
+    { role: 'user', parts: [{ text: preamble }] },
+    {
+      role: 'model',
+      parts: [
+        {
+          text: 'Understood. I am Finance Buddy in Dip Hunter. I will use the snapshot, stay concise, and note this is not financial advice.',
+        },
+      ],
+    },
+  ];
+
+  for (const turn of history) {
+    const text = String(turn?.text || '').trim().slice(0, 1500);
+    if (!text) continue;
+    const role = turn.role === 'assistant' || turn.role === 'model' ? 'model' : 'user';
+    contents.push({ role, parts: [{ text }] });
+  }
+  contents.push({ role: 'user', parts: [{ text: message }] });
+
+  return callGeminiChat({ apiKey: env.GEMINI_API_KEY, model, contents }).then((reply) => ({
+    statusCode: 200,
+    body: {
+      reply,
+      provider: 'gemini',
+      model,
+      disclaimer: DISCLAIMER,
+    },
+  }));
+}
+
 /**
  * @param {object} body Parsed JSON request body
  * @param {NodeJS.ProcessEnv} env Process environment
@@ -418,11 +502,19 @@ export async function handleAiRequest(body, env) {
     if (action === 'predict') {
       return await handlePredict(body, env);
     }
+    if (action === 'chat') {
+      return await handleChat(body, env);
+    }
     return { statusCode: 400, body: { error: `Unsupported action: ${action}` } };
   } catch (err) {
     console.error(`[ai] Gemini ${action} failed:`, err.message);
     const status = err.status >= 400 && err.status < 600 ? err.status : 502;
-    const code = action === 'predict' ? 'GEMINI_PREDICT_FAILED' : 'GEMINI_ALLOCATE_FAILED';
+    const code =
+      action === 'predict'
+        ? 'GEMINI_PREDICT_FAILED'
+        : action === 'chat'
+          ? 'GEMINI_CHAT_FAILED'
+          : 'GEMINI_ALLOCATE_FAILED';
     return {
       statusCode: status,
       body: {
