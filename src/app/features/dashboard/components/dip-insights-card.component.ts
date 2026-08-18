@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { ThemeService, LanguageService } from '../../../core/services';
 import { DipAction, DipPick, DipPrediction } from '../../../core/models/plan.model';
 import { StockViewModel } from '../../../core/models';
+import { dipActionPillClasses, dipScoreTextClasses } from '../../../shared/utils/dip-signal-ui';
 
 @Component({
   selector: 'app-dip-insights-card',
@@ -94,9 +95,7 @@ import { StockViewModel } from '../../../core/models';
                        [class.text-gray-500]="!isDark()">{{ pick.rationale }}</p>
                   </div>
                   <div class="text-right shrink-0">
-                    <p class="text-sm font-bold"
-                       [class.text-emerald-400]="isDark()"
-                       [class.text-emerald-600]="!isDark()">{{ pick.score | number:'1.0-0' }}</p>
+                    <p class="text-sm font-bold" [class]="scoreClasses(pick.action)">{{ pick.score | number:'1.0-0' }}</p>
                     <p class="text-[10px] uppercase tracking-wide"
                        [class.text-slate-500]="isDark()"
                        [class.text-gray-400]="!isDark()">{{ lang.t('dashboard.dipScore') }}</p>
@@ -137,7 +136,10 @@ export class DipInsightsCardComponent {
   lang = inject(LanguageService);
 
   picks = computed(() => this.prediction()?.picks ?? []);
-  topPicks = computed(() => this.picks().slice(0, 4));
+  topPicks = computed(() => {
+    const allowed = new Set(this.stocks().map((s) => s.symbol));
+    return this.picks().filter((p) => allowed.has(p.symbol)).slice(0, 4);
+  });
   provider = computed(() => this.prediction()?.provider ?? 'local');
 
   subtitle = computed(() => {
@@ -168,13 +170,10 @@ export class DipInsightsCardComponent {
   }
 
   actionClasses(action: DipAction): string {
-    const dark = this.isDark();
-    if (action === 'buy') {
-      return dark ? 'bg-emerald-500/15 text-emerald-300' : 'bg-emerald-50 text-emerald-700';
-    }
-    if (action === 'watch') {
-      return dark ? 'bg-amber-500/15 text-amber-300' : 'bg-amber-50 text-amber-700';
-    }
-    return dark ? 'bg-slate-700/70 text-slate-300' : 'bg-gray-100 text-gray-600';
+    return dipActionPillClasses(action, this.isDark());
+  }
+
+  scoreClasses(action: DipAction): string {
+    return dipScoreTextClasses(action, this.isDark());
   }
 }

@@ -340,16 +340,17 @@ function buildAllocatePrompt({ budget, stocks, currency }) {
   ].join('\n');
 }
 
-function buildPredictPrompt({ stocks, currency }) {
+export function buildPredictPrompt({ stocks, currency }) {
   return [
     'You are a dip-ranking assistant for Dip Hunter, an Indian NSE/BSE buy-the-dip planner.',
     'Indian cash session is 09:15–15:30 IST; do not assume US market hours or US ticker suffixes.',
-    'Rank ONLY the listed red-candidate stocks by how attractive the dip looks for a staged buy.',
+    'Rank ALL listed watched stocks (green or red) by how attractive a staged buy looks today.',
+    'Green names are usually WATCH or SKIP unless a pullback is still forming.',
     'Prefer 2-8% pullbacks and sector-wide softness over single-name collapses.',
     'Score 0-100. Use action buy / watch / skip. This is decision support, not financial advice.',
     '',
     `Currency: ${currency || 'INR'}`,
-    'Candidates:',
+    'Watched names:',
     ...stockLines(stocks),
   ].join('\n');
 }
@@ -469,7 +470,7 @@ async function handlePredict(body, env) {
     statusCode: 200,
     body: {
       prediction: {
-        summary: String(raw.summary || 'Gemini ranked today’s red candidates by dip quality.'),
+        summary: String(raw.summary || 'Gemini ranked today’s watched names by dip quality.'),
         marketTone,
         picks: normalizePicks(stocks, raw.picks),
         provider: 'gemini',

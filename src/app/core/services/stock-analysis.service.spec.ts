@@ -73,6 +73,15 @@ describe('StockAnalysisService', () => {
     expect(prediction.picks[0].score).toBeGreaterThanOrEqual(70);
   });
 
+  it('skips a green name that is not in a dip', () => {
+    const prediction = service.predictDips([
+      makeStock({ symbol: 'RELIANCE', sector: 'Oil & Gas', price: 1324, changePercent: 0.65, isRed: false }),
+    ]);
+
+    expect(prediction.picks[0].action).toBe('skip');
+    expect(prediction.picks[0].score).toBeLessThan(50);
+  });
+
   it('skips a sharp news-style drop', () => {
     const prediction = service.predictDips([
       makeStock({ symbol: 'AFFLE', sector: 'IT', price: 1400, changePercent: -16 }),

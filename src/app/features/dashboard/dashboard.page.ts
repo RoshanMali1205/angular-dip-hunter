@@ -17,11 +17,13 @@ import {
   ThemeService,
   LanguageService,
   NetworkStatusService,
-  StockAnalysisService
+  StockAnalysisService,
+  DipSignalService
 } from '../../core/services';
 import { TourService } from '../../core/services/tour.service';
 import { PriceAlertService } from '../../core/services/price-alert.service';
 import { FolderId } from '../../core/models/folder.model';
+import { Stock } from '../../core/models/stock.model';
 import { StockViewModel, DashboardKPIs, Holding } from '../../core/models';
 import { DipPick, DipPrediction } from '../../core/models/plan.model';
 import { DialogService } from '../../shared/components/dialog/dialog.service';
@@ -31,6 +33,7 @@ import {
   RadialProgressComponent
 } from '../../shared/components';
 import { buildPageNumbers } from '../../shared/utils/pagination.utils';
+import { dipActionPillClasses, dipScoreTextClasses } from '../../shared/utils/dip-signal-ui';
 import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
 import { HoldingsPieChartComponent, PieGroupBy, DipInsightsCardComponent } from './components';
 
@@ -66,6 +69,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   private dialog = inject(DialogService);
   private router = inject(Router);
   private stockAnalysis = inject(StockAnalysisService);
+  private dipSignals = inject(DipSignalService);
   readonly alertService = inject(PriceAlertService);
   public holdingsService = inject(HoldingsService);
 
@@ -83,27 +87,56 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     });
 
     effect((onCleanup) => {
-      const stocks = this.redCandidates();
-      const symbolsKey = stocks.map((s) => `${s.symbol}:${s.changePercent ?? ''}`).join(',');
+      const symbolsKey = this.portfolioService
+        .stocks()
+        .filter((s) => s.isActive)
+        .map((s) => s.symbol)
+        .sort()
+        .join(',');
+      const quotesHydrated = Object.keys(this.quoteService.quotes()).length > 0;
 
       untracked(() => {
-        this.dipPrediction.set(this.stockAnalysis.predictDips(stocks));
+        const stocks = this.scoringUniverse();
         if (!stocks.length) {
+          this.dipPrediction.set(null);
+          this.dipLoading.set(false);
+          return;
+        }
+
+        const cached = this.dipSignals.readToday(stocks.map((s) => s.symbol));
+        if (cached) {
+          this.dipPrediction.set(cached.prediction);
+          if (cached.prediction.provider === 'gemini') {
+            this.dipLoading.set(false);
+            return;
+          }
+        } else {
+          this.dipPrediction.set(this.stockAnalysis.predictDips(stocks));
+        }
+
+        if (!quotesHydrated) {
           this.dipLoading.set(false);
           return;
         }
 
         this.dipLoading.set(true);
         const sub = this.stockAnalysis.fetchGeminiDipPredictions(stocks).subscribe((prediction) => {
-          const currentKey = this.redCandidates()
-            .map((s) => `${s.symbol}:${s.changePercent ?? ''}`)
+          const currentKey = this.portfolioService
+            .stocks()
+            .filter((s) => s.isActive)
+            .map((s) => s.symbol)
+            .sort()
             .join(',');
           if (currentKey !== symbolsKey) return;
 
+          const resolved = prediction ?? this.dipPrediction();
           if (prediction) {
             this.dipPrediction.set(prediction);
           }
           this.dipLoading.set(false);
+          if (resolved?.picks.length) {
+            this.dipSignals.persist(resolved);
+          }
         });
         onCleanup(() => sub.unsubscribe());
       });
@@ -147,41 +180,11 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   // Computed stock view models
   stockViewModels = computed<StockViewModel[]>(() => {
     const stocks = this.portfolioService.getStocksByFolder(this.selectedFolderId());
-    const quotes = this.quoteService.quotes();
-    const holdings = this.holdingsService.holdingsMap();
     const search = this.searchText().toLowerCase();
     const redOnly = this.showRedOnly();
     const sector = this.selectedSector();
 
-    let vms = stocks.map(stock => {
-      const quote = quotes[stock.symbol];
-      const holding = holdings[stock.id];
-      const isRed = this.settingsService.isRed(quote);
-      const isInCurrentPlan = this.plannerService.isInCurrentPlan(stock.id);
-
-      const vm: StockViewModel = {
-        stockId: stock.id,
-        symbol: stock.symbol,
-        displayName: stock.displayName,
-        folderId: stock.folderId,
-        rank: stock.rank,
-        isActive: stock.isActive,
-        sector: stock.sector,
-        price: quote?.price,
-        change: quote?.change,
-        changePercent: quote?.changePercent,
-        quoteUpdatedAt: quote?.timestamp,
-        isRed,
-        isInCurrentPlan,
-        holdingQty: holding?.totalQty,
-        avgPrice: holding?.avgPrice,
-        investedAmount: holding?.investedAmount,
-        currentValue: holding?.currentValue,
-        unrealizedPL: holding?.unrealizedPL,
-        unrealizedPLPercent: holding?.unrealizedPLPercent
-      };
-      return vm;
-    });
+    let vms = stocks.map(stock => this.toStockViewModel(stock));
 
     // Filter by sector
     if (sector !== 'ALL') {
@@ -203,6 +206,16 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     }
 
     return vms;
+  });
+
+  /** All active watched names (both folders), used for daily AI Signal + Score. */
+  scoringUniverse = computed<StockViewModel[]>(() => {
+    const stocks = this.portfolioService
+      .stocks()
+      .filter((s) => s.isActive)
+      .sort((a, b) => a.rank - b.rank || a.symbol.localeCompare(b.symbol))
+      .slice(0, 30);
+    return stocks.map((stock) => this.toStockViewModel(stock));
   });
 
   // Paginated stock view models
@@ -545,14 +558,37 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   }
 
   dipActionClasses(action: DipPick['action']): string {
-    const dark = this.themeService.isDark();
-    if (action === 'buy') {
-      return dark ? 'bg-emerald-500/15 text-emerald-300' : 'bg-emerald-50 text-emerald-700';
-    }
-    if (action === 'watch') {
-      return dark ? 'bg-amber-500/15 text-amber-300' : 'bg-amber-50 text-amber-700';
-    }
-    return dark ? 'bg-slate-700/70 text-slate-300' : 'bg-gray-100 text-gray-600';
+    return dipActionPillClasses(action, this.themeService.isDark());
+  }
+
+  dipScoreClasses(action: DipPick['action']): string {
+    return dipScoreTextClasses(action, this.themeService.isDark());
+  }
+
+  private toStockViewModel(stock: Stock): StockViewModel {
+    const quote = this.quoteService.quotes()[stock.symbol];
+    const holding = this.holdingsService.holdingsMap()[stock.id];
+    return {
+      stockId: stock.id,
+      symbol: stock.symbol,
+      displayName: stock.displayName,
+      folderId: stock.folderId,
+      rank: stock.rank,
+      isActive: stock.isActive,
+      sector: stock.sector,
+      price: quote?.price,
+      change: quote?.change,
+      changePercent: quote?.changePercent,
+      quoteUpdatedAt: quote?.timestamp,
+      isRed: this.settingsService.isRed(quote),
+      isInCurrentPlan: this.plannerService.isInCurrentPlan(stock.id),
+      holdingQty: holding?.totalQty,
+      avgPrice: holding?.avgPrice,
+      investedAmount: holding?.investedAmount,
+      currentValue: holding?.currentValue,
+      unrealizedPL: holding?.unrealizedPL,
+      unrealizedPLPercent: holding?.unrealizedPLPercent
+    };
   }
 
   trackByStock(index: number, vm: StockViewModel): string {

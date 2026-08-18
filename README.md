@@ -74,7 +74,7 @@ The application manages a **split-portfolio structure**:
 - Search and filter functionality
 - One-click add to monthly plan
 - Skeleton loaders during data fetch
-- **AI Dip Insights** — Gemini ranks red candidates with buy / watch / skip scores (local heuristic fallback)
+- **AI Dip Insights** — Gemini ranks every watched name with BUY / WATCH / SKIP scores in the dashboard table (local heuristic fallback, refreshed daily)
 - **Finance Buddy** — floating chat on every signed-in page with built-in NSE/BSE knowledge (Gemini when `GEMINI_API_KEY` is set)
 
 ### 📁 Folder Management
@@ -953,7 +953,7 @@ Response:
 
 ### AI Dip Predictions API (Gemini)
 
-Same endpoint and `GEMINI_API_KEY`. Ranks red candidates for the dashboard.
+Same endpoint and `GEMINI_API_KEY`. Ranks all watched names for the dashboard **AI Signal** and **Score** columns.
 
 ```
 POST /api/ai

@@ -14,7 +14,8 @@ export type StorageKey =
   | 'dh_settings'
   | 'dh_quote_cache'
   | 'dh_exchange_rates'
-  | 'dh_user';
+  | 'dh_user'
+  | 'dh_dip_signals';
 
 export interface StorageWriteOptions {
   /** Skip cloud snapshot push (used while hydrating from Supabase). */
@@ -80,7 +81,8 @@ export class StorageService {
       'dh_settings',
       'dh_quote_cache',
       'dh_exchange_rates',
-      'dh_user'
+      'dh_user',
+      'dh_dip_signals'
     ];
     keys.forEach(key => this.remove(key));
   }

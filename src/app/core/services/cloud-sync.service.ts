@@ -17,6 +17,7 @@ const CLOUD_KEYS: StorageKey[] = [
   'dh_drafts',
   'dh_settings',
   'dh_user',
+  'dh_dip_signals',
 ];
 
 @Injectable({ providedIn: 'root' })
