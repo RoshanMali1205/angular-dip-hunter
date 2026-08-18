@@ -6,6 +6,7 @@
 import { Component, OnInit, OnDestroy, signal, computed, inject, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { QuoteDataSource } from '../../core/models/settings.model';
 import {
   PortfolioService,
@@ -63,6 +64,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   private plannerService = inject(PlannerService);
   private tourService = inject(TourService);
   private dialog = inject(DialogService);
+  private router = inject(Router);
   private stockAnalysis = inject(StockAnalysisService);
   readonly alertService = inject(PriceAlertService);
   public holdingsService = inject(HoldingsService);
@@ -117,6 +119,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
   pieGroupBy = signal<PieGroupBy>('stock');
   showDataSourceModal = signal(false);
   highlightedSection = signal<string | null>(null);
+  planNudge = signal<{ symbol: string; extraCount: number } | null>(null);
   dipPrediction = signal<DipPrediction | null>(null);
   dipLoading = signal(false);
   proxySources = signal({
@@ -428,11 +431,7 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
    */
   async onAddToPlan(vm: StockViewModel): Promise<void> {
     const month = this.plannerService.currentMonth;
-    const existingIds = new Set(
-      this.plannerService.getPlansForMonth(month).map(p => p.id)
-    );
     const plan = this.plannerService.getOrCreatePlan(month);
-    const createdNewPlan = !existingIds.has(plan.id);
 
     if (plan.status === 'FINAL') {
       await this.dialog.alert(
@@ -453,14 +452,35 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Only interrupt when we had to spin up a new draft (common after finalizing)
-    if (createdNewPlan) {
-      const planLabel = plan.name || 'a new draft plan';
-      await this.dialog.alert(
-        `Added ${vm.symbol} to ${planLabel}. Open Planner to set a budget and allocate.`,
-        'Added to New Plan'
-      );
+    // Always point people to Planner — the nav is easy to miss while scrolled
+    // down the red-candidate list.
+    const prev = this.planNudge();
+    if (prev && prev.symbol !== vm.symbol) {
+      this.planNudge.set({ symbol: prev.symbol, extraCount: prev.extraCount + 1 });
+    } else {
+      this.planNudge.set({ symbol: vm.symbol, extraCount: 0 });
     }
+  }
+
+  dismissPlanNudge(): void {
+    this.planNudge.set(null);
+  }
+
+  openPlannerFromNudge(): void {
+    this.planNudge.set(null);
+    void this.router.navigate(['/planner']);
+  }
+
+  planNudgeMessage(): string {
+    const nudge = this.planNudge();
+    if (!nudge) return '';
+    if (nudge.extraCount > 0) {
+      return this.lang.t('dashboard.addedToPlanMany', {
+        symbol: nudge.symbol,
+        count: nudge.extraCount,
+      });
+    }
+    return this.lang.t('dashboard.addedToPlanOne', { symbol: nudge.symbol });
   }
 
   /**

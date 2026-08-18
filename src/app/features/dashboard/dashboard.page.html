@@ -937,3 +937,48 @@
     </div>
   </div>
 }
+
+<!-- After adding a red candidate, point to Planner instead of hunting for the nav -->
+@if (planNudge()) {
+  <div class="fixed z-[55] bottom-24 left-4 right-4 sm:left-auto sm:right-24 sm:bottom-6 sm:w-[22rem]"
+       role="status">
+    <div class="rounded-2xl border px-4 py-3 shadow-2xl"
+         [class.border-emerald-500/30]="themeService.isDark()"
+         [class.bg-slate-900]="themeService.isDark()"
+         [class.shadow-emerald-900/40]="themeService.isDark()"
+         [class.border-emerald-200]="themeService.isLight()"
+         [class.bg-white]="themeService.isLight()">
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0">
+          <p class="text-sm font-semibold"
+             [class.text-white]="themeService.isDark()"
+             [class.text-gray-900]="themeService.isLight()">{{ lang.t('dashboard.addedToPlan') }}</p>
+          <p class="mt-0.5 text-xs leading-relaxed"
+             [class.text-slate-300]="themeService.isDark()"
+             [class.text-gray-600]="themeService.isLight()">{{ planNudgeMessage() }}</p>
+          <p class="mt-1 text-[11px]"
+             [class.text-slate-400]="themeService.isDark()"
+             [class.text-gray-500]="themeService.isLight()">{{ lang.t('dashboard.addedToPlanHint') }}</p>
+        </div>
+        <button type="button"
+                (click)="dismissPlanNudge()"
+                class="rounded-lg p-1"
+                [attr.aria-label]="lang.t('dashboard.dismissNudge')"
+                [class.text-slate-400]="themeService.isDark()"
+                [class.hover:bg-slate-800]="themeService.isDark()"
+                [class.text-gray-500]="themeService.isLight()"
+                [class.hover:bg-gray-100]="themeService.isLight()">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <button type="button"
+              (click)="openPlannerFromNudge()"
+              class="mt-3 w-full rounded-lg py-2 text-sm font-semibold text-white
+                     bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500">
+        {{ lang.t('dashboard.openPlanner') }}
+      </button>
+    </div>
+  </div>
+}

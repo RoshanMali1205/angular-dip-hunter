@@ -14,11 +14,10 @@ import {
   untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AllocationAdvisorService } from '../../../core/services';
+import { AllocationAdvisorService, LanguageService, ThemeService } from '../../../core/services';
 import { CurrencyDisplayPipe } from '../../../shared/pipes/currency-display.pipe';
 import { AdvisorStrategy, AllocationSuggestion } from '../../../core/models/plan.model';
 import { StockViewModel } from '../../../core/models';
-import { ThemeService } from '../../../core/services';
 
 @Component({
   selector: 'app-allocation-suggestions',
@@ -65,7 +64,7 @@ import { ThemeService } from '../../../core/services';
              [ngClass]="suggestions().length >= 4 ? 'sm:grid sm:grid-cols-4' : 'sm:grid sm:grid-cols-3'">
           @for (s of suggestions(); track s.strategy) {
             <button
-              (click)="selectedStrategy.set(s.strategy)"
+              (click)="selectStrategy(s.strategy)"
               class="relative rounded-xl border p-3 text-left transition-all min-w-[130px] shrink-0 snap-start
                      sm:min-w-0 sm:shrink"
               [class.border-emerald-500]="selectedStrategy() === s.strategy && isDark()"
@@ -162,41 +161,86 @@ import { ThemeService } from '../../../core/services';
               }
             </div>
 
-            <div class="flex items-center justify-between">
-              <p class="text-xs font-semibold uppercase tracking-wide"
-                 [class.text-slate-400]="isDark()"
-                 [class.text-gray-500]="!isDark()">Allocation Breakdown</p>
-              <span class="text-xs"
-                    [class.text-slate-500]="isDark()"
-                    [class.text-gray-400]="!isDark()">
-                {{ selected.allocations.length }} stocks
-              </span>
-            </div>
+            <div class="rounded-xl border overflow-hidden"
+                 [class.border-slate-700/50]="isDark()"
+                 [class.bg-slate-900/50]="isDark()"
+                 [class.border-gray-200]="!isDark()"
+                 [class.bg-white]="!isDark()">
+              <div class="flex items-center justify-between gap-2 px-3 py-2 border-b"
+                   [class.border-slate-700/50]="isDark()"
+                   [class.border-gray-100]="!isDark()">
+                <p class="text-xs font-semibold uppercase tracking-wide"
+                   [class.text-slate-400]="isDark()"
+                   [class.text-gray-500]="!isDark()">{{ lang.t('planner.allocationBreakdown') }}</p>
+                <span class="text-xs tabular-nums"
+                      [class.text-slate-500]="isDark()"
+                      [class.text-gray-400]="!isDark()">
+                  {{ rankedAllocations().length }} {{ lang.t('common.stocks') }}
+                </span>
+              </div>
 
-            <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-              @for (alloc of selected.allocations; track alloc.symbol) {
-                <div class="flex items-center gap-2">
-                  <div class="w-20 shrink-0">
-                    <p class="text-xs font-semibold"
-                       [class.text-white]="isDark()"
-                       [class.text-gray-900]="!isDark()">{{ alloc.symbol }}</p>
-                    <p class="text-xs leading-tight"
-                       [class.text-slate-500]="isDark()"
-                       [class.text-gray-400]="!isDark()">{{ alloc.reason }}</p>
+              <div class="divide-y max-h-[min(28rem,55vh)] overflow-y-auto"
+                   [class.divide-slate-700/40]="isDark()"
+                   [class.divide-gray-100]="!isDark()">
+                @for (alloc of visibleAllocations(); track alloc.symbol) {
+                  <div class="px-3 py-2.5">
+                    <div class="flex items-start gap-2.5">
+                      <span class="mt-0.5 w-5 shrink-0 text-right text-[11px] font-semibold tabular-nums"
+                            [class.text-slate-500]="isDark()"
+                            [class.text-gray-400]="!isDark()">{{ alloc.rank }}</span>
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-baseline justify-between gap-3">
+                          <p class="text-sm font-semibold truncate"
+                             [class.text-white]="isDark()"
+                             [class.text-gray-900]="!isDark()">{{ alloc.symbol }}</p>
+                          <div class="shrink-0 text-right">
+                            <p class="text-sm font-semibold tabular-nums text-emerald-400">{{ alloc.allocation | currencyDisplay }}</p>
+                            <p class="text-[11px] tabular-nums"
+                               [class.text-slate-500]="isDark()"
+                               [class.text-gray-400]="!isDark()">{{ alloc.percentage.toFixed(1) }}%</p>
+                          </div>
+                        </div>
+                        <div class="mt-1.5 h-2 rounded-full overflow-hidden"
+                             [class.bg-slate-700]="isDark()"
+                             [class.bg-gray-200]="!isDark()">
+                          <div class="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400 transition-all"
+                               [style.width.%]="barWidth(alloc.percentage)"></div>
+                        </div>
+                        @if (alloc.reason) {
+                          <p class="mt-1.5 text-[11px] leading-snug line-clamp-2"
+                             [class.text-slate-400]="isDark()"
+                             [class.text-gray-500]="!isDark()">{{ alloc.reason }}</p>
+                        }
+                      </div>
+                    </div>
                   </div>
-                  <div class="flex-1 rounded-full h-1.5"
-                       [class.bg-slate-700]="isDark()"
-                       [class.bg-gray-200]="!isDark()">
-                    <div class="h-1.5 rounded-full bg-emerald-500 transition-all"
-                         [style.width.%]="alloc.percentage"></div>
-                  </div>
-                  <div class="text-right shrink-0 w-20">
-                    <p class="text-xs font-semibold text-emerald-400">{{ alloc.allocation | currencyDisplay }}</p>
-                    <p class="text-xs"
-                       [class.text-slate-500]="isDark()"
-                       [class.text-gray-400]="!isDark()">{{ alloc.percentage.toFixed(1) }}%</p>
-                  </div>
-                </div>
+                }
+              </div>
+
+              @if (rankedAllocations().length > previewCount && !showAllAllocations()) {
+                <button type="button"
+                        (click)="showAllAllocations.set(true)"
+                        class="w-full px-3 py-2 text-xs font-medium border-t transition"
+                        [class.border-slate-700/50]="isDark()"
+                        [class.text-emerald-400]="isDark()"
+                        [class.hover:bg-slate-800/80]="isDark()"
+                        [class.border-gray-100]="!isDark()"
+                        [class.text-emerald-600]="!isDark()"
+                        [class.hover:bg-gray-50]="!isDark()">
+                  {{ lang.t('planner.showAllStocks', { count: rankedAllocations().length }) }}
+                </button>
+              } @else if (rankedAllocations().length > previewCount) {
+                <button type="button"
+                        (click)="showAllAllocations.set(false)"
+                        class="w-full px-3 py-2 text-xs font-medium border-t transition"
+                        [class.border-slate-700/50]="isDark()"
+                        [class.text-slate-300]="isDark()"
+                        [class.hover:bg-slate-800/80]="isDark()"
+                        [class.border-gray-100]="!isDark()"
+                        [class.text-gray-600]="!isDark()"
+                        [class.hover:bg-gray-50]="!isDark()">
+                  {{ lang.t('planner.showFewer') }}
+                </button>
               }
             </div>
 
@@ -206,7 +250,7 @@ import { ThemeService } from '../../../core/services';
                      bg-gradient-to-r from-emerald-600 to-cyan-600
                      hover:from-emerald-500 hover:to-cyan-500
                      active:scale-[0.99] shadow-sm">
-              Apply {{ selected.name }} to Plan
+              {{ lang.t('planner.applyAdvisor', { name: selected.name }) }}
             </button>
           </div>
         }
@@ -222,10 +266,13 @@ export class AllocationSuggestionsComponent {
 
   isDark = inject(ThemeService).isDark;
   private advisorService = inject(AllocationAdvisorService);
+  protected lang = inject(LanguageService);
 
   selectedStrategy = signal<AdvisorStrategy>('equal');
   geminiSuggestion = signal<AllocationSuggestion | null>(null);
   geminiLoading = signal(false);
+  showAllAllocations = signal(false);
+  readonly previewCount = 8;
 
   private heuristicSuggestions = computed(() =>
     this.advisorService.suggestAllocations(this.stocks(), this.budget())
@@ -263,6 +310,20 @@ export class AllocationSuggestionsComponent {
     return this.suggestions().find(s => s.strategy === strategy) ?? this.suggestions()[0];
   });
 
+  rankedAllocations = computed(() => {
+    const selected = this.selectedSuggestion();
+    if (!selected) return [];
+    return [...selected.allocations]
+      .sort((a, b) => b.percentage - a.percentage || a.symbol.localeCompare(b.symbol))
+      .map((alloc, index) => ({ ...alloc, rank: index + 1 }));
+  });
+
+  visibleAllocations = computed(() => {
+    const all = this.rankedAllocations();
+    if (this.showAllAllocations() || all.length <= this.previewCount) return all;
+    return all.slice(0, this.previewCount);
+  });
+
   constructor() {
     effect((onCleanup) => {
       const stocks = this.stocks();
@@ -271,6 +332,7 @@ export class AllocationSuggestionsComponent {
 
       untracked(() => {
         this.geminiSuggestion.set(null);
+        this.showAllAllocations.set(false);
         if (!stocks.length || budget <= 0) {
           this.geminiLoading.set(false);
           return;
@@ -293,6 +355,11 @@ export class AllocationSuggestionsComponent {
     });
   }
 
+  selectStrategy(strategy: AdvisorStrategy): void {
+    this.selectedStrategy.set(strategy);
+    this.showAllAllocations.set(false);
+  }
+
   getStrategyIcon(strategy: AdvisorStrategy): string {
     return {
       equal: '⚖️',
@@ -309,5 +376,10 @@ export class AllocationSuggestionsComponent {
       defensive: 'Defensive',
       gemini: 'Gemini',
     }[strategy] ?? strategy;
+  }
+
+  barWidth(percentage: number): number {
+    if (!Number.isFinite(percentage) || percentage <= 0) return 0;
+    return Math.min(100, Math.max(4, percentage));
   }
 }
