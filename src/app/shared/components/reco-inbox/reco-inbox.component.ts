@@ -80,6 +80,11 @@ import { dipActionPillClasses, dipScoreTextClasses } from '../../utils/dip-signa
                           [class]="pillClasses(pick)">
                       {{ actionLabel(pick) }}
                     </span>
+                    @if (pick.rationale) {
+                      <p class="mt-1 text-[11px] leading-snug line-clamp-2"
+                         [class.text-slate-400]="isDark()"
+                         [class.text-gray-500]="!isDark()">{{ pick.rationale }}</p>
+                    }
                   </div>
                   <span class="text-sm font-bold shrink-0" [class]="scoreClasses(pick)">
                     {{ pick.score | number:'1.0-0' }}

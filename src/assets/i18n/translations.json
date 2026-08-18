@@ -68,7 +68,10 @@
       "addedToPlanHint": "Open Planner to set a budget and split the allocation.",
       "openPlanner": "Open Planner",
       "dismissNudge": "Dismiss",
-      "aiScoresHint": "AI scores are refreshed daily using market data and Gemini."
+      "aiScoresHint": "AI scores are refreshed daily using market data and Gemini.",
+      "tapSignalHint": "Tap BUY / WATCH / SKIP to see why.",
+      "whySignal": "Why {action}?",
+      "riskLabel": "Risk"
     },
     "folders": {
       "title": "🏦 Stock Vault",
@@ -505,7 +508,10 @@
       "addedToPlanHint": "बजट और आवंटन के लिए प्लानर खोलें।",
       "openPlanner": "प्लानर खोलें",
       "dismissNudge": "बंद करें",
-      "aiScoresHint": "AI स्कोर हर दिन मार्केट डेटा और Gemini से अपडेट होते हैं।"
+      "aiScoresHint": "AI स्कोर हर दिन मार्केट डेटा और Gemini से अपडेट होते हैं।",
+      "tapSignalHint": "क्यों दिखा है, यह देखने के लिए BUY / WATCH / SKIP पर टैप करें।",
+      "whySignal": "{action} क्यों?",
+      "riskLabel": "जोखिम"
     },
     "folders": {
       "title": "🏦 स्टॉक वॉल्ट",
@@ -942,7 +948,10 @@
       "addedToPlanHint": "बजेट आणि वाटपासाठी प्लॅनर उघडा.",
       "openPlanner": "प्लॅनर उघडा",
       "dismissNudge": "बंद करा",
-      "aiScoresHint": "AI स्कोर दररोज मार्केट डेटा आणि Gemini ने अपडेट होतात."
+      "aiScoresHint": "AI स्कोर दररोज मार्केट डेटा आणि Gemini ने अपडेट होतात.",
+      "tapSignalHint": "कारण पाहण्यासाठी BUY / WATCH / SKIP वर टॅप करा.",
+      "whySignal": "{action} का?",
+      "riskLabel": "जोखीम"
     },
     "folders": {
       "title": "🏦 स्टॉक व्हॉल्ट",
