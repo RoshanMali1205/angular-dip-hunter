@@ -1,14 +1,26 @@
 import { DipAction } from '../../core/models/plan.model';
 
-/** Solid pills matching the dashboard AI Signal column. */
-export function dipActionPillClasses(action: DipAction, dark: boolean): string {
+/** Translucent chips matching the dashboard Status column. SKIP uses yellow, not red. */
+export function dipActionPillClasses(action: DipAction, _dark = true): string {
+  const base =
+    'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide';
   if (action === 'buy') {
-    return dark ? 'bg-emerald-600 text-white' : 'bg-emerald-600 text-white';
+    return `${base} bg-emerald-500/15 border-emerald-500/20 text-emerald-400`;
   }
   if (action === 'watch') {
-    return dark ? 'bg-amber-500 text-white' : 'bg-amber-500 text-white';
+    return `${base} bg-amber-500/15 border-amber-500/20 text-amber-400`;
   }
-  return dark ? 'bg-red-800 text-white' : 'bg-red-700 text-white';
+  return `${base} bg-yellow-500/15 border-yellow-500/20 text-yellow-400`;
+}
+
+export function dipActionDotClasses(action: DipAction): string {
+  if (action === 'buy') {
+    return 'h-1.5 w-1.5 rounded-full bg-emerald-400';
+  }
+  if (action === 'watch') {
+    return 'h-1.5 w-1.5 rounded-full bg-amber-400';
+  }
+  return 'h-1.5 w-1.5 rounded-full bg-yellow-400';
 }
 
 /** Score text color tracks the matching AI signal. */
@@ -19,5 +31,5 @@ export function dipScoreTextClasses(action: DipAction, dark: boolean): string {
   if (action === 'watch') {
     return dark ? 'text-amber-400' : 'text-amber-600';
   }
-  return dark ? 'text-red-400' : 'text-red-600';
+  return dark ? 'text-yellow-400' : 'text-yellow-600';
 }

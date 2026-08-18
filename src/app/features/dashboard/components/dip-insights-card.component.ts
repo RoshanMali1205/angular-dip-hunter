@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { ThemeService, LanguageService } from '../../../core/services';
 import { DipAction, DipPick, DipPrediction } from '../../../core/models/plan.model';
 import { StockViewModel } from '../../../core/models';
-import { dipActionPillClasses, dipScoreTextClasses } from '../../../shared/utils/dip-signal-ui';
+import { dipActionDotClasses, dipActionPillClasses, dipScoreTextClasses } from '../../../shared/utils/dip-signal-ui';
 
 @Component({
   selector: 'app-dip-insights-card',
@@ -85,8 +85,8 @@ import { dipActionPillClasses, dipScoreTextClasses } from '../../../shared/utils
                       <p class="text-sm font-semibold"
                          [class.text-white]="isDark()"
                          [class.text-gray-900]="!isDark()">{{ pick.symbol }}</p>
-                      <span class="rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-                            [class]="actionClasses(pick.action)">
+                      <span [class]="actionClasses(pick.action)">
+                        <span [class]="dotClasses(pick.action)"></span>
                         {{ actionLabel(pick.action) }}
                       </span>
                     </div>
@@ -171,6 +171,10 @@ export class DipInsightsCardComponent {
 
   actionClasses(action: DipAction): string {
     return dipActionPillClasses(action, this.isDark());
+  }
+
+  dotClasses(action: DipAction): string {
+    return dipActionDotClasses(action);
   }
 
   scoreClasses(action: DipAction): string {

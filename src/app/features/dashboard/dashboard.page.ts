@@ -33,7 +33,7 @@ import {
   RadialProgressComponent
 } from '../../shared/components';
 import { buildPageNumbers } from '../../shared/utils/pagination.utils';
-import { dipActionPillClasses, dipScoreTextClasses } from '../../shared/utils/dip-signal-ui';
+import { dipActionDotClasses as signalDotClasses, dipActionPillClasses, dipScoreTextClasses } from '../../shared/utils/dip-signal-ui';
 import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
 import { HoldingsPieChartComponent, PieGroupBy, DipInsightsCardComponent } from './components';
 
@@ -559,6 +559,10 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
 
   dipActionClasses(action: DipPick['action']): string {
     return dipActionPillClasses(action, this.themeService.isDark());
+  }
+
+  dipActionDotClasses(action: DipPick['action']): string {
+    return signalDotClasses(action);
   }
 
   dipScoreClasses(action: DipPick['action']): string {
