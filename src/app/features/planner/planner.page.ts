@@ -211,6 +211,12 @@ export class PlannerPageComponent implements OnInit {
 
     const quote = this.quoteService.getQuote(vm.symbol);
     this.plannerService.addItem(plan.id, vm.stockId, vm.symbol, quote);
+    queueMicrotask(() => {
+      document.getElementById('plan-items-section')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
   }
 
   onRemoveItem(item: PlanItem): void {

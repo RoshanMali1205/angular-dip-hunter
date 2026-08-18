@@ -52,7 +52,13 @@
       "dipSkip": "Skip",
       "dipToneRiskOn": "Risk-on",
       "dipToneCautious": "Cautious",
-      "dipToneDefensive": "Defensive"
+      "dipToneDefensive": "Defensive",
+      "addedToPlan": "Added to plan",
+      "addedToPlanOne": "Added {symbol} to this month's plan.",
+      "addedToPlanMany": "Added {symbol} and {count} more to this month's plan.",
+      "addedToPlanHint": "Open Planner to set a budget and split the allocation.",
+      "openPlanner": "Open Planner",
+      "dismissNudge": "Dismiss"
     },
     "folders": {
       "title": "🏦 Stock Vault",
@@ -101,7 +107,11 @@
       "allGreen": "All stocks are green! 🎉",
       "finalized": "✓ Finalized",
       "draft": "📝 Draft",
-      "stocksPlanned": "stocks · {amount} planned"
+      "stocksPlanned": "stocks · {amount} planned",
+      "allocationBreakdown": "Allocation breakdown",
+      "showAllStocks": "Show all {count} stocks",
+      "showFewer": "Show less",
+      "applyAdvisor": "Apply {name} to Plan"
     },
     "transactions": {
       "title": "📊 Transactions",
@@ -468,7 +478,13 @@
       "dipSkip": "छोड़ें",
       "dipToneRiskOn": "रिस्क-ऑन",
       "dipToneCautious": "सतर्क",
-      "dipToneDefensive": "रक्षात्मक"
+      "dipToneDefensive": "रक्षात्मक",
+      "addedToPlan": "प्लान में जोड़ा",
+      "addedToPlanOne": "{symbol} इस महीने के प्लान में जोड़ दिया गया।",
+      "addedToPlanMany": "{symbol} और {count} और इस महीने के प्लान में हैं।",
+      "addedToPlanHint": "बजट और आवंटन के लिए प्लानर खोलें।",
+      "openPlanner": "प्लानर खोलें",
+      "dismissNudge": "बंद करें"
     },
     "folders": {
       "title": "🏦 स्टॉक वॉल्ट",
@@ -517,7 +533,11 @@
       "allGreen": "सभी स्टॉक ग्रीन हैं! 🎉",
       "finalized": "✓ अंतिम",
       "draft": "📝 ड्राफ्ट",
-      "stocksPlanned": "स्टॉक्स · {amount} नियोजित"
+      "stocksPlanned": "स्टॉक्स · {amount} नियोजित",
+      "allocationBreakdown": "आवंटन विवरण",
+      "showAllStocks": "सभी {count} स्टॉक्स दिखाएँ",
+      "showFewer": "कम दिखाएँ",
+      "applyAdvisor": "{name} प्लान पर लागू करें"
     },
     "transactions": {
       "title": "📊 लेनदेन",
@@ -884,7 +904,13 @@
       "dipSkip": "वगळा",
       "dipToneRiskOn": "रिस्क-ऑन",
       "dipToneCautious": "सावध",
-      "dipToneDefensive": "संरक्षक"
+      "dipToneDefensive": "संरक्षक",
+      "addedToPlan": "प्लॅनमध्ये जोडले",
+      "addedToPlanOne": "{symbol} या महिन्याच्या प्लॅनमध्ये जोडले.",
+      "addedToPlanMany": "{symbol} आणि आणखी {count} या महिन्याच्या प्लॅनमध्ये आहेत.",
+      "addedToPlanHint": "बजेट आणि वाटपासाठी प्लॅनर उघडा.",
+      "openPlanner": "प्लॅनर उघडा",
+      "dismissNudge": "बंद करा"
     },
     "folders": {
       "title": "🏦 स्टॉक व्हॉल्ट",
@@ -933,7 +959,11 @@
       "allGreen": "सर्व स्टॉक्स ग्रीन आहेत! 🎉",
       "finalized": "✓ अंतिम",
       "draft": "📝 मसुदा",
-      "stocksPlanned": "स्टॉक्स · {amount} नियोजित"
+      "stocksPlanned": "स्टॉक्स · {amount} नियोजित",
+      "allocationBreakdown": "वाटप तपशील",
+      "showAllStocks": "सर्व {count} स्टॉक्स दाखवा",
+      "showFewer": "कमी दाखवा",
+      "applyAdvisor": "{name} प्लॅनवर लागू करा"
     },
     "transactions": {
       "title": "📊 व्यवहार",
