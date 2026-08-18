@@ -17,6 +17,7 @@ import { DialogService } from '../../shared/components/dialog/dialog.service';
 import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
 import { CurrencyService } from '../../core/services/currency.service';
 import { PlanDraft, PlanDraftItem } from '../../core/models/plan.model';
+import { buildBuyExecuteTable } from '../../shared/utils/buy-execute-table';
 
 interface EditState {
   draftId: string;
@@ -179,7 +180,17 @@ export class DraftsPageComponent {
       type: 'confirm',
       title: 'Execute Draft',
       message: `Execute draft "${draft.name}"?\nThis will create ${itemsWithQty.length} buy transaction(s):`,
-      details: itemsWithQty.map(i => `${i.symbol}: ${i.targetQty} qty @ ${this.currencyService.formatDisplay(i.plannedPrice ?? 0)}`),
+      table: buildBuyExecuteTable(
+        itemsWithQty,
+        {
+          stock: this.lang.t('planner.stock'),
+          qty: this.lang.t('common.qty'),
+          price: this.lang.t('planner.plannedPrice'),
+          amount: this.lang.t('planner.targetAmount'),
+          total: this.lang.t('common.total'),
+        },
+        (value) => this.currencyService.formatDisplay(value)
+      ),
       confirmText: 'Execute'
     });
     if (!confirmed) return;

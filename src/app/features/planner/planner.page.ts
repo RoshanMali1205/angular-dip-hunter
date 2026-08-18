@@ -15,6 +15,7 @@ import { AllocationSuggestionsComponent } from './components';
 import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
 import { CurrencyService } from '../../core/services/currency.service';
 import { MAX_DRAFTS } from '../../core/services/drafts.service';
+import { buildBuyExecuteTable } from '../../shared/utils/buy-execute-table';
 
 @Component({
   selector: 'app-planner-page',
@@ -409,7 +410,7 @@ export class PlannerPageComponent implements OnInit {
       type: 'confirm',
       title: 'Execute Plan',
       message: `Create ${pending.length} buy transaction(s) from plan ${plan.month}?`,
-      details: pending.map(i => `${i.symbol}: ${i.targetQty} qty @ ${this.currencyService.formatDisplay(i.plannedPrice ?? 0)}`),
+      table: this.buyExecuteTable(pending),
       confirmText: 'Execute'
     });
     if (!confirmed) return;
@@ -458,6 +459,20 @@ export class PlannerPageComponent implements OnInit {
     if (value === undefined) return '—';
     const sign = value >= 0 ? '+' : '';
     return `${sign}${value.toFixed(2)}%`;
+  }
+
+  private buyExecuteTable(items: PlanItem[]) {
+    return buildBuyExecuteTable(
+      items,
+      {
+        stock: this.lang.t('planner.stock'),
+        qty: this.lang.t('common.qty'),
+        price: this.lang.t('planner.plannedPrice'),
+        amount: this.lang.t('planner.targetAmount'),
+        total: this.lang.t('common.total'),
+      },
+      (value) => this.currencyService.formatDisplay(value)
+    );
   }
 
   trackByItem(index: number, item: PlanItem): string {

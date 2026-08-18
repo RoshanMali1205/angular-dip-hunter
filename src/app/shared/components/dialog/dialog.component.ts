@@ -17,7 +17,9 @@ import { ThemeService } from '../../../core/services/theme.service';
 
         <!-- Dialog Panel -->
         <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
-        <div class="pointer-events-auto relative z-10 w-full max-w-md rounded-2xl border shadow-2xl animate-scaleIn"
+        <div class="pointer-events-auto relative z-10 w-full rounded-2xl border shadow-2xl animate-scaleIn"
+             [class.max-w-lg]="!!dlg.table"
+             [class.max-w-md]="!dlg.table"
              [class.border-slate-700]="themeService.isDark()"
              [class.bg-slate-800]="themeService.isDark()"
              [class.border-gray-200]="themeService.isLight()"
@@ -63,8 +65,71 @@ import { ThemeService } from '../../../core/services/theme.service';
                [class.text-slate-300]="themeService.isDark()"
                [class.text-gray-600]="themeService.isLight()">{{ dlg.message }}</p>
 
-            <!-- Detail list (for execute confirmations, etc.) -->
-            @if (dlg.details && dlg.details.length > 0) {
+            <!-- Detail table (execute plan / draft) -->
+            @if (dlg.table; as table) {
+              <div class="mt-3 overflow-hidden rounded-lg border"
+                   [class.border-slate-700]="themeService.isDark()"
+                   [class.border-gray-200]="themeService.isLight()">
+                <div class="max-h-56 overflow-auto">
+                  <table class="w-full min-w-[18rem] border-collapse text-xs">
+                    <thead class="sticky top-0"
+                           [class.bg-slate-900]="themeService.isDark()"
+                           [class.bg-gray-50]="themeService.isLight()">
+                      <tr>
+                        @for (col of table.columns; track col.key) {
+                          <th class="px-2.5 py-2 font-semibold whitespace-nowrap"
+                              [class.text-left]="col.align !== 'right'"
+                              [class.text-right]="col.align === 'right'"
+                              [class.text-slate-400]="themeService.isDark()"
+                              [class.text-gray-500]="themeService.isLight()">
+                            {{ col.label }}
+                          </th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of table.rows; track $index) {
+                        <tr [class.border-t]="true"
+                            [class.border-slate-700/60]="themeService.isDark()"
+                            [class.border-gray-100]="themeService.isLight()">
+                          @for (col of table.columns; track col.key) {
+                            <td class="px-2.5 py-1.5 whitespace-nowrap"
+                                [class.text-left]="col.align !== 'right'"
+                                [class.text-right]="col.align === 'right'"
+                                [class.tabular-nums]="col.align === 'right'"
+                                [class.font-semibold]="col.key === 'stock'"
+                                [class.text-slate-200]="themeService.isDark()"
+                                [class.text-gray-800]="themeService.isLight()">
+                              {{ row[col.key] }}
+                            </td>
+                          }
+                        </tr>
+                      }
+                    </tbody>
+                    @if (table.footer) {
+                      <tfoot>
+                        <tr [class.border-t]="true"
+                            [class.border-slate-600]="themeService.isDark()"
+                            [class.bg-slate-900/80]="themeService.isDark()"
+                            [class.border-gray-200]="themeService.isLight()"
+                            [class.bg-gray-50]="themeService.isLight()">
+                          @for (col of table.columns; track col.key) {
+                            <td class="px-2.5 py-2 font-semibold whitespace-nowrap"
+                                [class.text-left]="col.align !== 'right'"
+                                [class.text-right]="col.align === 'right'"
+                                [class.tabular-nums]="col.align === 'right'"
+                                [class.text-white]="themeService.isDark()"
+                                [class.text-gray-900]="themeService.isLight()">
+                              {{ table.footer[col.key] }}
+                            </td>
+                          }
+                        </tr>
+                      </tfoot>
+                    }
+                  </table>
+                </div>
+              </div>
+            } @else if (dlg.details && dlg.details.length > 0) {
               <div class="mt-3 max-h-40 overflow-y-auto rounded-lg border p-3 text-xs space-y-1"
                    [class.border-slate-700]="themeService.isDark()"
                    [class.bg-slate-900/50]="themeService.isDark()"
