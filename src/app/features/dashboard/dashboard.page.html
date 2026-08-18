@@ -489,7 +489,7 @@
            [class.bg-white]="themeService.isLight()"
            [class.shadow-sm]="themeService.isLight()">
         <div class="overflow-x-auto">
-        <table class="w-full min-w-[520px] text-left text-sm">
+        <table class="w-full min-w-[720px] text-left text-sm">
           <thead class="border-b"
                  [class.border-slate-700]="themeService.isDark()"
                  [class.bg-slate-800/80]="themeService.isDark()"
@@ -502,6 +502,8 @@
               <th class="px-3 py-2.5">{{ lang.t('dashboard.stock') }}</th>
               <th class="px-3 py-2.5 text-right">{{ lang.t('dashboard.price') }}</th>
               <th class="px-3 py-2.5 text-right">{{ lang.t('dashboard.change') }}</th>
+              <th class="px-3 py-2.5 text-center">{{ lang.t('dashboard.aiSignal') }}</th>
+              <th class="px-3 py-2.5 text-right">{{ lang.t('dashboard.score') }}</th>
               <th class="px-3 py-2.5 text-center">{{ lang.t('dashboard.status') }}</th>
               <th class="hidden md:table-cell px-3 py-2.5 text-right">{{ lang.t('dashboard.holdings') }}</th>
               <th class="px-3 py-2.5 w-20 text-right"></th>
@@ -557,6 +559,31 @@
                   <td class="px-3 py-2 text-right text-sm font-medium"
                       [class]="(vm.changePercent ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'">
                     {{ formatPercent(vm.changePercent) }}
+                  </td>
+                  <td class="px-3 py-2 text-center">
+                    @if (dipBySymbol().get(vm.symbol); as pick) {
+                      <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide"
+                            [class]="dipActionClasses(pick.action)">
+                        {{ dipActionLabel(pick.action) }}
+                      </span>
+                    } @else if (dipLoading()) {
+                      <span class="text-xs"
+                            [class.text-slate-500]="themeService.isDark()"
+                            [class.text-gray-400]="themeService.isLight()">…</span>
+                    } @else {
+                      <span class="text-xs"
+                            [class.text-slate-500]="themeService.isDark()"
+                            [class.text-gray-400]="themeService.isLight()">—</span>
+                    }
+                  </td>
+                  <td class="px-3 py-2 text-right text-sm font-semibold">
+                    @if (dipBySymbol().get(vm.symbol); as pick) {
+                      <span [class]="dipScoreClasses(pick.action)">{{ pick.score | number:'1.0-0' }}</span>
+                    } @else {
+                      <span class="text-xs"
+                            [class.text-slate-500]="themeService.isDark()"
+                            [class.text-gray-400]="themeService.isLight()">—</span>
+                    }
                   </td>
                   <td class="px-3 py-2 text-center">
                     @if (vm.isRed) {
@@ -634,7 +661,7 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="7" class="px-4 py-10 text-center"
+                  <td colspan="9" class="px-4 py-10 text-center"
                       [class.text-slate-500]="themeService.isDark()"
                       [class.text-gray-400]="themeService.isLight()">
                     <svg class="h-8 w-8 mx-auto mb-2 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
@@ -729,6 +756,16 @@
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
           </div>
+        </div>
+
+        <div class="border-t px-4 py-2.5"
+             [class.border-slate-700/50]="themeService.isDark()"
+             [class.border-gray-100]="themeService.isLight()">
+          <p class="text-[11px]"
+             [class.text-slate-500]="themeService.isDark()"
+             [class.text-gray-500]="themeService.isLight()">
+            {{ lang.t('dashboard.aiScoresHint') }}
+          </p>
         </div>
       </div>
     </div>

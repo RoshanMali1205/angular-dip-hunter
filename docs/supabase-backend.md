@@ -55,14 +55,16 @@ Apply `supabase/migrations/20260817180000_init_dip_hunter.sql` in the Supabase S
 | Table | Purpose |
 |-------|---------|
 | `profiles` | Display name, avatar URL, `created_at`. PK = `auth.users.id`. |
-| `user_snapshots` | JSONB blob of localStorage keys (`dh_folders`, `dh_stocks`, `dh_plans`, `dh_transactions`, `dh_drafts`, `dh_settings`, `dh_user`). PK = `user_id`. |
+| `user_snapshots` | JSONB blob of localStorage keys (`dh_folders`, `dh_stocks`, `dh_plans`, `dh_transactions`, `dh_drafts`, `dh_settings`, `dh_user`, `dh_dip_signals`). PK = `user_id`. |
+| `dip_signals` | Daily AI Signal + Score per user/symbol (`as_of_date` IST). RLS `user_id = auth.uid()`. |
 
 **Phase 2 (tables created now, wired later):** normalized rows for querying and backups.
 
 | Table | Maps from |
 |-------|-----------|
 | `folders` | `dh_folders` |
-| `stocks` | `dh_stocks` |
+| `stocks` | `dh_stocks` plus optional `ai_signal`, `ai_score`, `ai_scored_at` |
+| `dip_signals` | Daily Gemini/local scores (`dh_dip_signals`) |
 | `plans` | `dh_plans` (header) |
 | `plan_items` | `MonthlyPlan.items` |
 | `drafts` | `dh_drafts` |
@@ -82,7 +84,12 @@ Apply `supabase/migrations/20260817180000_init_dip_hunter.sql` in the Supabase S
   "dh_transactions": [],
   "dh_drafts": [],
   "dh_settings": {},
-  "dh_user": {}
+  "dh_user": {},
+  "dh_dip_signals": {
+    "asOfDate": "2026-08-18",
+    "scoredAt": "2026-08-18T04:00:00.000Z",
+    "prediction": {}
+  }
 }
 ```
 
@@ -112,6 +119,7 @@ All paths are on `{SUPABASE_URL}`. The JS client wraps these.
 |--------|------|-----|
 | Load portfolio | `GET /rest/v1/user_snapshots?select=payload,updated_at` | `user_id = auth.uid()` |
 | Save portfolio | `POST /rest/v1/user_snapshots` upsert on `user_id` | same |
+| Daily AI scores | `GET/POST /rest/v1/dip_signals` upsert on `(user_id,symbol,as_of_date)` | same |
 | Profile | `GET/PATCH /rest/v1/profiles?id=eq.{uid}` | same |
 
 ---
@@ -201,7 +209,7 @@ Go template variables used: `{{ .ConfirmationURL }}`, `{{ .Email }}`, `{{ .SiteU
 ## 8. Rollout
 
 1. Create a Supabase project (region close to users, e.g. `ap-south-1`).
-2. Run the SQL migration.
+2. Run the SQL migrations (`20260817180000_init_dip_hunter.sql`, then `20260818120000_dip_signals.sql`).
 3. Auth: enable Email, confirm email ON, add redirect URLs, paste templates.
 4. Put URL + anon key in Netlify env (production does **not** need them committed in git):
    - `SUPABASE_URL` = Project URL (`https://xxxx.supabase.co`)

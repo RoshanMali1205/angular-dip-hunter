@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { extractGeminiText, handleAiRequest } from '../functions/ai-core.mjs';
+import { extractGeminiText, handleAiRequest, buildPredictPrompt } from '../functions/ai-core.mjs';
 import { nseBsePromptSnippet } from '../functions/nse-bse-knowledge.mjs';
 
 describe('Netlify AI function modules', () => {
@@ -35,5 +35,14 @@ describe('Netlify AI function modules', () => {
       ],
     });
     assert.equal(text, 'NSE opens at 09:15 IST.');
+  });
+
+  it('asks Gemini to rank all watched names, not only reds', () => {
+    const prompt = buildPredictPrompt({
+      stocks: [{ symbol: 'RELIANCE', displayName: 'Reliance', changePercent: 0.65 }],
+      currency: 'INR',
+    });
+    assert.match(prompt, /Rank ALL listed watched stocks/);
+    assert.match(prompt, /RELIANCE/);
   });
 });

@@ -28,6 +28,8 @@
       "stock": "Stock",
       "price": "Price",
       "change": "Change",
+      "aiSignal": "AI Signal",
+      "score": "Score",
       "status": "Status",
       "holdings": "Holdings",
       "actions": "Actions",
@@ -58,7 +60,8 @@
       "addedToPlanMany": "Added {symbol} and {count} more to this month's plan.",
       "addedToPlanHint": "Open Planner to set a budget and split the allocation.",
       "openPlanner": "Open Planner",
-      "dismissNudge": "Dismiss"
+      "dismissNudge": "Dismiss",
+      "aiScoresHint": "AI scores are refreshed daily using market data and Gemini."
     },
     "folders": {
       "title": "🏦 Stock Vault",
@@ -455,6 +458,8 @@
       "stock": "स्टॉक",
       "price": "कीमत",
       "change": "बदलाव",
+      "aiSignal": "AI सिग्नल",
+      "score": "स्कोर",
       "status": "स्थिति",
       "holdings": "होल्डिंग्स",
       "actions": "कार्य",
@@ -485,7 +490,8 @@
       "addedToPlanMany": "{symbol} और {count} और इस महीने के प्लान में हैं।",
       "addedToPlanHint": "बजट और आवंटन के लिए प्लानर खोलें।",
       "openPlanner": "प्लानर खोलें",
-      "dismissNudge": "बंद करें"
+      "dismissNudge": "बंद करें",
+      "aiScoresHint": "AI स्कोर हर दिन मार्केट डेटा और Gemini से अपडेट होते हैं।"
     },
     "folders": {
       "title": "🏦 स्टॉक वॉल्ट",
@@ -882,6 +888,8 @@
       "stock": "स्टॉक",
       "price": "किंमत",
       "change": "बदल",
+      "aiSignal": "AI सिग्नल",
+      "score": "स्कोर",
       "status": "स्थिती",
       "holdings": "होल्डिंग्ज",
       "actions": "कृती",
@@ -912,7 +920,8 @@
       "addedToPlanMany": "{symbol} आणि आणखी {count} या महिन्याच्या प्लॅनमध्ये आहेत.",
       "addedToPlanHint": "बजेट आणि वाटपासाठी प्लॅनर उघडा.",
       "openPlanner": "प्लॅनर उघडा",
-      "dismissNudge": "बंद करा"
+      "dismissNudge": "बंद करा",
+      "aiScoresHint": "AI स्कोर दररोज मार्केट डेटा आणि Gemini ने अपडेट होतात."
     },
     "folders": {
       "title": "🏦 स्टॉक व्हॉल्ट",

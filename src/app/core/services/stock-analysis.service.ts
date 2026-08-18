@@ -86,7 +86,7 @@ export class StockAnalysisService {
   predictDips(stocks: StockViewModel[]): DipPrediction {
     if (stocks.length === 0) {
       return {
-        summary: 'No red candidates to rank.',
+        summary: 'No watched names to rank.',
         marketTone: 'cautious',
         picks: [],
         provider: 'local',
@@ -109,7 +109,7 @@ export class StockAnalysisService {
   }
 
   /**
-   * Ask Gemini to rank red candidates. Returns null when unavailable so callers
+   * Ask Gemini to rank watched names. Returns null when unavailable so callers
    * can keep showing the local heuristic ranking.
    */
   fetchGeminiDipPredictions(stocks: StockViewModel[]): Observable<DipPrediction | null> {
@@ -177,7 +177,7 @@ export class StockAnalysisService {
     picks.sort((a, b) => b.score - a.score);
 
     return {
-      summary: prediction.summary || 'Gemini ranked today’s red candidates by dip quality.',
+      summary: prediction.summary || 'Gemini ranked today’s watched names by dip quality.',
       marketTone: this.asMarketTone(prediction.marketTone),
       picks,
       provider: 'gemini',
@@ -201,7 +201,14 @@ export class StockAnalysisService {
     let rationale: string;
     let riskNote: string;
 
-    if (absChange < 2) {
+    if (changePercent >= 0) {
+      score = Math.max(12, 38 - Math.min(changePercent, 8) * 3);
+      dropType = 'correction';
+      action = 'skip';
+      confidence = 'medium';
+      rationale = `Trading green (${changePercent.toFixed(1)}%). No dip to buy.`;
+      riskNote = 'Chasing green names reduces dip margin.';
+    } else if (absChange < 2) {
       score = 28 + absChange * 8;
       dropType = 'correction';
       action = 'skip';
@@ -255,7 +262,7 @@ export class StockAnalysisService {
     const buys = picks.filter((p) => p.action === 'buy').length;
     const watches = picks.filter((p) => p.action === 'watch').length;
     if (buys === 0 && watches === 0) {
-      return 'No attractive dips in the current red list. Stay patient.';
+      return 'No attractive dips among watched names today. Stay patient.';
     }
     if (buys > 0) {
       return `${buys} buy-zone dip${buys === 1 ? '' : 's'} and ${watches} to watch. Ranked locally until Gemini responds.`;

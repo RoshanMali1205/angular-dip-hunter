@@ -93,6 +93,7 @@ describe('StorageService', () => {
         'dh_transactions',
         'dh_settings',
         'dh_quote_cache',
+        'dh_dip_signals',
       ];
       clearedKeys.forEach(key =>
         expect(localStorage.removeItem).toHaveBeenCalledWith(key)
