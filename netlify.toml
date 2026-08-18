@@ -25,6 +25,12 @@
   to = "/.netlify/functions/ai"
   status = 200
 
+# Public SPA config (Supabase URL + anon key from Netlify env)
+[[redirects]]
+  from = "/api/config"
+  to = "/.netlify/functions/public-config"
+  status = 200
+
 # SPA fallback — all other routes serve index.html
 [[redirects]]
   from = "/*"
