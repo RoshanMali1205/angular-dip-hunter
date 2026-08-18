@@ -54,12 +54,17 @@ export class AuthService {
   constructor() {
     // Cleanup for older builds that stored reset tokens in localStorage.
     localStorage.removeItem('dh_reset_tokens');
+    void this.bootstrap();
+  }
+
+  private async bootstrap(): Promise<void> {
+    await this.supabase.whenReady();
     if (this.supabase.isEnabled) {
-      void this.initSupabaseSession();
-    } else {
-      this.restoreSession();
-      this.markReady();
+      await this.initSupabaseSession();
+      return;
     }
+    this.restoreSession();
+    this.markReady();
   }
 
   whenReady(): Promise<void> {

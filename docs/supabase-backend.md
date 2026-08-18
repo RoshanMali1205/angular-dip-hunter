@@ -194,7 +194,7 @@ Go template variables used: `{{ .ConfirmationURL }}`, `{{ .Email }}`, `{{ .SiteU
 | `guestGuard` | Do not wrap callback or reset-password. |
 | `StorageService` | After local write of cloud keys, debounce upsert to `user_snapshots`. |
 | `APP_INITIALIZER` | Restore session, then **pull snapshot into localStorage before** portfolio services construct. |
-| Netlify | Set build env later if you inject keys at build time; until then fill `src/environments/environment.prod.ts`. |
+| Netlify | Set `SUPABASE_URL` + `SUPABASE_ANON_KEY` (Functions + Production). The SPA reads them from `/.netlify/functions/public-config`. Optional local fill: `environment.ts`. |
 
 ---
 
@@ -203,7 +203,12 @@ Go template variables used: `{{ .ConfirmationURL }}`, `{{ .Email }}`, `{{ .SiteU
 1. Create a Supabase project (region close to users, e.g. `ap-south-1`).
 2. Run the SQL migration.
 3. Auth: enable Email, confirm email ON, add redirect URLs, paste templates.
-4. Put URL + anon key in `environment.ts` / `environment.prod.ts`.
+4. Put URL + anon key in Netlify env (production does **not** need them committed in git):
+   - `SUPABASE_URL` = Project URL (`https://xxxx.supabase.co`)
+   - `SUPABASE_ANON_KEY` = **anon public** key (never `service_role`)
+   Scopes: **Builds, Functions, Runtime** + Production, then **redeploy**.
+   The SPA loads them from `/.netlify/functions/public-config`.
+   For local `ng serve`, you can still fill `src/environments/environment.ts`.
 5. Deploy SPA. First user: register → verify email → login → data appears in Table Editor → `user_snapshots`.
 6. Optional: import existing localStorage via Settings export, then login (Phase 1 does not auto-migrate anonymous local data into another account).
 

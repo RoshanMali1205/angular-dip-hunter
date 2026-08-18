@@ -63,6 +63,16 @@
         "timeout": "30s",
         "strategy": "freshness"
       }
+    },
+    {
+      "name": "public-config",
+      "urls": ["/.netlify/functions/public-config*", "/api/config*"],
+      "cacheConfig": {
+        "maxSize": 2,
+        "maxAge": "0u",
+        "timeout": "8s",
+        "strategy": "freshness"
+      }
     }
   ]
 }
