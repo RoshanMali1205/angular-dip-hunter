@@ -9,6 +9,13 @@
       "performance": "Performance",
       "settings": "Settings"
     },
+    "inbox": {
+      "title": "Today's picks",
+      "hint": "Daily AI buy-zone names. Open anytime — not an hourly popup.",
+      "empty": "No buy or watch names yet. Open the dashboard after quotes load.",
+      "stale": "Today's scores are not ready. Open the dashboard to refresh.",
+      "openDashboard": "Open dashboard"
+    },
     "dashboard": {
       "title": "Dashboard",
       "subtitle": "Overview of your stock portfolios",
@@ -439,6 +446,13 @@
       "performance": "प्रदर्शन",
       "settings": "सेटिंग्स"
     },
+    "inbox": {
+      "title": "आज की पिक्स",
+      "hint": "रोज़ का AI बाय-ज़ोन। जब चाहें बेल खोलें — हर घंटे पॉपअप नहीं।",
+      "empty": "अभी कोई खरीद/वॉच नाम नहीं। कोट्स आने के बाद डैशबोर्ड खोलें।",
+      "stale": "आज के स्कोर तैयार नहीं। रिफ्रेश के लिए डैशबोर्ड खोलें।",
+      "openDashboard": "डैशबोर्ड खोलें"
+    },
     "dashboard": {
       "title": "डैशबोर्ड",
       "subtitle": "आपके स्टॉक पोर्टफोलियो का अवलोकन",
@@ -868,6 +882,13 @@
       "analytics": "विश्लेषण",
       "performance": "कामगिरी",
       "settings": "सेटिंग्ज"
+    },
+    "inbox": {
+      "title": "आजच्या पिक्स",
+      "hint": "दररोजचे AI बाय-झोन. हवे तेव्हा बेल उघडा — दर तासाला पॉपअप नाही.",
+      "empty": "अजून खरेदी/वॉच नावे नाहीत. कोट्स आल्यावर डॅशबोर्ड उघडा.",
+      "stale": "आजचे स्कोर तयार नाहीत. रिफ्रेशसाठी डॅशबोर्ड उघडा.",
+      "openDashboard": "डॅशबोर्ड उघडा"
     },
     "dashboard": {
       "title": "डॅशबोर्ड",

@@ -5,3 +5,4 @@ export * from './dialog/dialog.component';
 export * from './dialog/dialog.service';
 export * from './currency-selector/currency-selector.component';
 export * from './finance-buddy/finance-buddy.component';
+export * from './reco-inbox/reco-inbox.component';
