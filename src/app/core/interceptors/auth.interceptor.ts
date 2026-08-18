@@ -13,11 +13,7 @@ export const authInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const token = authService.getAccessToken();
 
-  // Skip adding token for auth endpoints and fully-qualified external URLs
-  const isAuthEndpoint = req.url.includes('/auth/login') || req.url.includes('/auth/register');
-  const isExternalUrl = req.url.startsWith('http://') || req.url.startsWith('https://') || req.url.startsWith('//');
-
-  if (token && !isAuthEndpoint && !isExternalUrl) {
+  if (token && shouldAttachAccessToken(req.url)) {
     const clonedRequest = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -28,3 +24,11 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(req);
 };
+
+function shouldAttachAccessToken(url: string): boolean {
+  if (url.includes('/auth/login') || url.includes('/auth/register')) return false;
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) return false;
+  if (url.includes('/.netlify/functions/')) return false;
+  if (url.includes('/api/ai') || url.includes('/api/quotes')) return false;
+  return true;
+}

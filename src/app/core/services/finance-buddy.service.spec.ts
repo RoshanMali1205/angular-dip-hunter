@@ -114,6 +114,7 @@ describe('FinanceBuddyService', () => {
     const assistant = service.messages().at(-1) as ChatMessage;
     expect(assistant.provider).toBe('local');
     expect(assistant.text).toContain('2 holdings');
+    expect(assistant.text).toContain('buddy.geminiMissing');
   });
 
   it('attaches a dip table sorted deepest-first when Gemini is unavailable', () => {
@@ -146,6 +147,7 @@ describe('FinanceBuddyService', () => {
     expect(assistant.table).toBeUndefined();
     expect(assistant.text).toContain('09:15');
     expect(assistant.text).toContain('Not financial advice');
+    expect(assistant.text).toContain('buddy.geminiMissing');
   });
 
   it('answers NSE closing questions from built-in knowledge', () => {
@@ -160,6 +162,7 @@ describe('FinanceBuddyService', () => {
     const assistant = service.messages().at(-1) as ChatMessage;
     expect(assistant.text).toContain('15:30');
     expect(assistant.text).not.toContain('buddy.offlineHelp');
+    expect(assistant.text).toContain('buddy.geminiMissing');
   });
 
   it('explains a missing Gemini key when the question has no local fact', () => {

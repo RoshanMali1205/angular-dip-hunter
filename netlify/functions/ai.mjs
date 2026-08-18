@@ -8,8 +8,8 @@ import { handleAiRequest } from './ai-core.mjs';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Content-Type': 'application/json',
 };
 
@@ -32,6 +32,11 @@ function parseBody(event) {
 export async function handler(event) {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers: CORS_HEADERS, body: '' };
+  }
+
+  if (event.httpMethod === 'GET') {
+    const result = await handleAiRequest({ action: 'status' }, process.env);
+    return jsonResponse(result.statusCode, result.body);
   }
 
   if (event.httpMethod !== 'POST') {
