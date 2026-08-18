@@ -17,12 +17,13 @@ import { WhatsNewService } from './core/services/whats-new.service';
 import { WhatsNewRelease } from './core/config/app-release.config';
 import { WhatsNewModalComponent } from './shared/components/whats-new-modal/whats-new-modal.component';
 import { FinanceBuddyComponent } from './shared/components/finance-buddy/finance-buddy.component';
+import { RecoInboxComponent } from './shared/components/reco-inbox/reco-inbox.component';
 import { isIndependenceDayIconActive } from './core/config/independence-day.config';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent, DialogComponent, WhatsNewModalComponent, FinanceBuddyComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent, DialogComponent, WhatsNewModalComponent, FinanceBuddyComponent, RecoInboxComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
