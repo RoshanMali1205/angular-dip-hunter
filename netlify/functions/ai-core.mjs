@@ -13,7 +13,12 @@
 import { nseBsePromptSnippet } from './nse-bse-knowledge.mjs';
 
 const DEFAULT_MODEL = 'gemini-3.5-flash';
-const FALLBACK_MODELS = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+const FALLBACK_MODELS = [
+  'gemini-3.5-flash',
+  'gemini-3.6-flash',
+  'gemini-2.5-flash',
+  'gemini-flash-latest',
+];
 const DISCLAIMER = 'AI-assisted suggestion — not financial advice.';
 
 const ALLOCATION_SCHEMA = {
@@ -164,6 +169,21 @@ function geminiHeaders(apiKey) {
     'Content-Type': 'application/json',
     'x-goog-api-key': apiKey,
   };
+}
+
+/**
+ * Gemini 2.5/3 thinking models put reasoning in earlier parts (sometimes
+ * `thought: true`) and can leave parts[0].text empty when maxOutputTokens
+ * is too small. Join visible text parts only.
+ */
+export function extractGeminiText(payload) {
+  const parts = payload?.candidates?.[0]?.content?.parts;
+  if (!Array.isArray(parts)) return '';
+  return parts
+    .filter((part) => part && part.thought !== true && typeof part.text === 'string')
+    .map((part) => part.text)
+    .join('')
+    .trim();
 }
 
 function missingKeyResponse() {
@@ -344,6 +364,7 @@ async function callGemini({ apiKey, model, prompt, schema }) {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.4,
+        maxOutputTokens: 4096,
         responseMimeType: 'application/json',
         responseSchema: schema,
       },
@@ -359,7 +380,7 @@ async function callGemini({ apiKey, model, prompt, schema }) {
     throw err;
   }
 
-  const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = extractGeminiText(payload);
   if (!text) {
     throw new Error('Gemini returned an empty response');
   }
@@ -469,7 +490,7 @@ async function callGeminiChat({ apiKey, model, contents }) {
       contents,
       generationConfig: {
         temperature: 0.5,
-        maxOutputTokens: 512,
+        maxOutputTokens: 4096,
       },
     }),
   });
@@ -483,7 +504,7 @@ async function callGeminiChat({ apiKey, model, contents }) {
     throw err;
   }
 
-  const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = extractGeminiText(payload);
   if (!text) {
     throw new Error('Gemini returned an empty chat response');
   }

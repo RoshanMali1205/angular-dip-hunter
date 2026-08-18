@@ -313,9 +313,6 @@ export class FinanceBuddyService {
 
   private fallbackReply(message: string, err: HttpErrorResponse): string {
     const local = this.localReply(message);
-    if (local !== this.lang.t('buddy.offlineHelp')) {
-      return local;
-    }
     const note = this.geminiFailureNote(err);
     return note ? `${local}\n\n${note}` : local;
   }

@@ -66,6 +66,26 @@ describe('authInterceptor', () => {
     req.flush({});
   });
 
+  it('skips attaching token for the Gemini Netlify function', () => {
+    authService.getAccessToken.mockReturnValue('test-token-123');
+
+    http.post('/.netlify/functions/ai', { action: 'chat' }).subscribe();
+
+    const req = httpMock.expectOne('/.netlify/functions/ai');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush({});
+  });
+
+  it('skips attaching token for /api/quotes', () => {
+    authService.getAccessToken.mockReturnValue('test-token-123');
+
+    http.get('/api/quotes?symbols=TCS').subscribe();
+
+    const req = httpMock.expectOne('/api/quotes?symbols=TCS');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush({});
+  });
+
   it('passes request through when token is absent and URL is not auth', () => {
     authService.getAccessToken.mockReturnValue(null);
 
