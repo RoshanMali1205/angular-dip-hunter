@@ -59,3 +59,35 @@ create policy "dip_signals_own_rows" on public.dip_signals
 
 grant select, insert, update, delete on public.dip_signals to authenticated;
 grant select on public.dip_signals to anon;
+
+-- ---------------------------------------------------------------------------
+-- Retention: drop rows older than 14 IST days
+-- App also deletes the signed-in user's stale rows after each daily upsert.
+-- Run in SQL editor anytime:  select public.prune_dip_signals();
+-- ---------------------------------------------------------------------------
+create or replace function public.prune_dip_signals(retention_days integer default 14)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  deleted_count integer;
+  cutoff date;
+begin
+  if retention_days is null or retention_days < 1 then
+    raise exception 'retention_days must be >= 1';
+  end if;
+
+  cutoff := (timezone('Asia/Kolkata', now()))::date - retention_days;
+
+  delete from public.dip_signals
+  where as_of_date < cutoff;
+
+  get diagnostics deleted_count = row_count;
+  return deleted_count;
+end;
+$$;
+
+revoke all on function public.prune_dip_signals(integer) from public, anon, authenticated;
+grant execute on function public.prune_dip_signals(integer) to postgres, service_role;

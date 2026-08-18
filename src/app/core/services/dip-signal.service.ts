@@ -16,6 +16,9 @@ export interface DipSignalCache {
   prediction: DipPrediction;
 }
 
+/** Keep this many IST calendar days of `dip_signals` history. */
+export const DIP_SIGNAL_RETENTION_DAYS = 14;
+
 export function istCalendarDate(now = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Kolkata',
@@ -23,6 +26,18 @@ export function istCalendarDate(now = new Date()): string {
     month: '2-digit',
     day: '2-digit',
   }).format(now);
+}
+
+/** First IST date that is still kept (`today - retentionDays`). Older rows are deleted. */
+export function dipSignalRetentionCutoff(
+  retentionDays = DIP_SIGNAL_RETENTION_DAYS,
+  now = new Date()
+): string {
+  const today = istCalendarDate(now);
+  const [year, month, day] = today.split('-').map(Number);
+  const utc = new Date(Date.UTC(year, month - 1, day));
+  utc.setUTCDate(utc.getUTCDate() - retentionDays);
+  return utc.toISOString().slice(0, 10);
 }
 
 export function cacheCoversToday(
@@ -74,7 +89,27 @@ export class DipSignalService {
       return;
     }
 
+    await this.pruneOlderThanRetention(userId, cache.asOfDate);
     await this.touchStockColumns(userId, cache);
+  }
+
+  private async pruneOlderThanRetention(userId: string, asOfDate: string): Promise<void> {
+    const client = this.supabase.client;
+    if (!client) return;
+
+    const cutoff = dipSignalRetentionCutoff(
+      DIP_SIGNAL_RETENTION_DAYS,
+      new Date(`${asOfDate}T06:30:00Z`)
+    );
+    const { error } = await client
+      .from('dip_signals')
+      .delete()
+      .eq('user_id', userId)
+      .lt('as_of_date', cutoff);
+
+    if (error) {
+      console.warn('[dip-signals] prune failed:', error.message);
+    }
   }
 
   private async touchStockColumns(userId: string, cache: DipSignalCache): Promise<void> {

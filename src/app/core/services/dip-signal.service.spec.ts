@@ -3,6 +3,7 @@ import { DipPrediction } from '../models/plan.model';
 import {
   DipSignalService,
   cacheCoversToday,
+  dipSignalRetentionCutoff,
   istCalendarDate,
   DipSignalCache,
 } from './dip-signal.service';
@@ -33,6 +34,10 @@ describe('DipSignalService helpers', () => {
     // 12:00 IST on 18 Aug = 06:30 UTC
     const date = istCalendarDate(new Date('2026-08-18T06:30:00Z'));
     expect(date).toBe('2026-08-18');
+  });
+
+  it('computes the IST cutoff 14 days before today', () => {
+    expect(dipSignalRetentionCutoff(14, new Date('2026-08-18T06:30:00Z'))).toBe('2026-08-04');
   });
 
   it('accepts a same-day cache that covers every requested symbol', () => {
