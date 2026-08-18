@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { extractGeminiText, handleAiRequest } from './ai-core.mjs';
-import { nseBsePromptSnippet } from './nse-bse-knowledge.mjs';
+import { extractGeminiText, handleAiRequest } from '../functions/ai-core.mjs';
+import { nseBsePromptSnippet } from '../functions/nse-bse-knowledge.mjs';
 
 describe('Netlify AI function modules', () => {
   it('loads the NSE/BSE prompt without createRequire', () => {
