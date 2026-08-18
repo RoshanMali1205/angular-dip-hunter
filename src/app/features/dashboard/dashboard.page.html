@@ -562,8 +562,8 @@
                   </td>
                   <td class="px-3 py-2 text-center">
                     @if (dipBySymbol().get(vm.symbol); as pick) {
-                      <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide"
-                            [class]="dipActionClasses(pick.action)">
+                      <span [class]="dipActionClasses(pick.action)">
+                        <span [class]="dipActionDotClasses(pick.action)"></span>
                         {{ dipActionLabel(pick.action) }}
                       </span>
                     } @else if (dipLoading()) {
@@ -825,8 +825,8 @@
                      [class.text-gray-900]="themeService.isLight()">{{ vm.symbol }}</p>
                   <p class="text-xs font-medium mt-0.5 text-red-400">{{ formatPercent(vm.changePercent) }}</p>
                   @if (dipBySymbol().get(vm.symbol); as pick) {
-                    <span class="mt-1 inline-block rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-                          [class]="dipActionClasses(pick.action)">
+                    <span class="mt-1" [ngClass]="dipActionClasses(pick.action)">
+                      <span [class]="dipActionDotClasses(pick.action)"></span>
                       {{ dipActionLabel(pick.action) }}
                     </span>
                   }
