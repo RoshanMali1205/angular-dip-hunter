@@ -93,6 +93,13 @@ import { dipActionDotClasses, dipActionPillClasses, dipScoreTextClasses } from '
                     <p class="text-xs mt-1 line-clamp-2"
                        [class.text-slate-400]="isDark()"
                        [class.text-gray-500]="!isDark()">{{ pick.rationale }}</p>
+                    @if (pick.riskNote) {
+                      <p class="text-[11px] mt-0.5"
+                         [class.text-slate-500]="isDark()"
+                         [class.text-gray-400]="!isDark()">
+                        {{ lang.t('dashboard.riskLabel') }}: {{ pick.riskNote }}
+                      </p>
+                    }
                   </div>
                   <div class="text-right shrink-0">
                     <p class="text-sm font-bold" [class]="scoreClasses(pick.action)">{{ pick.score | number:'1.0-0' }}</p>

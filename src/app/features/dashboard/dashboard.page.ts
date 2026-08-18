@@ -30,10 +30,11 @@ import { DialogService } from '../../shared/components/dialog/dialog.service';
 import {
   SkeletonCardComponent,
   SkeletonStockRowComponent,
-  RadialProgressComponent
+  RadialProgressComponent,
+  AiSignalChipComponent
 } from '../../shared/components';
 import { buildPageNumbers } from '../../shared/utils/pagination.utils';
-import { dipActionDotClasses as signalDotClasses, dipActionPillClasses, dipScoreTextClasses } from '../../shared/utils/dip-signal-ui';
+import { dipScoreTextClasses } from '../../shared/utils/dip-signal-ui';
 import { CurrencyDisplayPipe } from '../../shared/pipes/currency-display.pipe';
 import { HoldingsPieChartComponent, PieGroupBy, DipInsightsCardComponent } from './components';
 
@@ -56,7 +57,8 @@ export interface ProgressMetric {
     RadialProgressComponent,
     HoldingsPieChartComponent,
     DipInsightsCardComponent,
-    CurrencyDisplayPipe
+    CurrencyDisplayPipe,
+    AiSignalChipComponent
   ],
   templateUrl: './dashboard.page.html'
 })
@@ -549,20 +551,6 @@ export class DashboardPageComponent implements OnInit, OnDestroy {
     if (value === undefined) return '-';
     const sign = value >= 0 ? '+' : '';
     return `${sign}${value.toFixed(2)}%`;
-  }
-
-  dipActionLabel(action: DipPick['action']): string {
-    if (action === 'buy') return this.lang.t('dashboard.dipBuy');
-    if (action === 'watch') return this.lang.t('dashboard.dipWatch');
-    return this.lang.t('dashboard.dipSkip');
-  }
-
-  dipActionClasses(action: DipPick['action']): string {
-    return dipActionPillClasses(action, this.themeService.isDark());
-  }
-
-  dipActionDotClasses(action: DipPick['action']): string {
-    return signalDotClasses(action);
   }
 
   dipScoreClasses(action: DipPick['action']): string {
