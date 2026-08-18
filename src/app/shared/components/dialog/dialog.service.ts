@@ -2,6 +2,18 @@ import { Injectable, signal } from '@angular/core';
 
 export type DialogType = 'confirm' | 'alert' | 'prompt' | 'danger';
 
+export interface DialogTableColumn {
+  key: string;
+  label: string;
+  align?: 'left' | 'right';
+}
+
+export interface DialogTable {
+  columns: DialogTableColumn[];
+  rows: Record<string, string>[];
+  footer?: Record<string, string>;
+}
+
 export interface DialogConfig {
   type: DialogType;
   title: string;
@@ -14,6 +26,8 @@ export interface DialogConfig {
   inputPlaceholder?: string;
   /** Multi-line detail shown below the message */
   details?: string[];
+  /** Structured rows for execute-plan style confirmations */
+  table?: DialogTable;
 }
 
 interface DialogState extends DialogConfig {

@@ -296,7 +296,8 @@
       "noData": "No data available",
       "updated": "Updated",
       "stocks": "stocks",
-      "qty": "qty"
+      "qty": "qty",
+      "total": "Total"
     },
     "buddy": {
       "title": "Finance Buddy",
@@ -722,7 +723,8 @@
       "noData": "कोई डेटा उपलब्ध नहीं",
       "updated": "अपडेटेड",
       "stocks": "स्टॉक्स",
-      "qty": "मात्रा"
+      "qty": "मात्रा",
+      "total": "कुल"
     },
     "buddy": {
       "title": "फाइनेंस बडी",
@@ -1148,7 +1150,8 @@
       "noData": "डेटा उपलब्ध नाही",
       "updated": "अपडेटेड",
       "stocks": "स्टॉक्स",
-      "qty": "मात्रा"
+      "qty": "मात्रा",
+      "total": "एकूण"
     },
     "buddy": {
       "title": "फायनान्स बडी",
