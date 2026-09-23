@@ -16,7 +16,8 @@ export type StorageKey =
   | 'dh_exchange_rates'
   | 'dh_user'
   | 'dh_dip_signals'
-  | 'dh_reco_inbox';
+  | 'dh_reco_inbox'
+  | 'dh_daily_ideas';
 
 export interface StorageWriteOptions {
   /** Skip cloud snapshot push (used while hydrating from Supabase). */

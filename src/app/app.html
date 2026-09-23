@@ -504,6 +504,11 @@
   }
 }
 
+<!-- Daily Gemini investment ideas (once per login day) -->
+@if (!isAuthPage()) {
+  <app-daily-ideas-card [paused]="showWhatsNewModal() || tourService.isActive() || !tourService.isCompleted()" />
+}
+
 <!-- Mobile Bottom Navigation Bar (PWA - visible only on mobile) -->
 @if (!isAuthPage()) {
 <nav class="fixed bottom-0 left-0 right-0 z-40 md:hidden border-t backdrop-blur-xl"

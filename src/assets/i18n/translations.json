@@ -16,6 +16,30 @@
       "stale": "Today's scores are not ready. Open the dashboard to refresh.",
       "openDashboard": "Open dashboard"
     },
+    "dailyIdeas": {
+      "title": "New investment ideas",
+      "subtitle": "A Gemini card for today. Close it and it stays away until you log in tomorrow.",
+      "loading": "Asking Gemini for today's ideas…",
+      "close": "Close",
+      "gotIt": "Got it",
+      "risk": "Watch-out",
+      "gemini": "Gemini",
+      "offline": "Offline",
+      "localHeadline": "Ideas from your watchlist while Gemini is offline.",
+      "localThesis": "{name} is on your list ({change} today). Consider a staged buy only if this still looks like a dip.",
+      "localRisk": "Local note from your watchlist — not a model view.",
+      "emptyChange": "no quote yet",
+      "horizons": {
+        "short": "Short term",
+        "medium": "Medium term",
+        "long": "Long term"
+      },
+      "convictions": {
+        "high": "High conviction",
+        "medium": "Medium conviction",
+        "low": "Low conviction"
+      }
+    },
     "dashboard": {
       "title": "Dashboard",
       "subtitle": "Overview of your stock portfolios",
@@ -456,6 +480,30 @@
       "stale": "आज के स्कोर तैयार नहीं। रिफ्रेश के लिए डैशबोर्ड खोलें।",
       "openDashboard": "डैशबोर्ड खोलें"
     },
+    "dailyIdeas": {
+      "title": "नए निवेश आइडिया",
+      "subtitle": "आज का जेमिनी कार्ड। बंद करें तो अगले लॉगिन वाले दिन तक नहीं दिखेगा।",
+      "loading": "जेमिनी से आज के आइडिया माँग रहे हैं…",
+      "close": "बंद करें",
+      "gotIt": "समझ गया",
+      "risk": "सावधानी",
+      "gemini": "जेमिनी",
+      "offline": "ऑफ़लाइन",
+      "localHeadline": "जेमिनी ऑफ़लाइन है, इसलिए ये आइडिया आपकी वॉचलिस्ट से हैं।",
+      "localThesis": "{name} आपकी लिस्ट में है (आज {change})। स्टेज खरीद तभी सोचें जब यह डिप लगे।",
+      "localRisk": "वॉचलिस्ट का स्थानीय नोट — मॉडल की राय नहीं।",
+      "emptyChange": "अभी कोट नहीं",
+      "horizons": {
+        "short": "छोटी अवधि",
+        "medium": "मध्यम अवधि",
+        "long": "लंबी अवधि"
+      },
+      "convictions": {
+        "high": "ऊँचा विश्वास",
+        "medium": "मध्यम विश्वास",
+        "low": "कम विश्वास"
+      }
+    },
     "dashboard": {
       "title": "डैशबोर्ड",
       "subtitle": "आपके स्टॉक पोर्टफोलियो का अवलोकन",
@@ -895,6 +943,30 @@
       "empty": "अजून खरेदी/वॉच नावे नाहीत. कोट्स आल्यावर डॅशबोर्ड उघडा.",
       "stale": "आजचे स्कोर तयार नाहीत. रिफ्रेशसाठी डॅशबोर्ड उघडा.",
       "openDashboard": "डॅशबोर्ड उघडा"
+    },
+    "dailyIdeas": {
+      "title": "नवीन गुंतवणूक कल्पना",
+      "subtitle": "आजचे जेमिनी कार्ड. बंद केल्यावर पुढच्या लॉगिन दिवसापर्यंत दिसणार नाही.",
+      "loading": "जेमिनीकडे आजच्या कल्पना मागत आहोत…",
+      "close": "बंद करा",
+      "gotIt": "समजले",
+      "risk": "जपून",
+      "gemini": "जेमिनी",
+      "offline": "ऑफलाइन",
+      "localHeadline": "जेमिनी ऑफलाइन आहे, म्हणून या कल्पना तुमच्या वॉचलिस्टमधून आहेत.",
+      "localThesis": "{name} तुमच्या यादीत आहे (आज {change}). स्टेज खरेदी फक्त डिप वाटली तर.",
+      "localRisk": "वॉचलिस्टची स्थानिक नोंद — मॉडेलचे मत नाही.",
+      "emptyChange": "अजून कोट नाही",
+      "horizons": {
+        "short": "अल्प मुदत",
+        "medium": "मध्यम मुदत",
+        "long": "दीर्घ मुदत"
+      },
+      "convictions": {
+        "high": "उच्च विश्वास",
+        "medium": "मध्यम विश्वास",
+        "low": "कमी विश्वास"
+      }
     },
     "dashboard": {
       "title": "डॅशबोर्ड",
