@@ -124,6 +124,45 @@ const PREDICT_SCHEMA = {
   required: ['summary', 'marketTone', 'picks'],
 };
 
+const IDEAS_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    headline: {
+      type: 'STRING',
+      description: 'One sentence introducing today’s three ideas',
+    },
+    ideas: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          symbol: { type: 'STRING' },
+          horizon: {
+            type: 'STRING',
+            format: 'enum',
+            enum: ['short', 'medium', 'long'],
+          },
+          conviction: {
+            type: 'STRING',
+            format: 'enum',
+            enum: ['high', 'medium', 'low'],
+          },
+          thesis: {
+            type: 'STRING',
+            description: 'Why this watched name is an idea today, under 28 words',
+          },
+          riskNote: {
+            type: 'STRING',
+            description: 'Main risk if acting on this idea, under 18 words',
+          },
+        },
+        required: ['symbol', 'horizon', 'conviction', 'thesis', 'riskNote'],
+      },
+    },
+  },
+  required: ['headline', 'ideas'],
+};
+
 function readApiKey(env) {
   return String(env?.GEMINI_API_KEY || '')
     .trim()
@@ -338,6 +377,81 @@ function buildAllocatePrompt({ budget, stocks, currency }) {
     'Candidates:',
     ...stockLines(stocks),
   ].join('\n');
+}
+
+export function buildIdeasPrompt({ stocks, currency }) {
+  return [
+    'You are an idea assistant for Dip Hunter, an Indian NSE/BSE buy-the-dip planner.',
+    'Indian cash session is 09:15–15:30 IST; do not assume US market hours or US ticker suffixes.',
+    'Pick exactly 3 investment ideas from ONLY the listed watched stocks.',
+    'Prefer names the user does not already hold heavily, and modest pullbacks over single-name collapses.',
+    'Do not invent symbols, prices, or news. Each thesis under 28 words. This is decision support, not financial advice.',
+    '',
+    `Currency: ${currency || 'INR'}`,
+    'Watched names:',
+    ...stockLines(stocks),
+  ].join('\n');
+}
+
+function normalizeIdeas(stocks, rawIdeas) {
+  const bySymbol = new Map(stocks.map((stock) => [stock.symbol, stock]));
+  const ideas = [];
+  const seen = new Set();
+
+  for (const row of Array.isArray(rawIdeas) ? rawIdeas : []) {
+    const stock = bySymbol.get(String(row?.symbol || '').trim());
+    if (!stock || seen.has(stock.symbol)) continue;
+    seen.add(stock.symbol);
+    ideas.push({
+      symbol: stock.symbol,
+      displayName: stock.displayName || stock.symbol,
+      horizon: ['short', 'medium', 'long'].includes(row.horizon) ? row.horizon : 'medium',
+      conviction: ['high', 'medium', 'low'].includes(row.conviction) ? row.conviction : 'medium',
+      thesis: String(row.thesis || 'Watched name worth a closer look today.').slice(0, 280),
+      riskNote: String(row.riskNote || 'Prices can keep falling after a dip.').slice(0, 180),
+    });
+    if (ideas.length >= 3) break;
+  }
+
+  return ideas;
+}
+
+async function handleIdeas(body, env) {
+  const stocks = Array.isArray(body.stocks) ? body.stocks : [];
+  const currency = body.currency || 'INR';
+  const stockError = validateStocks(stocks);
+  if (stockError) return stockError;
+
+  const apiKey = readApiKey(env);
+  const { data: raw, model } = await withModelFallback(env, (modelId) =>
+    callGemini({
+      apiKey,
+      model: modelId,
+      prompt: buildIdeasPrompt({ stocks, currency }),
+      schema: IDEAS_SCHEMA,
+    })
+  );
+
+  const ideas = normalizeIdeas(stocks, raw.ideas);
+  if (ideas.length === 0) {
+    return {
+      statusCode: 502,
+      body: { error: 'Gemini returned no usable ideas', code: 'GEMINI_IDEAS_FAILED' },
+    };
+  }
+
+  return {
+    statusCode: 200,
+    body: {
+      ideas: {
+        headline: String(raw.headline || 'Three ideas from your watchlist.'),
+        ideas,
+        provider: 'gemini',
+        model,
+        disclaimer: DISCLAIMER,
+      },
+    },
+  };
 }
 
 export function buildPredictPrompt({ stocks, currency }) {
@@ -599,6 +713,9 @@ export async function handleAiRequest(body, env) {
     if (action === 'chat') {
       return await handleChat(body, env);
     }
+    if (action === 'ideas') {
+      return await handleIdeas(body, env);
+    }
     return { statusCode: 400, body: { error: `Unsupported action: ${action}` } };
   } catch (err) {
     console.error(`[ai] Gemini ${action} failed:`, err.message);
@@ -608,7 +725,9 @@ export async function handleAiRequest(body, env) {
         ? 'GEMINI_PREDICT_FAILED'
         : action === 'chat'
           ? 'GEMINI_CHAT_FAILED'
-          : 'GEMINI_ALLOCATE_FAILED';
+          : action === 'ideas'
+            ? 'GEMINI_IDEAS_FAILED'
+            : 'GEMINI_ALLOCATE_FAILED';
     return {
       statusCode: status,
       body: {

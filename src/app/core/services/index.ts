@@ -25,3 +25,4 @@ export * from './supabase-client.service';
 export * from './cloud-sync.service';
 export * from './dip-signal.service';
 export * from './reco-inbox.service';
+export * from './daily-ideas.service';

@@ -126,6 +126,43 @@ export interface AiChatResponse {
   disclaimer?: string;
 }
 
+export type IdeaHorizon = 'short' | 'medium' | 'long';
+export type IdeaConviction = 'high' | 'medium' | 'low';
+
+/** One Gemini (or local fallback) idea shown on the daily login card. */
+export interface InvestmentIdea {
+  symbol: string;
+  displayName: string;
+  thesis: string;
+  horizon: IdeaHorizon;
+  conviction: IdeaConviction;
+  riskNote: string;
+}
+
+export interface DailyIdeasBrief {
+  asOfDate: string;
+  headline: string;
+  ideas: InvestmentIdea[];
+  provider: 'gemini' | 'local';
+  model?: string;
+  disclaimer: string;
+}
+
+export interface AiIdeasRequest {
+  action: 'ideas';
+  currency?: string;
+  stocks: AiAllocateStockInput[];
+}
+
+export interface AiIdeasResponse {
+  ideas?: {
+    headline?: string;
+    ideas?: Array<Partial<InvestmentIdea> & { symbol: string }>;
+    model?: string;
+    disclaimer?: string;
+  };
+}
+
 export interface PlanItem {
   stockId: string;
   symbol: string;

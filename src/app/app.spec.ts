@@ -11,6 +11,7 @@ import { AuthService } from './core/services/auth.service';
 import { TourService } from './core/services/tour.service';
 import { WhatsNewService } from './core/services/whats-new.service';
 import { FinanceBuddyService } from './core/services/finance-buddy.service';
+import { DailyIdeasService } from './core/services/daily-ideas.service';
 import { DEFAULT_USER } from './core/models/user.model';
 import { WhatsNewRelease } from './core/config/app-release.config';
 
@@ -74,6 +75,14 @@ const mockFinanceBuddyService = {
   suggestedPrompts: vi.fn().mockReturnValue([]),
 };
 
+const mockDailyIdeasService = {
+  visible: signal(false),
+  loading: signal(false),
+  brief: signal(null),
+  presentToday: vi.fn(),
+  dismiss: vi.fn(),
+};
+
 const releaseFixture: WhatsNewRelease = {
   version: '1.1.0',
   date: '2026-04-29',
@@ -95,6 +104,7 @@ describe('App', () => {
         { provide: TourService, useValue: mockTourService },
         { provide: WhatsNewService, useValue: mockWhatsNewService },
         { provide: FinanceBuddyService, useValue: mockFinanceBuddyService },
+        { provide: DailyIdeasService, useValue: mockDailyIdeasService },
         { provide: SwUpdate, useValue: mockSwUpdate },
       ],
     }).compileComponents();
