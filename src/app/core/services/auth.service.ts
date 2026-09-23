@@ -11,6 +11,7 @@ import {
   validatePassword
 } from '../models/auth.model';
 import { SupabaseClientService } from './supabase-client.service';
+import { toUserAuthMessage } from '../utils/auth-error';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -121,17 +122,7 @@ export class AuthService {
   }
 
   private mapSupabaseError(message: string): string {
-    const lower = message.toLowerCase();
-    if (lower.includes('email not confirmed')) {
-      return 'Please confirm your email before signing in. Check your inbox for the Dip Hunter link.';
-    }
-    if (lower.includes('invalid login credentials')) {
-      return 'Invalid email or password.';
-    }
-    if (lower.includes('user already registered')) {
-      return 'An account with this email already exists. Please login instead.';
-    }
-    return message;
+    return toUserAuthMessage(message);
   }
 
   /**

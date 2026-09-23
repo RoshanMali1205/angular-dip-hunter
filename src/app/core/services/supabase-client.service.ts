@@ -9,6 +9,7 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
+import { supabaseFetch } from '../utils/supabase-fetch';
 
 export interface PublicSupabaseConfig {
   supabaseUrl?: string;
@@ -63,6 +64,9 @@ export class SupabaseClientService {
               autoRefreshToken: true,
               detectSessionInUrl: true,
               flowType: 'pkce',
+            },
+            global: {
+              fetch: supabaseFetch,
             },
           })
         : null;
