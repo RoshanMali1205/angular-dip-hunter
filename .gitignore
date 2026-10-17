@@ -46,8 +46,11 @@ Thumbs.db
 # Temp files
 temp_lang.ts
 
-# AI assistant local notes
-.claude/
+# Claude Code: track project config; ignore local-only scratch
+.claude/*
+!.claude/CLAUDE.md
+!.claude/agents/
+!.claude/agents/**
 
 # Local Netlify folder
 .netlify

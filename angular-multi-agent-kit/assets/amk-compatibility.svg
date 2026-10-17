@@ -1,0 +1,43 @@
+<!-- amk.theme.v1 / slate-ember  Tool compatibility -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-label="AMK tool compatibility">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="1200" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="420" rx="24" fill="url(#bg4)"/>
+  <text x="48" y="56" fill="#F8FAFC" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="700">Compatibility surfaces</text>
+  <text x="48" y="88" fill="#94A3B8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16">One source of truth · synced into each tools expected path</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif" text-anchor="middle">
+    <rect x="80" y="140" width="240" height="200" rx="18" fill="#334155" stroke="#E11D48" stroke-width="2"/>
+    <text x="200" y="190" fill="#F8FAFC" font-size="18" font-weight="700">Canonical kit</text>
+    <text x="200" y="224" fill="#94A3B8" font-size="13">angular-multi-agent-kit/</text>
+    <text x="200" y="248" fill="#94A3B8" font-size="13">agents/*.md</text>
+    <text x="200" y="288" fill="#14B8A6" font-size="13" font-weight="600">npm run amk:sync</text>
+
+    <rect x="400" y="140" width="220" height="200" rx="18" fill="#1E293B" stroke="#475569" stroke-width="1.5"/>
+    <text x="510" y="190" fill="#F8FAFC" font-size="18" font-weight="700">GitHub Copilot</text>
+    <text x="510" y="224" fill="#94A3B8" font-size="13">.github/agents/</text>
+    <text x="510" y="248" fill="#94A3B8" font-size="13">*.agent.md</text>
+    <text x="510" y="280" fill="#94A3B8" font-size="13">copilot-instructions.md</text>
+
+    <rect x="660" y="140" width="220" height="200" rx="18" fill="#1E293B" stroke="#475569" stroke-width="1.5"/>
+    <text x="770" y="190" fill="#F8FAFC" font-size="18" font-weight="700">Claude Code</text>
+    <text x="770" y="224" fill="#94A3B8" font-size="13">.claude/agents/</text>
+    <text x="770" y="248" fill="#94A3B8" font-size="13">*.md</text>
+    <text x="770" y="280" fill="#94A3B8" font-size="13">.claude/CLAUDE.md</text>
+
+    <rect x="920" y="140" width="200" height="200" rx="18" fill="#1E293B" stroke="#475569" stroke-width="1.5"/>
+    <text x="1020" y="190" fill="#F8FAFC" font-size="18" font-weight="700">Any agent</text>
+    <text x="1020" y="224" fill="#94A3B8" font-size="13">AGENTS.md</text>
+    <text x="1020" y="248" fill="#94A3B8" font-size="13">repo root</text>
+    <text x="1020" y="280" fill="#94A3B8" font-size="13">shared guidance</text>
+  </g>
+
+  <g stroke="#64748B" stroke-width="2" fill="none">
+    <path d="M320 240 H400"/>
+    <path d="M320 240 C360 240 360 180 400 180" opacity="0"/>
+  </g>
+</svg>

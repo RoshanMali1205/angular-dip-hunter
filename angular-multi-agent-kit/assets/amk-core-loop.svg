@@ -1,0 +1,45 @@
+<!-- amk.theme.v1 / slate-ember  Core control loop -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-label="AMK core loop">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1200" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="420" rx="24" fill="url(#bg2)"/>
+  <text x="48" y="56" fill="#F8FAFC" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="700">Core loop</text>
+  <text x="48" y="88" fill="#94A3B8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16">Request enters orchestration; evidence leaves as summary + tests</text>
+
+  <!-- center orchestrator -->
+  <circle cx="600" cy="240" r="78" fill="#E11D48"/>
+  <text x="600" y="234" text-anchor="middle" fill="#F8FAFC" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">Orchestrator</text>
+  <text x="600" y="258" text-anchor="middle" fill="#FECACA" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">delegate · track · summarize</text>
+
+  <!-- surrounding nodes -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="600" text-anchor="middle">
+    <rect x="160" y="140" width="160" height="56" rx="12" fill="#334155"/>
+    <text x="240" y="174" fill="#F8FAFC">Planner</text>
+
+    <rect x="160" y="250" width="160" height="56" rx="12" fill="#334155"/>
+    <text x="240" y="284" fill="#F8FAFC">Implementer</text>
+
+    <rect x="880" y="140" width="160" height="56" rx="12" fill="#334155"/>
+    <text x="960" y="174" fill="#F8FAFC">Test agents</text>
+
+    <rect x="880" y="250" width="160" height="56" rx="12" fill="#334155"/>
+    <text x="960" y="284" fill="#F8FAFC">Reviewer</text>
+
+    <rect x="500" y="340" width="200" height="48" rx="12" fill="#0F766E"/>
+    <text x="600" y="370" fill="#F8FAFC">NSE/BSE specialist</text>
+  </g>
+
+  <g stroke="#64748B" stroke-width="2" fill="none" stroke-dasharray="6 6">
+    <path d="M320 168 H522"/>
+    <path d="M320 278 H522"/>
+    <path d="M678 168 H880"/>
+    <path d="M678 278 H880"/>
+    <path d="M600 318 V340"/>
+  </g>
+
+  <text x="48" y="390" fill="#64748B" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Critical review findings loop back to the owning agent before close-out.</text>
+</svg>

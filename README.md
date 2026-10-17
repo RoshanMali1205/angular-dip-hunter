@@ -16,6 +16,7 @@
 [Tech Stack](#-tech-stack) •
 [Getting Started](#-getting-started) •
 [Architecture](#-architecture) •
+[Multi-Agent Kit](#-angular-multi-agent-kit) •
 [Documentation](#-documentation)
 
 </div>
@@ -40,6 +41,7 @@
 - [Authentication](#-authentication)
 - [PWA Support](#-pwa-support)
 - [Roadmap](#-roadmap)
+- [Angular Multi-Agent Kit](#-angular-multi-agent-kit)
 - [Contributing](#-contributing)
 - [Author](#-author)
 - [License](#-license)
@@ -1247,6 +1249,28 @@ The Service Worker is enabled only in production builds and registered with `reg
 
 ---
 
+## 🤖 Angular Multi-Agent Kit
+
+Dip Hunter ships an MIT-licensed **Angular Multi-Agent Kit (AMK)** for AI-augmented engineering: specialized agents, SVG pipeline diagrams, and first-class **Claude Code** + **GitHub Copilot** compatibility.
+
+![AMK delivery pipeline](angular-multi-agent-kit/assets/amk-pipeline.svg)
+
+| Surface | Path |
+|---------|------|
+| Kit docs + SVGs | [`angular-multi-agent-kit/README.md`](angular-multi-agent-kit/README.md) |
+| Canonical agents | `angular-multi-agent-kit/agents/` |
+| Claude Code | `.claude/agents/` + `.claude/CLAUDE.md` |
+| GitHub Copilot | `.github/agents/*.agent.md` + `.github/copilot-instructions.md` |
+| Shared | `AGENTS.md` |
+
+```bash
+npm run amk:sync   # regenerate Claude Code + Copilot agent copies
+```
+
+Agents: orchestrator → planner → implementer → ui-styling → unit-test-generator → test-fixer → reviewer, plus `nse-bse-finance-buddy` for India market structure.
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please follow these steps:
@@ -1278,31 +1302,7 @@ Contributions are welcome! Please follow these steps:
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
-
-```
-MIT License
-
-Copyright (c) 2026 Roshan Mali
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-```
+This project (including the Angular Multi-Agent Kit) is licensed under the **MIT License**. See [`LICENSE`](LICENSE).
 
 ---
 
