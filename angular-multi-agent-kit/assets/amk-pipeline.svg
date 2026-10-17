@@ -1,0 +1,53 @@
+<!-- amk.theme.v1 / slate-ember  Delivery pipeline -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-label="AMK delivery pipeline">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="420" rx="24" fill="url(#bg)"/>
+  <text x="48" y="56" fill="#F8FAFC" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="700">Delivery pipeline</text>
+  <text x="48" y="88" fill="#94A3B8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16">plan ’ implement ’ style ’ test ’ fix ’ review</text>
+
+  <!-- boxes -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600" text-anchor="middle">
+    <rect x="48" y="160" width="150" height="88" rx="14" fill="#334155" stroke="#E11D48" stroke-width="2"/>
+    <text x="123" y="200" fill="#F8FAFC">1 · Plan</text>
+    <text x="123" y="224" fill="#94A3B8" font-size="12" font-weight="500">planner</text>
+
+    <rect x="238" y="160" width="150" height="88" rx="14" fill="#334155" stroke="#14B8A6" stroke-width="2"/>
+    <text x="313" y="200" fill="#F8FAFC">2 · Implement</text>
+    <text x="313" y="224" fill="#94A3B8" font-size="12" font-weight="500">implementer</text>
+
+    <rect x="428" y="160" width="150" height="88" rx="14" fill="#334155" stroke="#14B8A6" stroke-width="2"/>
+    <text x="503" y="200" fill="#F8FAFC">2b · Style</text>
+    <text x="503" y="224" fill="#94A3B8" font-size="12" font-weight="500">ui-styling</text>
+
+    <rect x="618" y="160" width="150" height="88" rx="14" fill="#334155" stroke="#F59E0B" stroke-width="2"/>
+    <text x="693" y="200" fill="#F8FAFC">3 · Tests</text>
+    <text x="693" y="224" fill="#94A3B8" font-size="12" font-weight="500">test-generator</text>
+
+    <rect x="808" y="160" width="150" height="88" rx="14" fill="#334155" stroke="#F59E0B" stroke-width="2"/>
+    <text x="883" y="200" fill="#F8FAFC">4 · Fix</text>
+    <text x="883" y="224" fill="#94A3B8" font-size="12" font-weight="500">test-fixer</text>
+
+    <rect x="998" y="160" width="150" height="88" rx="14" fill="#334155" stroke="#38BDF8" stroke-width="2"/>
+    <text x="1073" y="200" fill="#F8FAFC">5 · Review</text>
+    <text x="1073" y="224" fill="#94A3B8" font-size="12" font-weight="500">reviewer</text>
+  </g>
+
+  <!-- arrows -->
+  <g stroke="#64748B" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M198 204 H238"/>
+    <path d="M388 204 H428"/>
+    <path d="M578 204 H618"/>
+    <path d="M768 204 H808"/>
+    <path d="M958 204 H998"/>
+  </g>
+
+  <!-- specialist lane -->
+  <rect x="48" y="300" width="1104" height="72" rx="14" fill="#1E293B" stroke="#475569" stroke-width="1.5"/>
+  <text x="72" y="344" fill="#F8FAFC" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="600">Specialist lane</text>
+  <text x="220" y="344" fill="#94A3B8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">nse-bse-finance-buddy · market hours · settlement · circuits · Finance Buddy knowledge pack</text>
+</svg>

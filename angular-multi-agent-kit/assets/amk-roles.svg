@@ -1,0 +1,64 @@
+<!-- amk.theme.v1 / slate-ember  Agent roles -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-label="AMK agent roles">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1200" y2="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="520" rx="24" fill="url(#bg3)"/>
+  <text x="48" y="56" fill="#F8FAFC" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="700">Agent roles</text>
+  <text x="48" y="88" fill="#94A3B8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16">Eight specialized agents · one orchestrated workflow</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <!-- row 1 -->
+    <rect x="48" y="120" width="260" height="140" rx="16" fill="#334155"/>
+    <circle cx="84" cy="156" r="10" fill="#E11D48"/>
+    <text x="108" y="162" fill="#F8FAFC" font-size="16" font-weight="700">Orchestrator</text>
+    <text x="68" y="198" fill="#94A3B8" font-size="13">Coordinates the full pipeline</text>
+    <text x="68" y="220" fill="#94A3B8" font-size="13">and never writes code itself.</text>
+
+    <rect x="328" y="120" width="260" height="140" rx="16" fill="#334155"/>
+    <circle cx="364" cy="156" r="10" fill="#F59E0B"/>
+    <text x="388" y="162" fill="#F8FAFC" font-size="16" font-weight="700">Planner</text>
+    <text x="348" y="198" fill="#94A3B8" font-size="13">Impact analysis, subtasks,</text>
+    <text x="348" y="220" fill="#94A3B8" font-size="13">acceptance criteria.</text>
+
+    <rect x="608" y="120" width="260" height="140" rx="16" fill="#334155"/>
+    <circle cx="644" cy="156" r="10" fill="#14B8A6"/>
+    <text x="668" y="162" fill="#F8FAFC" font-size="16" font-weight="700">Implementer</text>
+    <text x="628" y="198" fill="#94A3B8" font-size="13">TypeScript, templates,</text>
+    <text x="628" y="220" fill="#94A3B8" font-size="13">services, routing.</text>
+
+    <rect x="888" y="120" width="260" height="140" rx="16" fill="#334155"/>
+    <circle cx="924" cy="156" r="10" fill="#14B8A6"/>
+    <text x="948" y="162" fill="#F8FAFC" font-size="16" font-weight="700">UI Styling</text>
+    <text x="908" y="198" fill="#94A3B8" font-size="13">HTML/CSS polish and</text>
+    <text x="908" y="220" fill="#94A3B8" font-size="13">responsive fixes.</text>
+
+    <!-- row 2 -->
+    <rect x="48" y="290" width="260" height="140" rx="16" fill="#334155"/>
+    <circle cx="84" cy="326" r="10" fill="#F59E0B"/>
+    <text x="108" y="332" fill="#F8FAFC" font-size="16" font-weight="700">Test Generator</text>
+    <text x="68" y="368" fill="#94A3B8" font-size="13">Vitest + TestBed specs</text>
+    <text x="68" y="390" fill="#94A3B8" font-size="13">for new/changed code.</text>
+
+    <rect x="328" y="290" width="260" height="140" rx="16" fill="#334155"/>
+    <circle cx="364" cy="326" r="10" fill="#F59E0B"/>
+    <text x="388" y="332" fill="#F8FAFC" font-size="16" font-weight="700">Test Fixer</text>
+    <text x="348" y="368" fill="#94A3B8" font-size="13">Mocks, async, coverage,</text>
+    <text x="348" y="390" fill="#94A3B8" font-size="13">failing assertions.</text>
+
+    <rect x="608" y="290" width="260" height="140" rx="16" fill="#334155"/>
+    <circle cx="644" cy="326" r="10" fill="#38BDF8"/>
+    <text x="668" y="332" fill="#F8FAFC" font-size="16" font-weight="700">Reviewer</text>
+    <text x="628" y="368" fill="#94A3B8" font-size="13">Severity-ranked findings</text>
+    <text x="628" y="390" fill="#94A3B8" font-size="13">and handoff guidance.</text>
+
+    <rect x="888" y="290" width="260" height="140" rx="16" fill="#334155"/>
+    <circle cx="924" cy="326" r="10" fill="#0F766E"/>
+    <text x="948" y="332" fill="#F8FAFC" font-size="16" font-weight="700">NSE/BSE Buddy</text>
+    <text x="908" y="368" fill="#94A3B8" font-size="13">India market structure</text>
+    <text x="908" y="390" fill="#94A3B8" font-size="13">and Finance Buddy pack.</text>
+  </g>
+</svg>

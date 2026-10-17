@@ -1,0 +1,14 @@
+<!-- amk.theme.v1 / slate-ember  Angular Multi-Agent Kit logo mark -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="AMK logo">
+  <defs>
+    <linearGradient id="amkBg" x1="64" y1="48" x2="448" y2="464" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#amkBg)"/>
+  <path d="M256 96 L392 400 H320 L288 320 H224 L192 400 H120 Z M240 248 H272 L256 208 Z" fill="#F8FAFC"/>
+  <circle cx="368" cy="152" r="36" fill="#E11D48"/>
+  <circle cx="404" cy="208" r="18" fill="#14B8A6"/>
+  <path d="M352 152 H404 M368 176 V208" stroke="#94A3B8" stroke-width="10" stroke-linecap="round" fill="none"/>
+</svg>
