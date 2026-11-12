@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CurrencyCode, SUPPORTED_CURRENCIES, SupportedCurrency } from '../../../core/models/currency.model';
@@ -8,6 +8,7 @@ import { ThemeService } from '../../../core/services/theme.service';
   selector: 'app-currency-selector',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="relative">
       <select

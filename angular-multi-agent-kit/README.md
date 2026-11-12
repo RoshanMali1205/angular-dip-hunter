@@ -112,7 +112,7 @@ Do not hand-edit the generated copies; change the canonical files and sync again
 
 AMK is tuned for **angular-dip-hunter**:
 
-- Angular 21 standalone + signals  
+- Angular 22 standalone + signals  
 - Tailwind CSS, Chart.js, ngx-translate  
 - Vitest via `ng test` (not Jasmine/Karma)  
 - Netlify functions + optional Supabase  

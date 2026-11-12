@@ -3,7 +3,7 @@
  * Shows top movers / selected stocks performance in table format
  */
 
-import { Component, input, inject } from '@angular/core';
+import { Component, input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StockComparison } from '../../../core/models/performance.model';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -16,6 +16,7 @@ import { getLocaleForCurrency } from '../../../shared/utils/currency.utils';
   selector: 'app-performance-table-snapshot',
   standalone: true,
   imports: [CommonModule, CurrencyDisplayPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (stocks().length > 0) {
       <div class="rounded-lg border overflow-hidden"

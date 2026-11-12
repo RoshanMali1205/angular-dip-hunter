@@ -3,16 +3,17 @@
  * Line chart displaying historical price data using Chart.js
  */
 
-import { 
-  Component, 
+import {
+  Component,
   input,
   output,
-  effect, 
-  ViewChild, 
-  ElementRef, 
+  effect,
+  ViewChild,
+  ElementRef,
   OnDestroy,
   computed,
-  inject
+  inject,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
@@ -27,6 +28,7 @@ Chart.register(...registerables);
   selector: 'app-performance-chart',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="relative w-full" [style.height]="height()">
       <!-- Loading Skeleton -->

@@ -3,7 +3,7 @@
  * Displays AI-powered portfolio insights on dashboard
  */
 
-import { Component, input, computed, inject } from '@angular/core';
+import { Component, input, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PortfolioInsightsService, PortfolioInsight } from '../../../core/services';
 import { FolderId } from '../../../core/models/folder.model';
@@ -13,6 +13,7 @@ import { ThemeService } from '../../../core/services';
   selector: 'app-portfolio-insights-card',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="rounded-xl border p-4" 
          [class.border-slate-700/50]="isDark()"

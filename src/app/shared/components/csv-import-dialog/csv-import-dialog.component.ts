@@ -1,4 +1,4 @@
-import { Component, inject, signal, output, viewChild, ElementRef } from '@angular/core';
+import { Component, inject, signal, output, viewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CsvImportService, ParseResult, ImportRow } from '../../../core/services/csv-import.service';
 import { TransactionService } from '../../../core/services/transaction.service';
@@ -9,6 +9,7 @@ import { ThemeService } from '../../../core/services/theme.service';
   selector: 'app-csv-import-dialog',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './csv-import-dialog.component.html'
 })
 export class CsvImportDialogComponent {

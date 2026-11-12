@@ -2,7 +2,7 @@
  * Drafts Page — manage named plan drafts (max 5)
  */
 
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -30,6 +30,7 @@ interface EditState {
   selector: 'app-drafts-page',
   standalone: true,
   imports: [CommonModule, FormsModule, CurrencyDisplayPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './drafts.page.html'
 })
 export class DraftsPageComponent {

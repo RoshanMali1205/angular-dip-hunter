@@ -3,7 +3,7 @@
  * Manage stocks in Growth Twenty and Dividend Ten folders
  */
 
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PortfolioService, LanguageService, ThemeService, TransactionService } from '../../core/services';
@@ -15,6 +15,7 @@ import { Stock } from '../../core/models/stock.model';
   selector: 'app-folders-page',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './folders.page.html'
 })
 export class FoldersPageComponent {

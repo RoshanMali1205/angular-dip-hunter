@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild, inject, input, output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { WhatsNewRelease, WhatsNewTag } from '../../../core/config/app-release.config';
 import { LanguageService } from '../../../core/services/language.service';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -10,6 +10,7 @@ import { WhatsNewService } from '../../../core/services/whats-new.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './whats-new-modal.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './whats-new-modal.component.css'
 })
 export class WhatsNewModalComponent implements AfterViewInit, OnDestroy {

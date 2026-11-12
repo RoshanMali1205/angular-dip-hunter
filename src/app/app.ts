@@ -1,4 +1,4 @@
-import { Component, signal, inject, HostListener, ElementRef, OnInit, DestroyRef, effect } from '@angular/core';
+import { Component, signal, inject, HostListener, ElementRef, OnInit, DestroyRef, effect, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
@@ -26,6 +26,7 @@ import { isIndependenceDayIconActive } from './core/config/independence-day.conf
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TourOverlayComponent, DialogComponent, WhatsNewModalComponent, FinanceBuddyComponent, RecoInboxComponent, DailyIdeasCardComponent],
   templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.css'
 })
 export class App implements OnInit {

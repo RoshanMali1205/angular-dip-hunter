@@ -14,7 +14,7 @@ Use **nse-bse-finance-buddy** for Indian market structure, settlement, circuits,
 
 ## Stack reminders
 
-- Angular 21 standalone + signals; Tailwind; Vitest (`vi`), not Jasmine/Karma
+- Angular 22 standalone + signals; Tailwind; Vitest (`vi`), not Jasmine/Karma
 - Minimal diffs; no new packages unless asked
 - NSE/BSE cash equities domain — never assume US market conventions
 

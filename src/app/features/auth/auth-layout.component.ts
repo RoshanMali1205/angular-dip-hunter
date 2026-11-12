@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
@@ -100,6 +100,7 @@ import { ThemeService } from '../../core/services/theme.service';
       </div>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     @keyframes pulse {
       0%, 100% { opacity: 0.1; transform: scale(1); }

@@ -3,7 +3,7 @@
  * Visible on authenticated pages so Gemini is a first-class in-app surface.
  */
 
-import { Component, ElementRef, ViewChild, effect, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, effect, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FinanceBuddyService, LanguageService, ThemeService } from '../../../core/services';
@@ -13,6 +13,7 @@ import { ChatTableColumn } from '../../../core/models/plan.model';
   selector: 'app-finance-buddy',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="fixed z-[60] right-4 bottom-24 md:bottom-6">
       @if (buddy.isOpen()) {

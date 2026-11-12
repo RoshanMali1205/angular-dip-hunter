@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect, HostListener } from '@angular/core';
+import { Component, inject, signal, effect, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogService, DialogType } from './dialog.service';
@@ -190,6 +190,7 @@ import { ThemeService } from '../../../core/services/theme.service';
       </div>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     @keyframes fadeIn {
       from { opacity: 0; }

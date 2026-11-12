@@ -17,7 +17,7 @@ Prefer:
 
 ## Stack
 
-Angular 21 standalone + signals, Tailwind, Vitest via `ng test`. India NSE/BSE cash equities only.
+Angular 22 standalone + signals, Tailwind, Vitest via `ng test`. India NSE/BSE cash equities only.
 
 ## Kit docs
 

@@ -327,7 +327,7 @@
                   [class.hover:bg-gray-50/60]="themeService.isLight()">
             @if (userService.user().avatar) {
               <img [src]="userService.user().avatar" 
-                   [alt]="authService.user()?.name"
+                   [alt]="$safeNavigationMigration(authService.user()?.name)"
                    class="h-6 w-6 rounded-full object-cover border-2 border-emerald-400/50 transition-transform duration-300 group-hover:scale-110">
             } @else {
               <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-[10px] font-bold text-white">

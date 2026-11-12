@@ -527,7 +527,7 @@
                     <td class="px-4 py-2 text-right font-bold"
                         [class.text-white]="themeService.isDark()"
                         [class.text-gray-900]="themeService.isLight()">
-                      {{ reconciliation()?.plannedTotal | currencyDisplay }}
+                      {{ $safeNavigationMigration(reconciliation()?.plannedTotal) | currencyDisplay }}
                     </td>
                     <td colspan="3"></td>
                   </tr>

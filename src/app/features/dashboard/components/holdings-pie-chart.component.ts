@@ -3,15 +3,16 @@
  * Doughnut chart displaying holdings allocation by stock or folder
  */
 
-import { 
-  Component, 
-  ElementRef, 
-  ViewChild, 
-  computed, 
-  effect, 
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  computed,
+  effect,
   input,
   inject,
-  AfterViewInit
+  AfterViewInit,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
@@ -34,6 +35,7 @@ interface ChartDataItem {
   selector: 'app-holdings-pie-chart',
   standalone: true,
   imports: [CommonModule, CurrencyDisplayPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div>
       <!-- Chart Container (relative so overlay stays inside the donut) -->
