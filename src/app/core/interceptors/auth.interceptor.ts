@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 
 /**
- * Functional HTTP Interceptor for Angular 21
+ * Functional HTTP Interceptor for Angular 22
  * Attaches Authorization Bearer token to API requests
  */
 export const authInterceptor: HttpInterceptorFn = (

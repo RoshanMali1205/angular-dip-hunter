@@ -4,7 +4,7 @@
  * Author: Roshan Mali
  */
 
-import { Component, inject, HostListener, computed } from '@angular/core';
+import { Component, inject, HostListener, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TourService } from '../../../core/services/tour.service';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -142,6 +142,7 @@ import { LanguageService } from '../../../core/services/language.service';
       </div>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host {
       display: contents;

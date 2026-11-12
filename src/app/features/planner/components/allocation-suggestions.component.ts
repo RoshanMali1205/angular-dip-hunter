@@ -12,6 +12,7 @@ import {
   signal,
   effect,
   untracked,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AllocationAdvisorService, LanguageService, ThemeService } from '../../../core/services';
@@ -23,6 +24,7 @@ import { StockViewModel } from '../../../core/models';
   selector: 'app-allocation-suggestions',
   standalone: true,
   imports: [CommonModule, CurrencyDisplayPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="rounded-xl border overflow-hidden"
          [class.border-slate-700/50]="isDark()"

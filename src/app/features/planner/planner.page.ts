@@ -3,7 +3,7 @@
  * Create and manage monthly purchase plans
  */
 
-import { Component, OnInit, signal, computed, inject, effect, untracked } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, effect, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PlannerService, QuoteService, PortfolioService, SettingsService, LanguageService, ThemeService, DraftsService } from '../../core/services';
@@ -21,6 +21,7 @@ import { buildBuyExecuteTable } from '../../shared/utils/buy-execute-table';
   selector: 'app-planner-page',
   standalone: true,
   imports: [CommonModule, FormsModule, AllocationSuggestionsComponent, CurrencyDisplayPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './planner.page.html'
 })
 export class PlannerPageComponent implements OnInit {

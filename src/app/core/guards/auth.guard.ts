@@ -3,7 +3,7 @@ import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot, Url
 import { AuthService } from '../services/auth.service';
 
 /**
- * Functional Auth Guard for Angular 21
+ * Functional Auth Guard for Angular 22
  * Protects routes that require authentication
  */
 export const authGuard: CanActivateFn = async (

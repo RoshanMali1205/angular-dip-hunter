@@ -3,8 +3,8 @@
 <div align="center">
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Angular](https://img.shields.io/badge/Angular-21.0.0-dd0031.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-3178c6.svg)
+![Angular](https://img.shields.io/badge/Angular-22.2.6-dd0031.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0.3-3178c6.svg)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.19-38bdf8.svg)
 ![PWA](https://img.shields.io/badge/PWA-Enabled-5a0fc8.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -50,7 +50,7 @@
 
 ## 🎯 Overview
 
-**Dip Hunter** is a personal stock portfolio management application built with **Angular 21**. It helps investors track and manage their investments using the "Buy the Dip" strategy — purchasing stocks when they decline from their recent highs.
+**Dip Hunter** is a personal stock portfolio management application built with **Angular 22**. It helps investors track and manage their investments using the "Buy the Dip" strategy — purchasing stocks when they decline from their recent highs.
 
 The application manages a **split-portfolio structure**:
 - **Growth Twenty (G20)**: 20 high-growth potential stocks
@@ -195,23 +195,23 @@ The application manages a **split-portfolio structure**:
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| Angular | 21.0.0 | Frontend framework |
-| TypeScript | 5.9.2 | Programming language |
-| RxJS | 7.8.0 | Reactive programming |
+| Angular | 22.2.6 | Frontend framework |
+| TypeScript | 6.0.3 | Programming language |
+| RxJS | 7.8.2 | Reactive programming |
 
 ### UI & Styling
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | Tailwind CSS | 3.4.19 | Utility-first CSS framework |
-| PostCSS | 8.5.6 | CSS processing |
-| Autoprefixer | 10.4.23 | CSS vendor prefixes |
+| PostCSS | 8.5.32 | CSS processing |
+| Autoprefixer | 10.6.2 | CSS vendor prefixes |
 
 ### Charts & Visualization
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| Chart.js | 4.5.1 | Performance and analytics charts |
+| Chart.js | 4.6.1 | Performance and analytics charts |
 | ng2-charts | 8.0.0 | Angular Chart.js wrapper |
 
 ### State Management
@@ -223,14 +223,14 @@ The application manages a **split-portfolio structure**:
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| Vitest | 4.0.8 | Unit test runner |
-| jsdom | 27.1.0 | DOM testing environment |
+| Vitest | 4.1.12 | Unit test runner |
+| jsdom | 27.4.0 | DOM testing environment |
 
 ### PWA
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| @angular/service-worker | 21.1.1 | Service Worker and offline caching |
+| @angular/service-worker | 22.2.6 | Service Worker and offline caching |
 
 ### Storage
 - **LocalStorage** — Persistent client-side storage
@@ -244,7 +244,7 @@ The application manages a **split-portfolio structure**:
 
 ```bash
 # Required
-Node.js >= 20.x (LTS recommended)
+Node.js ^22.22.3, ^24.15.0, or ^26.0.0 (Angular 22)
 npm >= 11.x
 
 # Optional (for global Angular CLI)

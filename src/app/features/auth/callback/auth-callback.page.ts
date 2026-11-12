@@ -2,7 +2,7 @@
  * Handles Supabase email-link callbacks (confirm signup + password recovery).
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -15,6 +15,7 @@ import { LanguageService } from '../../../core/services/language.service';
   selector: 'app-auth-callback',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="flex min-h-[40vh] flex-col items-center justify-center gap-3 px-6 text-center">
       <p class="text-sm"

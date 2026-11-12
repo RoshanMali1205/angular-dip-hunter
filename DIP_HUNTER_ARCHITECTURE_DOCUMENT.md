@@ -1843,7 +1843,7 @@ api.interceptors.request.use((config) => {
 
 ```
 You are an expert React/TypeScript developer. Your task is to convert the 
-"Dip Hunter" Angular 21 application into a production-ready React application 
+"Dip Hunter" Angular 22 application into a production-ready React application 
 with IDENTICAL UI and functionality.
 
 CRITICAL REQUIREMENTS:

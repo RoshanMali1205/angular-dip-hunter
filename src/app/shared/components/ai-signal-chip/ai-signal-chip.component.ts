@@ -3,7 +3,7 @@
  * Table cells are tight, so the why-text opens on tap (works on mobile too).
  */
 
-import { Component, ElementRef, HostListener, input, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, input, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DipPick } from '../../../core/models/plan.model';
 import { LanguageService, ThemeService } from '../../../core/services';
@@ -13,6 +13,7 @@ import { dipActionDotClasses, dipActionPillClasses } from '../../utils/dip-signa
   selector: 'app-ai-signal-chip',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <button
       type="button"

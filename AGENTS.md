@@ -4,11 +4,11 @@ Shared guidance for AI coding agents working in this repository.
 
 ## Product
 
-**Dip Hunter** is an Angular 21 PWA for Indian NSE/BSE investors following a buy-the-dip strategy (Growth 20 + Dividend 10 portfolios, monthly planner, transactions, analytics, Finance Buddy chat).
+**Dip Hunter** is an Angular 22 PWA for Indian NSE/BSE investors following a buy-the-dip strategy (Growth 20 + Dividend 10 portfolios, monthly planner, transactions, analytics, Finance Buddy chat).
 
 ## Stack
 
-- Angular 21 standalone components + signals
+- Angular 22 standalone components + signals
 - Tailwind CSS, Chart.js / ng2-charts, `@ngx-translate`
 - Vitest via `ng test` (use `vi` from `vitest`, not Jasmine/Karma)
 - Netlify functions under `netlify/functions/`

@@ -3,7 +3,7 @@
  * Main dashboard with folder view, KPIs, stock list, and red candidates
  */
 
-import { Component, OnInit, OnDestroy, signal, computed, inject, effect, untracked } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, effect, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -60,6 +60,7 @@ export interface ProgressMetric {
     CurrencyDisplayPipe,
     AiSignalChipComponent
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './dashboard.page.html'
 })
 export class DashboardPageComponent implements OnInit, OnDestroy {

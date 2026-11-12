@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal, ViewChild, ElementRef, AfterViewInit, inject, effect } from '@angular/core';
+import { Component, OnInit, computed, signal, ViewChild, ElementRef, AfterViewInit, inject, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { TransactionService } from '../../core/services/transaction.service';
@@ -43,6 +43,7 @@ interface SectorAllocationData {
   selector: 'app-analytics-page',
   standalone: true,
   imports: [CommonModule, SkeletonCardComponent, CurrencyDisplayPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './analytics.page.html'
 })
 export class AnalyticsPageComponent implements OnInit, AfterViewInit {

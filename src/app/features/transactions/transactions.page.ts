@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal, inject } from '@angular/core';
+import { Component, OnInit, computed, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TransactionService } from '../../core/services/transaction.service';
@@ -39,6 +39,7 @@ interface DividendFormData {
   selector: 'app-transactions-page',
   standalone: true,
   imports: [CommonModule, FormsModule, CsvImportDialogComponent, CurrencyDisplayPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './transactions.page.html'
 })
 export class TransactionsPageComponent implements OnInit {

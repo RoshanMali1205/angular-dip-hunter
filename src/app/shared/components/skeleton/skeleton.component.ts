@@ -3,7 +3,7 @@
  * Reusable skeleton loading components for all pages
  */
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Base skeleton pulse animation
@@ -13,6 +13,7 @@ const skeletonBaseClasses = 'animate-pulse rounded';
   selector: 'app-skeleton',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div [class]="getClasses()" [style.width]="width" [style.height]="height"></div>
   `
@@ -34,6 +35,7 @@ export class SkeletonComponent {
   selector: 'app-skeleton-card',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="rounded-xl border p-4"
          [class.border-slate-700/50]="isDark"
@@ -59,6 +61,7 @@ export class SkeletonCardComponent {
   selector: 'app-skeleton-table-row',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <tr class="border-b"
         [class.border-slate-700/50]="isDark"
@@ -83,6 +86,7 @@ export class SkeletonTableRowComponent {
   selector: 'app-skeleton-stock-row',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <tr class="border-b"
         [class.border-slate-700/50]="isDark"
@@ -138,6 +142,7 @@ export class SkeletonStockRowComponent {
   selector: 'app-skeleton-transaction-row',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <tr class="border-b"
         [class.border-slate-700/50]="isDark"
@@ -183,6 +188,7 @@ export class SkeletonTransactionRowComponent {
   selector: 'app-skeleton-chart',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="rounded-xl border p-6"
          [class.border-slate-700/50]="isDark"
@@ -213,6 +219,7 @@ export class SkeletonChartComponent {
   selector: 'app-skeleton-folder-card',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="rounded-xl border p-4"
          [class.border-slate-700/50]="isDark"
@@ -258,6 +265,7 @@ export class SkeletonFolderCardComponent {
   selector: 'app-skeleton-plan-card',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="rounded-xl border p-4"
          [class.border-slate-700/50]="isDark"
@@ -302,6 +310,7 @@ export class SkeletonPlanCardComponent {
   selector: 'app-skeleton-settings-section',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="rounded-xl border p-6"
          [class.border-slate-700/50]="isDark"

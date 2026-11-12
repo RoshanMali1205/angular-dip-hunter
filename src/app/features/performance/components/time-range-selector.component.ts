@@ -3,7 +3,7 @@
  * Displays chips/tabs for selecting performance time range
  */
 
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HistoryRange, TIME_RANGE_OPTIONS, TimeRangeOption } from '../../../core/models/performance.model';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -33,6 +33,7 @@ import { ThemeService } from '../../../core/services/theme.service';
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .scrollbar-hide {
       -ms-overflow-style: none;

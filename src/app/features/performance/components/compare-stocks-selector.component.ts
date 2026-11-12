@@ -3,7 +3,7 @@
  * Multi-select dropdown for comparing stocks in a folder
  */
 
-import { Component, input, output, signal, computed, inject } from '@angular/core';
+import { Component, input, output, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Stock } from '../../../core/models/stock.model';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -13,6 +13,7 @@ import { LanguageService } from '../../../core/services/language.service';
   selector: 'app-compare-stocks-selector',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="relative">
       <!-- Trigger Button -->

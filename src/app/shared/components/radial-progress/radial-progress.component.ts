@@ -3,13 +3,14 @@
  * SVG-based radial progress indicator with customizable colors and labels
  */
 
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-radial-progress',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="relative flex flex-col items-center">
       <!-- SVG Radial -->

@@ -3,7 +3,7 @@
  * Main page for viewing stock/folder performance over time ranges
  */
 
-import { Component, OnInit, computed, signal, inject, effect } from '@angular/core';
+import { Component, OnInit, computed, signal, inject, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { 
   HistoryRange, 
@@ -49,6 +49,7 @@ const CHART_COLORS = [
     CompareStocksSelectorComponent,
     PerformanceTableSnapshotComponent
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './performance.page.html'
 })
 export class PerformancePageComponent implements OnInit {

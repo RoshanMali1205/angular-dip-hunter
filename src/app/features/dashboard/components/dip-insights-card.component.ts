@@ -3,7 +3,7 @@
  * Ranked buy-the-dip picks from Gemini, with local heuristic fallback.
  */
 
-import { Component, input, output, inject, computed } from '@angular/core';
+import { Component, input, output, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService, LanguageService } from '../../../core/services';
 import { DipAction, DipPick, DipPrediction } from '../../../core/models/plan.model';
@@ -14,6 +14,7 @@ import { dipActionDotClasses, dipActionPillClasses, dipScoreTextClasses } from '
   selector: 'app-dip-insights-card',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="rounded-xl border overflow-hidden"
          [class.border-slate-700/50]="isDark()"

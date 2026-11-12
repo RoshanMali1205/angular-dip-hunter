@@ -3,7 +3,7 @@
  * Displays KPI cards: Start Price, End Price, Absolute Change, Percentage Change
  */
 
-import { Component, input, inject } from '@angular/core';
+import { Component, input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PerformanceSummary } from '../../../core/models/performance.model';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -14,6 +14,7 @@ import { CurrencyDisplayPipe } from '../../../shared/pipes/currency-display.pipe
   selector: 'app-performance-summary-cards',
   standalone: true,
   imports: [CommonModule, CurrencyDisplayPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <!-- Loading Skeleton -->
     @if (isLoading()) {

@@ -3,7 +3,7 @@
  * Closing it dismisses the card until the next IST day.
  */
 
-import { Component, HostListener, effect, inject, input, untracked } from '@angular/core';
+import { Component, HostListener, effect, inject, input, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DailyIdeasService } from '../../../core/services/daily-ideas.service';
 import { LanguageService } from '../../../core/services/language.service';
@@ -14,6 +14,7 @@ import { InvestmentIdea } from '../../../core/models/plan.model';
   selector: 'app-daily-ideas-card',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (!paused() && ideas.visible()) {
       <div class="fixed inset-0 z-[9990] flex items-end sm:items-center justify-center p-4">

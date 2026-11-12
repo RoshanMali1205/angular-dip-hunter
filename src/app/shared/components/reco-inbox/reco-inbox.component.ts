@@ -3,7 +3,7 @@
  * Opens on demand — not an hourly popup.
  */
 
-import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LanguageService, RecoInboxService, ThemeService } from '../../../core/services';
@@ -14,6 +14,7 @@ import { dipActionPillClasses, dipScoreTextClasses } from '../../utils/dip-signa
   selector: 'app-reco-inbox',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="relative z-[200] reco-inbox-container">
       <button

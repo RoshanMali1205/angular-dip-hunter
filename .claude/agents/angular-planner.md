@@ -32,7 +32,7 @@ Return a structured plan with:
 
 ## Repository Constraints
 
-- Angular 21 standalone components + signals
+- Angular 22 standalone components + signals
 - Tailwind CSS + Chart.js / ng2-charts
 - Vitest (not Jasmine/Karma) via `ng test`
 - Prefer existing services and patterns; do not propose new packages unless required

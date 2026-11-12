@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal, inject } from '@angular/core';
+import { Component, OnInit, computed, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../core/services/settings.service';
@@ -19,6 +19,7 @@ import { RedRuleType, QuoteDataSource } from '../../core/models/settings.model';
   selector: 'app-settings-page',
   standalone: true,
   imports: [CommonModule, FormsModule, CurrencySelectorComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './settings.page.html'
 })
 export class SettingsPageComponent implements OnInit {
